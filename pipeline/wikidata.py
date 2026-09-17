@@ -6,7 +6,9 @@
 import requests
 
 API_URL = "https://www.wikidata.org/w/api.php"
-HEADERS = {"User-Agent": "OpenGujiMVP/0.1 (personal open-knowledge project)"}
+USER_AGENT = ("DimensionsCosmosBot/0.1 "
+              "(https://github.com/aidulibrary/DimensionsCosmos; contact via repo issues)")
+HEADERS = {"User-Agent": USER_AGENT, "Api-User-Agent": USER_AGENT}
 
 BOOK_HINTS = ("书", "書", "籍", "典", "著", "史", "集", "经", "經",
               "诗", "詩", "小说", "小說", "作品", "文献", "文獻")

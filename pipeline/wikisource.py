@@ -7,17 +7,21 @@ import time
 import requests
 
 API_URL = "https://zh.wikisource.org/w/api.php"
-USER_AGENT = "OpenGujiMVP/0.1 (personal open-knowledge project)"
+# Wikimedia 机器人政策：数据中心 IP（如 GitHub Actions）对 UA 审查严格，
+# 必须带项目名 + 联系地址，否则直接 403。
+USER_AGENT = ("DimensionsCosmosBot/0.1 "
+              "(https://github.com/aidulibrary/DimensionsCosmos; contact via repo issues)")
 
 # 维基文库的"全覽"页是整部书的聚合页，抓它会把全书重复存一遍
 SKIP_SUBPAGE_MARKERS = ("全覽", "全文")
 
 _session = requests.Session()
-_session.headers.update({"User-Agent": USER_AGENT})
+_session.headers.update({"User-Agent": USER_AGENT, "Api-User-Agent": USER_AGENT})
 
 
 def _get(params, retries=4):
-    payload = {"format": "json", "formatversion": "2", "maxlag": "5"}
+    # 不带 maxlag：它是给写操作用的，读请求带上反而可能被拒
+    payload = {"format": "json", "formatversion": "2"}
     payload.update(params)
     delay = 1.0
     last_err = None
