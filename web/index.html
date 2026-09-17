@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>维点图书馆 · DimensionsCosmos Library</title>
+<meta name="description" content="把中华经典变成你读得懂的知识：公版古籍全文 + AI 三层导读 + 开放可导出。CC BY-SA。">
+<style>
+  :root {
+    --paper: #f7f2e8;
+    --paper-deep: #efe7d6;
+    --ink: #2b2926;
+    --ink-soft: #6b655c;
+    --cinnabar: #9e2b25;
+    --cinnabar-deep: #7e211c;
+    --line: #ddd2bd;
+    --gold: #b8934a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+    line-height: 1.7;
+  }
+
+  /* ---------- 导航 ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 6vw;
+    background: rgba(247, 242, 232, .92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
+  .seal {
+    width: 42px; height: 42px; border-radius: 6px;
+    background: var(--cinnabar); color: #fff;
+    display: grid; place-items: center;
+    font-size: 15px; font-weight: 700; letter-spacing: 2px;
+    writing-mode: vertical-rl;
+    box-shadow: 2px 2px 0 rgba(43,41,38,.18);
+  }
+  .brand b { font-size: 20px; letter-spacing: 4px; }
+  .brand small { display: block; font-size: 11px; color: var(--ink-soft); letter-spacing: 1px; }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a { color: var(--ink-soft); text-decoration: none; font-size: 15px; }
+  .nav-links a:hover { color: var(--cinnabar); }
+  .nav-cta {
+    background: var(--ink); color: var(--paper) !important;
+    padding: 8px 18px; border-radius: 4px; font-size: 14px !important;
+  }
+
+  /* ---------- 首屏 ---------- */
+  .hero {
+    display: grid; grid-template-columns: 1.1fr .9fr; gap: 5vw;
+    align-items: center; padding: 72px 6vw 56px;
+  }
+  .hero-kicker {
+    display: inline-block; font-size: 13px; letter-spacing: 3px;
+    color: var(--cinnabar); border: 1px solid var(--cinnabar);
+    padding: 3px 12px; border-radius: 999px; margin-bottom: 22px;
+  }
+  .hero h1 { font-size: clamp(34px, 4.6vw, 58px); line-height: 1.3; letter-spacing: 2px; }
+  .hero h1 em { font-style: normal; color: var(--cinnabar); }
+  .hero p.motto {
+    margin-top: 16px; font-size: 18px; letter-spacing: 6px;
+    color: var(--cinnabar);
+  }
+  .hero p.sub { margin: 14px 0 30px; color: var(--ink-soft); font-size: 17px; max-width: 34em; }
+  .hero-search {
+    display: flex; max-width: 520px;
+    border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden;
+    background: #fff;
+  }
+  .hero-search input {
+    flex: 1; border: 0; outline: 0; padding: 14px 16px;
+    font-size: 16px; font-family: inherit; background: transparent;
+  }
+  .hero-search button {
+    border: 0; background: var(--cinnabar); color: #fff;
+    padding: 0 26px; font-size: 16px; font-family: inherit; cursor: pointer;
+  }
+  .hero-search button:hover { background: var(--cinnabar-deep); }
+  .hero-stats { display: flex; gap: 36px; margin-top: 34px; }
+  .hero-stats b { font-size: 26px; color: var(--cinnabar); }
+  .hero-stats span { display: block; font-size: 13px; color: var(--ink-soft); }
+  .hero-art { position: relative; }
+  .hero-art img {
+    width: 100%; border-radius: 8px; display: block;
+    box-shadow: 0 18px 50px rgba(43,41,38,.18);
+    border: 1px solid var(--line);
+  }
+  .hero-art .vertical-note {
+    position: absolute; right: -14px; top: 24px;
+    writing-mode: vertical-rl; letter-spacing: 6px;
+    background: var(--paper); border: 1px solid var(--line);
+    padding: 14px 8px; border-radius: 4px; font-size: 14px; color: var(--ink-soft);
+    box-shadow: 0 6px 18px rgba(43,41,38,.1);
+  }
+
+  /* ---------- 区块通用 ---------- */
+  section { padding: 64px 6vw; }
+  .sec-head { text-align: center; margin-bottom: 44px; }
+  .sec-head h2 { font-size: 30px; letter-spacing: 6px; }
+  .sec-head p { color: var(--ink-soft); margin-top: 8px; }
+  .sec-head .rule {
+    width: 56px; height: 3px; background: var(--cinnabar);
+    margin: 16px auto 0; border-radius: 2px;
+  }
+
+  /* ---------- 三层导读 ---------- */
+  .layers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .layer-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 8px;
+    padding: 30px 26px; position: relative; transition: transform .2s, box-shadow .2s;
+  }
+  .layer-card:hover { transform: translateY(-4px); box-shadow: 0 14px 34px rgba(43,41,38,.12); }
+  .layer-card .no {
+    position: absolute; top: 18px; right: 22px;
+    font-size: 44px; color: var(--paper-deep); font-weight: 700;
+  }
+  .layer-card h3 { font-size: 20px; margin-bottom: 10px; letter-spacing: 2px; }
+  .layer-card h3::before { content: "◆ "; color: var(--cinnabar); font-size: 14px; }
+  .layer-card p { color: var(--ink-soft); font-size: 15px; }
+  .layer-card .demo {
+    margin-top: 16px; padding: 12px 14px; font-size: 13.5px;
+    background: var(--paper); border-left: 3px solid var(--gold);
+    border-radius: 0 4px 4px 0; color: var(--ink-soft);
+  }
+
+  /* ---------- 书库 ---------- */
+  .library { background: var(--paper-deep); }
+  .filters { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+  .filters button {
+    font-family: inherit; font-size: 15px; cursor: pointer;
+    border: 1px solid var(--line); background: #fff; color: var(--ink-soft);
+    padding: 7px 20px; border-radius: 999px;
+  }
+  .filters button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .book-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;
+  }
+  .book {
+    background: #fff; border: 1px solid var(--line); border-radius: 6px;
+    padding: 16px 18px; transition: border-color .2s;
+  }
+  .book:hover { border-color: var(--cinnabar); }
+  .book h4 { font-size: 17px; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: baseline; }
+  .book h4 .tag {
+    font-size: 11px; color: var(--cinnabar); border: 1px solid var(--cinnabar);
+    border-radius: 3px; padding: 0 5px; flex: none;
+  }
+  .book p { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+  .empty-tip { text-align: center; color: var(--ink-soft); padding: 40px 0; display: none; }
+
+  /* ---------- 会员 ---------- */
+  .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .price-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 8px;
+    padding: 34px 28px; text-align: center; position: relative;
+  }
+  .price-card.featured { border: 2px solid var(--cinnabar); }
+  .price-card.featured::before {
+    content: "预售验证中"; position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    background: var(--cinnabar); color: #fff; font-size: 12px;
+    padding: 3px 14px; border-radius: 999px; letter-spacing: 2px;
+  }
+  .price-card h3 { font-size: 19px; letter-spacing: 3px; }
+  .price-card .price { font-size: 40px; color: var(--cinnabar); margin: 14px 0 4px; }
+  .price-card .price small { font-size: 14px; color: var(--ink-soft); }
+  .price-card ul { list-style: none; margin: 20px 0 26px; color: var(--ink-soft); font-size: 14.5px; }
+  .price-card li { padding: 5px 0; }
+  .price-card li::before { content: "✓ "; color: var(--gold); }
+  .btn {
+    display: inline-block; text-decoration: none; font-size: 15px;
+    padding: 11px 30px; border-radius: 5px; cursor: pointer; border: 1px solid var(--ink);
+  }
+  .btn-ghost { color: var(--ink); background: transparent; }
+  .btn-solid { background: var(--cinnabar); border-color: var(--cinnabar); color: #fff; }
+  .btn-solid:hover { background: var(--cinnabar-deep); }
+
+  /* ---------- 开放承诺 ---------- */
+  .open-band {
+    background: var(--ink); color: var(--paper);
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px;
+  }
+  .open-band h4 { color: var(--gold); font-size: 16px; margin-bottom: 8px; letter-spacing: 2px; }
+  .open-band p { font-size: 13.5px; color: #cfc8ba; }
+
+  footer {
+    text-align: center; padding: 34px 6vw; color: var(--ink-soft); font-size: 13px;
+    border-top: 1px solid var(--line);
+  }
+  footer b { color: var(--cinnabar); }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-art .vertical-note { display: none; }
+    .layers, .pricing { grid-template-columns: 1fr; }
+    .open-band { grid-template-columns: repeat(2, 1fr); }
+    .nav-links a:not(.nav-cta) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="#top">
+    <span class="seal">维点</span>
+    <span><b>维点图书馆</b><small>DimensionsCosmos Library</small></span>
+  </a>
+  <div class="nav-links">
+    <a href="#layers">三层导读</a>
+    <a href="#library">书库</a>
+    <a href="#pricing">会员</a>
+    <a class="nav-cta" href="#pricing">加入预售</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div>
+    <span class="hero-kicker">公版全文 · AI 导读 · CC BY-SA 开放</span>
+    <h1>把中华经典，<br>变成你<em>读得懂</em>的知识</h1>
+    <p class="motto">浇灌自由生长的文明</p>
+    <p class="sub">
+      识典证明了两百万人想读古籍，但它封闭、不可导出。维点图书馆走另一条路：
+      维基文库公版原文 + AI 三层导读 + 全文检索，一切开放、可导出、可商用。
+    </p>
+    <form class="hero-search" onsubmit="return jumpToLibrary(event)">
+      <input id="q" type="text" placeholder="搜一搜：史记 / 论语 / 孙子兵法 ……" autocomplete="off">
+      <button type="submit">检索</button>
+    </form>
+    <div class="hero-stats">
+      <div><b>50</b><span>首批经典（扩至 100+）</span></div>
+      <div><b>3</b><span>层 AI 导读结构</span></div>
+      <div><b>0</b><span>全文永久免费</span></div>
+    </div>
+  </div>
+  <div class="hero-art">
+    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=traditional%20Chinese%20ink%20wash%20painting%2C%20ancient%20bamboo%20scrolls%20and%20thread-bound%20books%20on%20a%20wooden%20desk%2C%20misty%20mountains%20in%20background%2C%20minimalist%20composition%2C%20warm%20sepia%20rice%20paper%20tones%2C%20elegant%20negative%20space&image_size=landscape_4_3" alt="古籍与山水水墨画">
+    <span class="vertical-note">筛选 · 组织 · 导读</span>
+  </div>
+</header>
+
+<section id="layers">
+  <div class="sec-head">
+    <h2>三层 AI 导读</h2>
+    <p>每部书都经过「白话梗概 → 章回导览 → 概念卡」三层加工，引文回链原文可核对</p>
+    <div class="rule"></div>
+  </div>
+  <div class="layers">
+    <div class="layer-card">
+      <span class="no">壹</span>
+      <h3>白话梗概</h3>
+      <p>200 字说清一部书讲什么、为何值得读、适合谁读。三十秒判断要不要深入。</p>
+      <div class="demo">《史记》：司马迁以纪传体写就的三千年通史，读它不是为了背年代，而是看人在成败关头的选择。</div>
+    </div>
+    <div class="layer-card">
+      <span class="no">贰</span>
+      <h3>章回导览</h3>
+      <p>每卷/每篇一段导读：本篇主旨、关键人物、难句疏通。读原文前先看地图。</p>
+      <div class="demo">〈项羽本纪〉：太史公把失败者也写成本纪——因为他曾号令天下。注意"鸿门宴"的三次犹豫。</div>
+    </div>
+    <div class="layer-card">
+      <span class="no">叁</span>
+      <h3>关键概念卡</h3>
+      <p>仁、义、礼、法、道……抽象概念变成可收藏的卡片，跨书串联同一概念。</p>
+      <div class="demo">概念「法」：在《韩非子》是制度之网，在《商君书》是耕战之鞭——两张卡片对照读。</div>
+    </div>
+  </div>
+</section>
+
+<section class="library" id="library">
+  <div class="sec-head">
+    <h2>首批书库</h2>
+    <p>经史子集五十部 · 原文来自中文维基文库（CC BY-SA）· 全文免费</p>
+    <div class="rule"></div>
+  </div>
+  <div class="filters" id="filters">
+    <button class="active" data-bu="">全部</button>
+    <button data-bu="经部">经部</button>
+    <button data-bu="史部">史部</button>
+    <button data-bu="子部">子部</button>
+    <button data-bu="集部">集部</button>
+  </div>
+  <div class="book-grid" id="bookGrid"></div>
+  <p class="empty-tip" id="emptyTip">没有找到匹配的书——这个搜索词已被记录，会成为我们选书的依据。</p>
+</section>
+
+<section id="pricing">
+  <div class="sec-head">
+    <h2>支持维点</h2>
+    <p>全文永远免费。付费买的是「省时间」和「读得懂」——预售满 10 单即启动专题包制作</p>
+    <div class="rule"></div>
+  </div>
+  <div class="pricing">
+    <div class="price-card">
+      <h3>读者</h3>
+      <div class="price">¥0</div>
+      <ul>
+        <li>50 部经典全文在线读</li>
+        <li>全文检索</li>
+        <li>白话梗概（第一层导读）</li>
+      </ul>
+      <a class="btn btn-ghost" href="#library">直接开读</a>
+    </div>
+    <div class="price-card featured">
+      <h3>专题电子书</h3>
+      <div class="price">¥9.9<small> 起 / 册</small></div>
+      <ul>
+        <li>公版原文 + AI 校勘 + 精排版</li>
+        <li>完整三层导读</li>
+        <li>EPUB / PDF 双格式，永久下载</li>
+      </ul>
+      <a class="btn btn-solid" href="#">预订第一辑</a>
+    </div>
+    <div class="price-card">
+      <h3>会员通讯</h3>
+      <div class="price">¥30<small> / 年</small></div>
+      <ul>
+        <li>每周一期「一部书读懂一个主题」</li>
+        <li>新专题包会员价</li>
+        <li>投票决定下一批入库书目</li>
+      </ul>
+      <a class="btn btn-ghost" href="#">订阅通讯</a>
+    </div>
+  </div>
+</section>
+
+<section class="open-band">
+  <div>
+    <h4>开放文本</h4>
+    <p>原文全部来自公版与 CC BY-SA 来源，可自由下载、再加工、商用（需署名）。</p>
+  </div>
+  <div>
+    <h4>开放分类</h4>
+    <p>四部分类 × Wikidata(CC0) 映射表公开可查，拒绝私有分类法的版权围墙。</p>
+  </div>
+  <div>
+    <h4>开放导出</h4>
+    <p>EPUB / Markdown / OPDS 目录，你的书库属于你自己，随时迁走。</p>
+  </div>
+  <div>
+    <h4>可核对</h4>
+    <p>AI 导读标注置信度，关键引文一键回链维基文库原文，幻觉无处藏身。</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>维点图书馆</b> DimensionsCosmos Library · 开源古籍 AI 导读引擎 ｜ 原文 © 中文维基文库贡献者，CC BY-SA 4.0 ｜ 导读内容 AI 生成、人工抽检</p>
+  <p style="margin-top:6px">浇灌自由生长的文明 · 预览版 v0.2 · 由 GitHub Actions 零成本管线驱动</p>
+</footer>
+
+<script>
+// 首批 50 部种子书（与 data/seed_books.csv 同步）
+const BOOKS = [
+  ["论语","孔子门人辑录","春秋","经部"],["孟子","孟轲","战国","经部"],
+  ["大学","曾子","春秋","经部"],["中庸","子思","战国","经部"],
+  ["诗经","佚名","先秦","经部"],["尚书","佚名","先秦","经部"],
+  ["礼记","戴圣 编","汉","经部"],["周易","佚名","先秦","经部"],
+  ["左传","左丘明","春秋","经部"],["孝经","孔子","春秋","经部"],
+  ["尔雅","佚名","汉","经部"],["说文解字","许慎","东汉","经部"],
+  ["史记","司马迁","西汉","史部"],["汉书","班固","东汉","史部"],
+  ["后汉书","范晔","南朝宋","史部"],["三国志","陈寿","西晋","史部"],
+  ["资治通鉴","司马光","北宋","史部"],["战国策","刘向 辑","西汉","史部"],
+  ["国语","左丘明","春秋","史部"],["贞观政要","吴兢","唐","史部"],
+  ["水经注","郦道元","北魏","史部"],["史通","刘知几","唐","史部"],
+  ["老子","李耳","春秋","子部"],["庄子","庄周","战国","子部"],
+  ["荀子","荀况","战国","子部"],["韩非子","韩非","战国","子部"],
+  ["墨子","墨翟","战国","子部"],["孙子兵法","孙武","春秋","子部"],
+  ["吕氏春秋","吕不韦门客","秦","子部"],["淮南子","刘安","西汉","子部"],
+  ["论衡","王充","东汉","子部"],["颜氏家训","颜之推","北齐","子部"],
+  ["世说新语","刘义庆","南朝宋","子部"],["山海经","佚名","先秦","子部"],
+  ["搜神记","干宝","东晋","子部"],["黄帝内经","佚名","先秦","子部"],
+  ["伤寒杂病论","张仲景","东汉","子部"],["齐民要术","贾思勰","北魏","子部"],
+  ["梦溪笔谈","沈括","北宋","子部"],["天工开物","宋应星","明","子部"],
+  ["楚辞","屈原 等","战国","集部"],["文选","萧统 编","南朝梁","集部"],
+  ["唐诗三百首","蘅塘退士 编","清","集部"],["宋词三百首","朱孝臧 编","清","集部"],
+  ["古文观止","吴楚材 吴调侯 编","清","集部"],["文心雕龙","刘勰","南朝梁","集部"],
+  ["诗品","钟嵘","南朝梁","集部"],["陶渊明集","陶渊明","东晋","集部"],
+  ["李太白集","李白","唐","集部"],["杜工部集","杜甫","唐","集部"]
+];
+
+const grid = document.getElementById("bookGrid");
+const emptyTip = document.getElementById("emptyTip");
+let curBu = "", curQ = "";
+
+function render() {
+  const q = curQ.trim().toLowerCase();
+  const list = BOOKS.filter(([t, a, d, bu]) =>
+    (!curBu || bu === curBu) &&
+    (!q || t.toLowerCase().includes(q) || a.toLowerCase().includes(q))
+  );
+  grid.innerHTML = list.map(([t, a, d, bu]) => `
+    <div class="book">
+      <h4>${t}<span class="tag">${bu.replace("部","")}</span></h4>
+      <p>${a} · ${d}</p>
+    </div>`).join("");
+  emptyTip.style.display = list.length ? "none" : "block";
+}
+
+document.getElementById("filters").addEventListener("click", e => {
+  if (e.target.tagName !== "BUTTON") return;
+  document.querySelectorAll("#filters button").forEach(b => b.classList.remove("active"));
+  e.target.classList.add("active");
+  curBu = e.target.dataset.bu;
+  render();
+});
+
+document.getElementById("q").addEventListener("input", e => {
+  curQ = e.target.value;
+  render();
+});
+
+function jumpToLibrary(e) {
+  e.preventDefault();
+  curQ = document.getElementById("q").value;
+  render();
+  document.getElementById("library").scrollIntoView({ behavior: "smooth" });
+  return false;
+}
+
+render();
+</script>
+</body>
+</html>
