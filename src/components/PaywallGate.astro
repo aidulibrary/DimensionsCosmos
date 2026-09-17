@@ -1,0 +1,194 @@
+---
+import { getMethodInfo } from '../lib/data';
+
+export interface Props {
+  methodId: string;
+  bookSlug: string;
+  freePreview?: string;
+}
+
+const { methodId, bookSlug, freePreview } = Astro.props;
+const methodInfo = getMethodInfo(methodId);
+const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+---
+
+<div class="paywall-overlay" id="paywall-gate">
+  <div class="paywall-card">
+    <div class="paywall-badge">🔐 付费解锁</div>
+    <h2>{methodInfo.icon} {methodInfo.name_zh}</h2>
+    <p class="paywall-era">{methodInfo.era}</p>
+    <p class="paywall-desc">{methodInfo.summary}</p>
+
+    {freePreview && (
+      <div class="free-preview">
+        <h4>📖 免费预览</h4>
+        <p>{freePreview}</p>
+      </div>
+    )}
+
+    <div class="paywall-actions">
+      <a href={`${base}pricing?book=${encodeURIComponent(bookSlug)}&method=${encodeURIComponent(methodId)}`} class="btn-purchase">
+        💳 解锁完整解读 — ¥{methodInfo.price}
+      </a>
+      <a href={`${base}books/${bookSlug}`} class="btn-back">
+        ← 返回书详情
+      </a>
+    </div>
+
+    <div class="token-input-group">
+      <input type="text" id="token-input" placeholder="输入解锁码（如：DC-XXXX-XXXX）" autocomplete="off">
+      <button id="token-submit">验证</button>
+    </div>
+    <p id="token-msg" class="token-msg"></p>
+  </div>
+</div>
+
+<script>
+  const input = document.getElementById('token-input');
+  const btn = document.getElementById('token-submit');
+  const msg = document.getElementById('token-msg');
+
+  function showMsg(text, type) {
+    msg.textContent = text;
+    msg.className = 'token-msg ' + type;
+  }
+
+  function storeToken(token) {
+    const payload = JSON.parse(atob(token));
+    if (payload.b && payload.m) {
+      const stored = JSON.parse(localStorage.getItem('dc_unlocks') || '{}');
+      const key = `${payload.b}::${payload.m}`;
+      stored[key] = token;
+      localStorage.setItem('dc_unlocks', JSON.stringify(stored));
+      return true;
+    }
+    return false;
+  }
+
+  function checkToken(token) {
+    try {
+      const payload = JSON.parse(atob(token));
+      return !!(payload.b && payload.m);
+    } catch {
+      try {
+        // 也支持明文 token（如 DC-XXXX-XXXX）
+        return token.length >= 8;
+      } catch { return false; }
+    }
+  }
+
+  function tryUnlock(token) {
+    if (!checkToken(token)) {
+      showMsg('❌ 无效解锁码', 'error');
+      return;
+    }
+    if (storeToken(token)) {
+      showMsg('✅ 解锁成功！刷新页面即可阅读', 'success');
+      setTimeout(() => location.reload(), 600);
+    } else {
+      showMsg('❌ 解锁码格式错误', 'error');
+    }
+  }
+
+  // 1) 从 URL ?token= 自动读取
+  const urlParams = new URLSearchParams(location.search);
+  const urlToken = urlParams.get('token');
+  if (urlToken) {
+    input.value = urlToken;
+    tryUnlock(urlToken);
+  }
+
+  // 2) 页面加载时检测已有解锁码
+  const stored = JSON.parse(localStorage.getItem('dc_unlocks') || '{}');
+  const hasAny = Object.keys(stored).length > 0;
+  if (hasAny && !urlToken) {
+    const firstKey = Object.keys(stored)[0];
+    input.value = stored[firstKey];
+    msg.textContent = '🔑 检测到已有解锁码，按验证确认';
+    msg.className = 'token-msg';
+  }
+
+  btn.addEventListener('click', () => {
+    const token = input.value.trim();
+    if (!token) { showMsg('请输入解锁码', 'error'); return; }
+    tryUnlock(token);
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') btn.click();
+  });
+</script>
+
+<style>
+  .paywall-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    display: grid; place-items: center;
+    background: rgba(43,41,38,.72);
+    backdrop-filter: blur(6px);
+    padding: 20px;
+  }
+  .paywall-card {
+    background: #f7f2e8;
+    border-radius: 16px; padding: 40px 34px; max-width: 460px;
+    width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    animation: slideUp .35s ease-out;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .paywall-badge {
+    display: inline-block; font-size: 13px; letter-spacing: 3px;
+    border: 1.5px solid #9e2b25; color: #9e2b25;
+    padding: 4px 16px; border-radius: 999px; margin-bottom: 16px;
+  }
+  .paywall-card h2 {
+    font-size: 26px; letter-spacing: 3px; margin-bottom: 4px;
+  }
+  .paywall-era {
+    font-size: 13px; color: #b8934a; margin-bottom: 12px;
+  }
+  .paywall-desc {
+    font-size: 15px; color: #6b655c;
+    line-height: 1.7; margin-bottom: 24px;
+  }
+  .free-preview {
+    background: #fff; border: 1px solid #ddd2bd;
+    border-radius: 8px; padding: 16px; margin-bottom: 24px;
+    text-align: left;
+  }
+  .free-preview h4 {
+    font-size: 13px; color: #9e2b25;
+    letter-spacing: 2px; margin-bottom: 8px;
+  }
+  .free-preview p {
+    font-size: 14px; color: #6b655c;
+    line-height: 1.6; font-style: italic;
+  }
+  .paywall-actions {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .btn-purchase {
+    width: 100%; padding: 14px 0; font-size: 16px; font-family: inherit;
+    background: #9e2b25; color: #fff; border: 0;
+    border-radius: 8px; cursor: pointer; font-weight: 700;
+    letter-spacing: 1px; text-decoration: none; text-align: center;
+    transition: background .2s;
+  }
+  .btn-purchase:hover { background: #7e211c; }
+  .btn-back {
+    width: 100%; padding: 12px 0; font-size: 14px; font-family: inherit;
+    background: transparent; color: #6b655c;
+    border: 1px solid #ddd2bd; border-radius: 8px;
+    cursor: pointer; letter-spacing: 1px; text-decoration: none; text-align: center;
+  }
+  .btn-back:hover { background: #fff; }
+  .paywall-note {
+    margin-top: 18px; font-size: 12px; color: #6b655c;
+  }
+  .paywall-note code {
+    background: rgba(0,0,0,.06); padding: 2px 6px; border-radius: 3px;
+    font-size: 11px;
+  }
+</style>

@@ -1,0 +1,207 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getAllMethods, getMethodInfo } from '../lib/data';
+
+const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+const url = new URL(Astro.request.url);
+const preselectedMethod = url.searchParams.get('method') ?? '';
+const preselectedBook = url.searchParams.get('book') ?? '';
+
+const methods = getAllMethods();
+const paidMethods = methods.filter((m) => !m.free);
+
+// 收款链接（部署后替换为实际链接）
+// 面包多（微信）：https://mbd.pub/your-product-id
+// Gumroad（信用卡/国际）：https://gumroad.com/l/dimensions-cosmos
+const WORKER_URL = 'https://dimensions-cosmos-auth.workers.dev';
+const BUY_LINK = (book, method) => {
+  const mbd = `https://mbd.pub/go/dimensions-cosmos?book=${encodeURIComponent(book || '')}&method=${encodeURIComponent(method || '')}`;
+  return mbd; // 替换为实际收款链接后自动生效
+};
+---
+
+<BaseLayout title="定价 · 维点图书馆">
+  <section>
+    <div class="sec-head">
+      <h2>简单定价</h2>
+      <p>每本书、每种方法独立购买——不囤课、不年费、按需付费</p>
+      <div class="rule"></div>
+    </div>
+
+    <!-- 价格卡片 -->
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="card-badge free-badge">🆓 免费</div>
+        <h3>朱熹视角</h3>
+        <div class="amount">¥0</div>
+        <p class="card-desc">每本书永久免费附赠</p>
+        <ul>
+          <li>中文经典全文阅读</li>
+          <li>朱熹读书法解读</li>
+          <li>逐字逐句涵泳分析</li>
+          <li>切己体察应用引导</li>
+        </ul>
+        <a href={`${base}books`} class="card-btn ghost">开始阅读</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="card-badge hot-badge">🔥 最受欢迎</div>
+        <h3>单篇解锁</h3>
+        <div class="amount">¥3.9<span>/篇起</span></div>
+        <p class="card-desc">买一篇、看一篇，永久可读</p>
+        <ul>
+          <li>任选一种付费方法</li>
+          <li>应用到任意一本书</li>
+          <li>Markdown / JSON 导出</li>
+          <li>永久访问、无过期</li>
+        </ul>
+        {preselectedBook && preselectedMethod && (
+          <p class="preorder-hint">
+            📖 {preselectedBook} × {getMethodInfo(preselectedMethod).name_zh}
+          </p>
+        )}
+        <a href={BUY_LINK(preselectedBook, preselectedMethod)} class="card-btn solid">¥3.9–12.9 解锁一篇</a>
+      </div>
+
+      <div class="price-card">
+        <div class="card-badge">🚀 即将推出</div>
+        <h3>方法包</h3>
+        <div class="amount">¥49<span>/年</span></div>
+        <p class="card-desc">无限次数、所有方法</p>
+        <ul>
+          <li>全部 9 种方法无限用</li>
+          <li>新方法自动解锁</li>
+          <li>优先投票新书入库</li>
+          <li>B 端 API 折扣</li>
+        </ul>
+        <a href="#" class="card-btn ghost disabled">筹备中</a>
+      </div>
+    </div>
+
+    <!-- 付费方法单价表 -->
+    <div class="price-table-wrap">
+      <h3>付费方法单价明细</h3>
+      <table class="price-table">
+        <thead>
+          <tr><th>方法</th><th>时代</th><th>单价</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          {paidMethods.map((m) => (
+            <tr>
+              <td><strong>{m.icon} {m.name_zh}</strong></td>
+              <td class="era-cell">{m.era.split('·')[0]}</td>
+              <td class="price-cell">¥{m.price}</td>
+              <td class="desc-cell">{m.summary}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 信任区 -->
+    <div class="trust">
+      <div>
+        <h4>💳 如何付款</h4>
+        <p>通过面包多（微信支付）或 Gumroad（Visa/Mastercard）购买。付款后自动获得解锁码，粘贴到页面即可阅读。</p>
+      </div>
+      <div>
+        <h4>🔄 退款保证</h4>
+        <p>如果 AI 解读质量不符合预期，7 天内无条件退款——发邮件即可，无需理由。</p>
+      </div>
+      <div>
+        <h4>📧 联系我们</h4>
+        <p>GitHub Issues: <a href="https://github.com/aidulibrary/DimensionsCosmos/issues">aidulibrary/DimensionsCosmos</a></p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding: 60px 6vw; max-width: 1060px; margin: 0 auto; }
+  .sec-head { text-align: center; margin-bottom: 48px; }
+  .sec-head h2 { font-size: 30px; letter-spacing: 6px; }
+  .sec-head p { color: var(--ink-soft); margin-top: 8px; }
+  .sec-head .rule { width: 56px; height: 3px; background: var(--cinnabar); margin: 16px auto 0; border-radius: 2px; }
+
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+    margin-bottom: 50px;
+  }
+
+  .price-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 34px 28px; text-align: center; position: relative;
+    display: flex; flex-direction: column;
+  }
+  .price-card.featured {
+    border: 2px solid var(--cinnabar);
+    box-shadow: 0 8px 30px rgba(158,43,37,.1);
+  }
+  .card-badge {
+    display: inline-block; font-size: 12px; letter-spacing: 2px;
+    padding: 3px 14px; border-radius: 999px; margin-bottom: 14px;
+    border: 1px solid var(--line);
+  }
+  .free-badge { color: #2d8a56; border-color: #2d8a56; }
+  .hot-badge {
+    background: var(--cinnabar); color: #fff; border-color: var(--cinnabar);
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  }
+  .price-card h3 { font-size: 19px; letter-spacing: 3px; }
+  .amount { font-size: 40px; color: var(--cinnabar); margin: 12px 0 4px; font-weight: 700; }
+  .amount span { font-size: 14px; color: var(--ink-soft); font-weight: 400; }
+  .card-desc { font-size: 14px; color: var(--ink-soft); margin-bottom: 18px; }
+  .price-card ul { list-style: none; margin-bottom: 24px; flex: 1; }
+  .price-card li {
+    padding: 6px 0; font-size: 14px; color: var(--ink-soft);
+  }
+  .price-card li::before { content: "✓ "; color: var(--gold); font-weight: 700; }
+
+  .preorder-hint {
+    font-size: 13px; color: var(--cinnabar); margin-bottom: 12px;
+    padding: 8px; background: #fef9f5; border-radius: 6px;
+  }
+
+  .card-btn {
+    display: block; padding: 13px 0; font-size: 15px; font-weight: 700;
+    text-decoration: none; border-radius: 8px; letter-spacing: 1px;
+  }
+  .card-btn.solid { background: var(--cinnabar); color: #fff; }
+  .card-btn.solid:hover { background: var(--cinnabar-deep); }
+  .card-btn.ghost { border: 1.5px solid var(--ink); color: var(--ink); }
+  .card-btn.ghost:hover { background: var(--ink); color: var(--paper); }
+  .card-btn.disabled { opacity: .4; pointer-events: none; }
+
+  /* 单价表 */
+  .price-table-wrap { margin-bottom: 50px; }
+  .price-table-wrap h3 { font-size: 18px; letter-spacing: 3px; margin-bottom: 18px; }
+  .price-table {
+    width: 100%; border-collapse: collapse;
+    background: #fff; border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .price-table th {
+    text-align: left; padding: 14px 18px; background: var(--paper-deep);
+    font-size: 13px; letter-spacing: 2px; color: var(--ink-soft);
+  }
+  .price-table td {
+    padding: 14px 18px; font-size: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .price-table td strong { letter-spacing: 1px; }
+  .price-cell { color: var(--cinnabar); font-weight: 700; }
+  .desc-cell { color: var(--ink-soft); font-size: 13px !important; }
+  .era-cell { color: var(--ink-soft); font-size: 13px; }
+
+  .trust {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+    padding-top: 36px; border-top: 1px solid var(--line);
+  }
+  .trust h4 { font-size: 15px; letter-spacing: 2px; margin-bottom: 8px; }
+  .trust p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.7; }
+  .trust a { color: var(--cinnabar); }
+
+  @media (max-width: 800px) {
+    .pricing-grid, .trust { grid-template-columns: 1fr; }
+  }
+</style>

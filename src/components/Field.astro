@@ -1,0 +1,88 @@
+---
+export interface Props {
+  label: string;
+  value: unknown;
+}
+
+function isEmpty(v: unknown): boolean {
+  if (v == null) return true;
+  if (typeof v === 'string') return v.trim().length === 0;
+  if (Array.isArray(v)) return v.length === 0;
+  if (typeof v === 'object') return Object.keys(v as object).length === 0;
+  return false;
+}
+
+const { label, value } = Astro.props;
+
+if (isEmpty(value)) return;
+---
+
+<div class="field">
+  <h4>{label}</h4>
+  {
+    typeof value === 'string'
+      ? <p>{value}</p>
+      : Array.isArray(value)
+        ? <ul>
+            {value.map((item: unknown, i: number) => (
+              typeof item === 'string'
+                ? <li>{item}</li>
+                : typeof item === 'object' && item != null
+                  ? (
+                    <li>
+                      {Object.entries(item as Record<string, unknown>).map(([k, v]) => (
+                        <span class="field-item">
+                          <em>{k}:</em> {String(v ?? '')}{' '}
+                        </span>
+                      ))}
+                    </li>
+                  )
+                  : <li>{String(item)}</li>
+            ))}
+          </ul>
+        : typeof value === 'object' && value != null
+          ? <dl>
+              {Object.entries(value as Record<string, unknown>).map(([k, v]) => (
+                <><dt>{k}</dt><dd>{String(v ?? '')}</dd></>
+              ))}
+            </dl>
+          : <p>{String(value)}</p>
+  }
+</div>
+
+<style>
+  .field {
+    background: #fff; border: 1px solid #ddd2bd;
+    border-radius: 8px; padding: 22px 26px; margin-bottom: 16px;
+  }
+  .field h4 {
+    font-size: 15px; letter-spacing: 2px; color: #9e2b25;
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 1px dotted #ddd2bd;
+  }
+  .field p {
+    font-size: 15.5px; line-height: 1.85; color: #2b2926;
+    white-space: pre-line;
+  }
+  .field ul {
+    list-style: none; padding: 0;
+  }
+  .field li {
+    padding: 8px 0; font-size: 15px; line-height: 1.75;
+    border-bottom: 1px dotted rgba(221,210,189,.5);
+  }
+  .field li:last-child { border-bottom: none; }
+  .field dl { margin: 0; }
+  .field dt {
+    font-size: 13px; color: #6b655c;
+    margin-top: 10px; letter-spacing: 1px;
+  }
+  .field dd {
+    margin: 0 0 0 12px; font-size: 15px; padding: 4px 0;
+  }
+  .field-item { display: block; margin: 4px 0; }
+  .field-item em {
+    font-style: normal; font-weight: 600;
+    color: #b8934a;
+  }
+</style>

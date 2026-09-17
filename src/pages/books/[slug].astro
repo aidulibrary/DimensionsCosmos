@@ -1,0 +1,111 @@
+---
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MethodSelector from '../../components/MethodSelector.astro';
+import type { IndexData, BookMeta, Guide } from '../../lib/data';
+
+export async function getStaticPaths() {
+  const raw = readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8');
+  const data = JSON.parse(raw) as IndexData;
+  return (data.works ?? [])
+    .filter((w) => w.ok)
+    .map((w) => ({
+      params: { slug: w.slug },
+    }));
+}
+
+const { slug } = Astro.params;
+const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+
+let book: BookMeta;
+try {
+  const idStr = (slug ?? '0').split('-')[0];
+  const raw = readFileSync(join(process.cwd(), 'public', 'data', `book-${idStr}.json`), 'utf-8');
+  book = JSON.parse(raw) as BookMeta;
+} catch {
+  return new Response('未找到该书', { status: 404 });
+}
+
+const { seed_title: title, author, dynasty, bu, chapters, guides } = book;
+const guideList = guides as Guide[] ?? [];
+---
+
+<BaseLayout title={`${title} · 维点图书馆`} description={`${author}《${title}》— 可用 ${guideList.length} 种大师视角解读`}>
+  <section class="book-detail">
+    <!-- 面包屑 -->
+    <nav class="breadcrumb">
+      <a href={base}>首页</a> / <a href={`${base}books`}>书库</a> / <span>{title}</span>
+    </nav>
+
+    <!-- 书信息头 -->
+    <header class="book-header">
+      <h1>{title}</h1>
+      <p class="meta">
+        {author && <span>{author}</span>}
+        {dynasty && <span>· {dynasty}</span>}
+        {bu && <span class="bu-tag">{bu}</span>}
+      </p>
+      <p class="stats">
+        <span>📄 {(chapters ?? []).length} 章</span>
+        <span>🧠 {guideList.length} 种大师解读</span>
+        <span>📖 <a href={`https://zh.wikisource.org/wiki/${title}`}>维基文库原文 →</a></span>
+      </p>
+    </header>
+
+    <!-- 已有的免费解读预览（朱熹） -->
+    {guideList.filter((g) => g.method_id === 'zhuxi').map((g) => (
+      <div class="preview-box">
+        <h3>🆓 免费预览：朱熹读书法</h3>
+        {(g.content as Record<string, unknown>)?.structure && (
+          <p><strong>逻辑结构</strong>：{String((g.content as Record<string, unknown>).structure)}</p>
+        )}
+        {(g.content as Record<string, unknown>)?.personal_application && (
+          <p><strong>切己体察</strong>：{String((g.content as Record<string, unknown>).personal_application)}</p>
+        )}
+        <a href={`${base}read/${slug}/zhuxi`} class="preview-link">查看完整朱熹解读 →</a>
+      </div>
+    ))}
+
+    <!-- 方法选择器 -->
+    <MethodSelector
+      bookSlug={slug ?? ''}
+      unlockedMethods={guideList.map((g) => g.method_id)}
+    />
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding: 50px 6vw 70px; max-width: 960px; margin: 0 auto; }
+
+  .breadcrumb { font-size: 13px; color: var(--ink-soft); margin-bottom: 28px; }
+  .breadcrumb a { color: var(--cinnabar); text-decoration: none; }
+
+  .book-header {
+    text-align: center; margin-bottom: 36px; padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .book-header h1 { font-size: 40px; letter-spacing: 8px; margin-bottom: 12px; }
+  .meta { font-size: 17px; color: var(--ink-soft); }
+  .meta span { margin: 0 6px; }
+  .bu-tag {
+    font-size: 12px; color: var(--gold); border: 1px solid var(--gold);
+    padding: 1px 8px; border-radius: 4px;
+  }
+  .stats { margin-top: 16px; font-size: 14px; color: var(--ink-soft); }
+  .stats span { margin: 0 14px; }
+  .stats a { color: var(--cinnabar); }
+
+  .preview-box {
+    background: #fff; border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 24px 28px; margin-bottom: 16px;
+    border-left: 4px solid var(--gold);
+  }
+  .preview-box h3 { font-size: 17px; margin-bottom: 12px; letter-spacing: 2px; }
+  .preview-box p { font-size: 15px; color: var(--ink-soft); line-height: 1.75; margin: 6px 0; }
+  .preview-box p strong { color: var(--ink); }
+  .preview-link {
+    display: inline-block; margin-top: 10px; font-size: 14px;
+    color: var(--cinnabar); font-weight: 600;
+  }
+</style>

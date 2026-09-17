@@ -1,0 +1,22 @@
+# Node 依赖
+node_modules/
+dist/
+.astro/
+
+# 构建产物
+public/data/
+
+# 环境变量
+.env
+.env.*
+
+# 原始下载内容（不入库，仅本地）
+data/raw/
+data/sources/
+data/tmp/
+
+# macOS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.log

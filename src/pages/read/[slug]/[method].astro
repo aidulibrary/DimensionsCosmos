@@ -1,0 +1,104 @@
+---
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GuideView from '../../../components/GuideView.astro';
+import PaywallGate from '../../../components/PaywallGate.astro';
+import MethodSelector from '../../../components/MethodSelector.astro';
+import type { BookMeta, Guide } from '../../../lib/data';
+import { getMethodInfo } from '../../../lib/data';
+
+export async function getStaticPaths() {
+  const raw = readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8');
+  const data = JSON.parse(raw) as { works: { slug: string; guides: Guide[] }[] };
+  const paths: { params: { slug: string; method: string } }[] = [];
+  for (const w of (data.works ?? [])) {
+    for (const g of (w.guides ?? [])) {
+      paths.push({ params: { slug: w.slug, method: g.method_id } });
+    }
+  }
+  return paths;
+}
+
+const { slug, method } = Astro.params;
+const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+
+let book: BookMeta | null = null;
+try {
+  const idStr = (slug ?? '0').split('-')[0];
+  const raw = readFileSync(join(process.cwd(), 'public', 'data', `book-${idStr}.json`), 'utf-8');
+  book = JSON.parse(raw) as BookMeta;
+} catch {
+  book = null;
+}
+
+if (!book) {
+  return new Response('未找到该书', { status: 404 });
+}
+
+const guide = (book?.guides as Guide[] ?? []).find((g) => g.method_id === method);
+const methodInfo = getMethodInfo(method ?? '');
+const allGuides = (book?.guides as Guide[] ?? []).map((g) => g.method_id);
+
+const showPaywall = !guide && !methodInfo.free;
+const zhuxiGuide = (book?.guides as Guide[] ?? []).find((g) => g.method_id === 'zhuxi');
+const previewText: string | undefined = zhuxiGuide
+  ? (zhuxiGuide.content as Record<string, unknown>)?.structure as string | undefined
+  : undefined;
+const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书馆`;
+---
+
+{showPaywall ? (
+  <BaseLayout title={paywallTitle}>
+    <section class="paywall-page">
+      <PaywallGate
+        methodId={method ?? ''}
+        bookSlug={slug ?? ''}
+        freePreview={previewText}
+      />
+    </section>
+  </BaseLayout>
+) : !guide ? (
+  <BaseLayout title="该解读暂不可用">
+    <section><p>该解读暂不可用</p></section>
+  </BaseLayout>
+) : (
+  <BaseLayout title={`${book.seed_title} x ${methodInfo.name_zh} - 维点图书馆`}>
+    <section class="read-page">
+      <nav class="breadcrumb">
+        <a href={base}>首页</a> / <a href={`${base}books/${slug}`}>{book.seed_title}</a> / <span>{methodInfo.name_zh}</span>
+      </nav>
+
+      <GuideView
+        guide={guide}
+        bookTitle={book.seed_title}
+        bookAuthor={book.author ?? '佚名'}
+        bookDynasty={book.dynasty ?? ''}
+      />
+
+      <div class="switch-section">
+        <h3>换个视角再看一遍</h3>
+        <MethodSelector
+          bookSlug={slug ?? ''}
+          selectedMethod={method}
+          unlockedMethods={allGuides}
+        />
+      </div>
+    </section>
+  </BaseLayout>
+)}
+
+<style>
+  section { padding: 50px 6vw 70px; }
+
+  .breadcrumb { font-size: 13px; color: var(--ink-soft); margin-bottom: 28px; max-width: 760px; margin-left: auto; margin-right: auto; }
+  .breadcrumb a { color: var(--cinnabar); text-decoration: none; }
+
+  .switch-section {
+    max-width: 760px; margin: 50px auto 0; padding-top: 36px;
+    border-top: 1px solid var(--line);
+  }
+  .switch-section h3 { font-size: 18px; letter-spacing: 2px; margin-bottom: 16px; }
+
+  .paywall-page { padding: 0; }
+</style>

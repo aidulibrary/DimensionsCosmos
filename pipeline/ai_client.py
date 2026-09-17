@@ -11,7 +11,7 @@ import os
 
 import requests
 
-TIMEOUT = 60
+TIMEOUT = 600
 
 
 def _chat_completions(url, key, model, prompt, system, max_tokens):
@@ -28,6 +28,16 @@ def _chat_completions(url, key, model, prompt, system, max_tokens):
         raise RuntimeError("rate limited")
     resp.raise_for_status()
     return resp.json()["choices"][0]["message"]["content"]
+
+
+def _ollama(prompt, system, max_tokens):
+    """本地 Ollama（OpenAI 兼容接口），无需真实 Key。"""
+    return _chat_completions(
+        "http://localhost:11434/v1/chat/completions",
+        os.environ.get("OLLAMA_API_KEY", "ollama"),
+        os.getenv("OLLAMA_MODEL", "qwen3:4b"),
+        prompt, system, max_tokens,
+    )
 
 
 def _groq(prompt, system, max_tokens):
@@ -69,6 +79,7 @@ def _openrouter(prompt, system, max_tokens):
 
 
 _CHAIN = [
+    ("ollama", _ollama, "OLLAMA_API_KEY"),
     ("groq", _groq, "GROQ_API_KEY"),
     ("gemini", _gemini, "GEMINI_API_KEY"),
     ("openrouter", _openrouter, "OPENROUTER_API_KEY"),

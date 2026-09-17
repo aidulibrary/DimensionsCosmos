@@ -1,0 +1,121 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCard from '../components/BookCard.astro';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import type { IndexData, BookMeta } from '../lib/data';
+
+const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+
+let indexData: IndexData;
+try {
+  indexData = JSON.parse(readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8')) as IndexData;
+} catch {
+  return new Response('数据尚未生成，请先运行 scripts/gen-data.mjs', { status: 503 });
+}
+
+const url = new URL(Astro.request.url);
+const q = url.searchParams.get('q')?.toLowerCase() ?? '';
+const bu = url.searchParams.get('bu') ?? '';
+
+let books = (indexData.works ?? []).filter((w) => w.ok);
+
+if (bu) {
+  books = books.filter((b) => b.bu === bu);
+}
+if (q) {
+  books = books.filter((b) =>
+    b.seed_title.toLowerCase().includes(q) ||
+    (b.author ?? '').toLowerCase().includes(q)
+  );
+}
+
+const buSet = [...new Set((indexData.works ?? []).map((w) => w.bu).filter(Boolean))].sort();
+---
+
+<BaseLayout title={`书库 · 维点图书馆${q ? ' · 搜索：' + q : ''}`}>
+  <section>
+    <div class="sec-head">
+      <h2>经典书库</h2>
+      <p>经史子集 · {indexData.ok} 部可读 · 选一部，再选一位大师的视角</p>
+      <div class="rule"></div>
+    </div>
+
+    <!-- 搜索 -->
+    <form class="search-bar" onsubmit="event.preventDefault();const v=this.q.value;location.href=v?`${base}books?q=${encodeURIComponent(v)}`:'${base}books'">
+      <input name="q" type="text" placeholder="搜书名或作者……" value={q} autocomplete="off">
+      <button type="submit">🔍</button>
+      {q && <a href={`${base}books`} class="clear-btn">✕ 清除</a>}
+    </form>
+
+    <!-- 分类过滤 -->
+    <div class="filters">
+      <a href={`${base}books`} class={`filter-chip ${!bu ? 'active' : ''}`}>全部</a>
+      {buSet.map((b) => (
+        <a href={`${base}books?bu=${encodeURIComponent(b)}`}
+           class={`filter-chip ${bu === b ? 'active' : ''}`}>{b}</a>
+      ))}
+    </div>
+
+    <!-- 结果 -->
+    <p class="result-count">{books.length} 部书{q ? `匹配「${q}」` : ''}{bu ? `· ${bu}` : ''}</p>
+
+    <div class="book-grid">
+      {books.map((book) => <BookCard book={book} />)}
+    </div>
+
+    {books.length === 0 && (
+      <div class="empty">
+        <p>没有找到匹配的书。</p>
+        <p>这个搜索词已被记录，会成为后续选书的依据。</p>
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding: 60px 6vw; }
+  .sec-head { text-align: center; margin-bottom: 36px; }
+  .sec-head h2 { font-size: 30px; letter-spacing: 6px; }
+  .sec-head p { color: var(--ink-soft); margin-top: 8px; }
+  .sec-head .rule { width: 56px; height: 3px; background: var(--cinnabar); margin: 16px auto 0; border-radius: 2px; }
+
+  .search-bar {
+    display: flex; max-width: 520px; margin: 0 auto 24px;
+    border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden; background: #fff;
+  }
+  .search-bar input {
+    flex: 1; border: 0; outline: 0; padding: 12px 16px;
+    font-size: 15px; font-family: inherit;
+  }
+  .search-bar button {
+    border: 0; background: var(--ink); color: var(--paper);
+    padding: 0 18px; font-size: 16px; cursor: pointer;
+  }
+  .clear-btn {
+    display: flex; align-items: center; padding: 0 12px;
+    color: var(--ink-soft); text-decoration: none; font-size: 12px;
+  }
+
+  .filters { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .filter-chip {
+    font-size: 14px; text-decoration: none; color: var(--ink-soft);
+    border: 1px solid var(--line); padding: 6px 16px; border-radius: 999px;
+    background: #fff; transition: all .2s;
+  }
+  .filter-chip:hover { border-color: var(--cinnabar); }
+  .filter-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  .result-count {
+    text-align: center; font-size: 13px; color: var(--ink-soft); margin-bottom: 24px;
+  }
+
+  .book-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;
+  }
+
+  .empty {
+    text-align: center; padding: 60px 0; color: var(--ink-soft);
+  }
+  .empty p { margin: 8px 0; }
+</style>

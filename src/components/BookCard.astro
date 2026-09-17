@@ -1,0 +1,87 @@
+---
+import type { BookMeta } from '../lib/data';
+
+interface Props {
+  book: BookMeta;
+  minimal?: boolean;
+}
+
+const { book, minimal = false } = Astro.props;
+const guideCount = book.guides?.length ?? 0;
+const freeGuide = book.guides?.find((g) => g.method_id === 'zhuxi');
+const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+const href = minimal ? '#' : `${base}books/${book.slug}`;
+---
+
+<div class="book-card" data-bu={book.bu}>
+  <a href={href} class="card-link">
+    <header class="card-header">
+      <h3>{book.seed_title}</h3>
+      {guideCount > 0 && <span class="badge">{guideCount} 种解读</span>}
+    </header>
+    <p class="card-meta">
+      {book.author && <span class="author">{book.author}</span>}
+      {book.dynasty && <span class="dynasty">{book.dynasty}</span>}
+      {book.bu && <span class="bu">{book.bu}</span>}
+    </p>
+    {!minimal && freeGuide && (
+      <p class="preview">
+        {(freeGuide.content as Record<string, unknown>)?.structure
+          || (freeGuide.content as Record<string, unknown>)?.explain_to_12_year_old
+          || '已有 AI 解读'}
+      </p>
+    )}
+  </a>
+</div>
+
+<style>
+  .book-card {
+    background: #fff;
+    border: 1px solid var(--line, #ddd2bd);
+    border-radius: 8px;
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    overflow: hidden;
+  }
+  .book-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(43,41,38,.12);
+    border-color: var(--cinnabar, #9e2b25);
+  }
+  .card-link {
+    display: block; padding: 20px 22px;
+    text-decoration: none; color: inherit;
+  }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 10px;
+  }
+  .card-header h3 {
+    font-size: 19px; letter-spacing: 2px;
+    margin: 0; line-height: 1.35;
+  }
+  .badge {
+    flex: none; font-size: 11px; font-weight: 600;
+    color: var(--cinnabar, #9e2b25);
+    border: 1px solid var(--cinnabar, #9e2b25);
+    border-radius: 4px; padding: 2px 8px;
+    white-space: nowrap; margin-top: 2px;
+  }
+  .card-meta {
+    margin-top: 8px; font-size: 13px;
+    color: var(--ink-soft, #6b655c);
+  }
+  .card-meta span { margin-right: 12px; }
+  .card-meta .bu {
+    font-size: 11px; color: var(--gold, #b8934a);
+    border: 1px solid var(--gold, #b8934a);
+    border-radius: 3px; padding: 0 5px;
+  }
+  .preview {
+    margin-top: 12px; font-size: 13px; color: var(--ink-soft, #6b655c);
+    line-height: 1.6; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+    border-top: 1px dotted var(--line, #ddd2bd);
+    padding-top: 10px;
+  }
+</style>

@@ -1,0 +1,139 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getAllMethods } from '../lib/data';
+
+const methods = getAllMethods();
+const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+---
+
+<BaseLayout title="大师视角 · 阅读方法库 · 维点图书馆">
+  <section>
+    <div class="sec-head">
+      <h2>九种大师视角</h2>
+      <p>每位大师的阅读方法都是一个独立的 AI 插件——可以应用到任意文明的任意文本</p>
+      <div class="rule"></div>
+    </div>
+
+    <!-- 免费方法 -->
+    <div class="method-block">
+      <h3>🆓 免费体验</h3>
+      <p class="block-desc">每本书都附赠朱熹视角——这是我们给所有读者的见面礼。</p>
+      <div class="method-detail-grid">
+        {methods.filter((m) => m.free).map((m) => (
+          <div class="method-detail" id={m.id}>
+            <div class="md-header">
+              <span class="md-icon">{m.icon}</span>
+              <div>
+                <h4>{m.name_zh}</h4>
+                <small>{m.name_en}</small>
+              </div>
+            </div>
+            <p class="md-era">{m.era}</p>
+            <p class="md-summary">{m.summary}</p>
+            <div class="md-tags">
+              {m.tags.map((t) => <span class="tag">{t}</span>)}
+            </div>
+            <p class="md-price free">免费 · 永久</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- 付费方法 -->
+    <div class="method-block">
+      <h3>🔐 付费解锁</h3>
+      <p class="block-desc">单次购买、永久可读。所有方法都支持 Markdown/JSON 导出。</p>
+      <div class="method-detail-grid">
+        {methods.filter((m) => !m.free).map((m) => (
+          <div class="method-detail" id={m.id}>
+            <div class="md-header">
+              <span class="md-icon">{m.icon}</span>
+              <div>
+                <h4>{m.name_zh}</h4>
+                <small>{m.name_en}</small>
+              </div>
+            </div>
+            <p class="md-era">{m.era}</p>
+            <p class="md-summary">{m.summary}</p>
+            <div class="md-tags">
+              {m.tags.map((t) => <span class="tag">{t}</span>)}
+            </div>
+            <p class="md-price">¥{m.price} / 篇</p>
+            <a href={`${base}pricing?method=${m.id}`} class="md-cta">去解锁 →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- 未来规划 -->
+    <div class="coming-soon">
+      <h3>🚧 即将上线的方法</h3>
+      <ul>
+        <li><strong>培根归纳法</strong>（Francis Bacon · 17世纪英国）——从具体观察到普遍原则</li>
+        <li><strong>布鲁姆分类学</strong>（Bloom's Taxonomy · 20世纪美国）——记忆→理解→应用→分析→评价→创造</li>
+        <li><strong>普鲁斯特阅读法</strong>（Proust · 20世纪法国）——阅读是自我发现的触发剂</li>
+        <li><strong>顾炎武考据法</strong>（明末清初 · 中国）——一字一句皆有出处</li>
+        <li><strong>西蒙东技术哲学透镜</strong>（Simondon · 20世纪法国）——透过技术演化看一切</li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding: 60px 6vw; max-width: 1060px; margin: 0 auto; }
+  .sec-head { text-align: center; margin-bottom: 48px; }
+  .sec-head h2 { font-size: 30px; letter-spacing: 6px; }
+  .sec-head p { color: var(--ink-soft); margin-top: 8px; }
+  .sec-head .rule { width: 56px; height: 3px; background: var(--cinnabar); margin: 16px auto 0; border-radius: 2px; }
+
+  .method-block { margin-bottom: 50px; }
+  .method-block h3 { font-size: 20px; letter-spacing: 3px; margin-bottom: 6px; }
+  .block-desc { color: var(--ink-soft); font-size: 14px; margin-bottom: 24px; }
+
+  .method-detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+
+  .method-detail {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 26px; position: relative;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .method-detail:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(43,41,38,.1); }
+
+  .md-header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  .md-icon { font-size: 32px; }
+  .md-header h4 { font-size: 18px; letter-spacing: 2px; }
+  .md-header small { font-size: 12px; color: var(--ink-soft); }
+
+  .md-era { font-size: 13px; color: var(--gold); margin-bottom: 10px; }
+  .md-summary { font-size: 14px; color: var(--ink-soft); line-height: 1.65; margin-bottom: 14px; }
+
+  .md-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tag {
+    font-size: 11px; background: var(--paper-deep); color: var(--ink-soft);
+    padding: 2px 10px; border-radius: 999px;
+  }
+
+  .md-price {
+    font-size: 18px; font-weight: 700; color: var(--cinnabar);
+  }
+  .md-price.free { color: #2d8a56; }
+
+  .md-cta {
+    display: inline-block; margin-top: 8px; font-size: 14px;
+    color: var(--cinnabar); text-decoration: none; font-weight: 600;
+  }
+  .md-cta:hover { text-decoration: underline; }
+
+  .coming-soon {
+    background: var(--paper-deep); border: 1px dashed var(--line);
+    border-radius: 12px; padding: 32px;
+  }
+  .coming-soon h3 { font-size: 18px; letter-spacing: 2px; margin-bottom: 14px; }
+  .coming-soon ul { list-style: none; }
+  .coming-soon li {
+    font-size: 14px; color: var(--ink-soft); padding: 8px 0;
+    border-bottom: 1px dotted var(--line);
+  }
+  .coming-soon li:last-child { border-bottom: none; }
+  .coming-soon li strong { color: var(--ink); }
+</style>

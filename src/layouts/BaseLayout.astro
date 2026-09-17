@@ -1,0 +1,53 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = '维点图书馆 · DimensionsCosmos Library',
+  description = '伟大心智的阅读操作系统：用苏格拉底的方法读庄子，用费曼的方法读相对论，用朱熹的方法读古兰经。',
+} = Astro.props;
+const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav>
+    <a class="brand" href={base}>
+      <span class="seal">维点</span>
+      <span><b>维点图书馆</b><small>DimensionsCosmos</small></span>
+    </a>
+    <div class="nav-links">
+      <a href={`${base}books`}>书库</a>
+      <a href={`${base}methods`}>方法</a>
+      <a href={`${base}pricing`}>定价</a>
+      <a class="nav-cta" href={`${base}pricing`}>解锁全部</a>
+    </div>
+  </nav>
+  <main>
+    <slot />
+  </main>
+  <footer>
+    <p><b>维点图书馆</b> DimensionsCosmos Library · 伟大心智的阅读操作系统</p>
+    <p style="margin-top:4px">原文 © 中文维基文库（CC BY-SA 4.0）及其他开放来源 · AI 解读内容由免费 API 降级链生成</p>
+    <p style="margin-top:4px">浇灌自由生长的文明 · 预览版 v0.5 · <a href="https://github.com/aidulibrary/DimensionsCosmos">GitHub</a></p>
+  </footer>
+</body>
+</html>
+
+<style>
+  @import '../styles/global.css';
+</style>

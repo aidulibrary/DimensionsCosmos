@@ -1,0 +1,158 @@
+---
+import { getAllMethods } from '../lib/data';
+
+const methods = getAllMethods();
+const freeMethods = methods.filter((m) => m.free);
+const paidMethods = methods.filter((m) => !m.free);
+const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+
+interface Props {
+  bookSlug: string;
+  selectedMethod?: string;
+  unlockedMethods?: string[];
+}
+
+const { bookSlug, selectedMethod = '', unlockedMethods = [] } = Astro.props;
+---
+
+<section class="method-section">
+  <h2 class="section-title">
+    <span class="rule"></span>选择一种大师的视角<span class="rule"></span>
+  </h2>
+  <p class="section-desc">同样的文本，不同的大师会看到完全不同的东西——选一位，让 TA 带你读。</p>
+
+  <!-- 免费方法（入口钩子）-->
+  <div class="method-group">
+    <h3 class="group-label">🆓 免费体验</h3>
+    <div class="method-grid">
+      {freeMethods.map((m) => {
+        const isActive = selectedMethod === m.id;
+        const isUnlocked = unlockedMethods.includes(m.id) || m.free;
+        const href = isUnlocked ? `${base}read/${bookSlug}/${m.id}` : `${base}books/${bookSlug}?unlock=${m.id}`;
+        return (
+          <a href={href} class={`method-chip free ${isActive ? 'active' : ''}`}>
+            <span class="chip-icon">{m.icon}</span>
+            <div class="chip-body">
+              <strong>{m.name_zh}</strong>
+              <small>{m.era}</small>
+              <p>{m.summary}</p>
+              {isActive && <span class="chip-check">当前视角 ✓</span>}
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- 付费方法 -->
+  <div class="method-group">
+    <h3 class="group-label">🔐 付费解锁（¥3.9–12.9 / 篇）</h3>
+    <div class="method-grid">
+      {paidMethods.map((m) => {
+        const isActive = selectedMethod === m.id;
+        const isUnlocked = unlockedMethods.includes(m.id);
+        const href = isUnlocked
+          ? `${base}read/${bookSlug}/${m.id}`
+          : `${base}pricing?book=${bookSlug}&method=${m.id}`;
+        return (
+          <a href={href} class={`method-chip paid ${isActive ? 'active' : ''} ${isUnlocked ? 'unlocked' : 'locked'}`}>
+            <span class="chip-icon">{m.icon}</span>
+            <div class="chip-body">
+              <strong>{m.name_zh}</strong>
+              <small>{m.era}</small>
+              <p>{m.summary}</p>
+              <div class="chip-footer">
+                {isUnlocked
+                  ? <span class="chip-check">已解锁 ✓</span>
+                  : <span class="chip-price">¥{m.price}</span>
+                }
+              </div>
+            </div>
+            {!isUnlocked && <div class="lock-overlay"><span>🔒</span></div>}
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .method-section {
+    padding: 20px 0;
+  }
+  .section-title {
+    text-align: center; font-size: 28px; letter-spacing: 4px;
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    margin-bottom: 8px;
+  }
+  .section-title .rule {
+    width: 40px; height: 2px; background: var(--cinnabar, #9e2b25);
+    border-radius: 2px; flex: none;
+  }
+  .section-desc {
+    text-align: center; color: var(--ink-soft, #6b655c);
+    font-size: 15px; margin-bottom: 32px;
+  }
+
+  .method-group { margin-bottom: 28px; }
+  .group-label {
+    font-size: 14px; color: var(--ink-soft, #6b655c);
+    margin-bottom: 16px; letter-spacing: 2px;
+    padding-left: 4px;
+  }
+
+  .method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .method-chip {
+    display: flex; gap: 14px; padding: 18px;
+    background: #fff; border: 1.5px solid var(--line, #ddd2bd);
+    border-radius: 10px; text-decoration: none; color: inherit;
+    transition: all .2s; position: relative; overflow: hidden;
+  }
+  .method-chip:hover {
+    border-color: var(--cinnabar, #9e2b25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(43,41,38,.1);
+  }
+  .method-chip.active {
+    border-color: var(--cinnabar, #9e2b25);
+    background: #fef9f5;
+    box-shadow: 0 0 0 2px rgba(158,43,37,.15);
+  }
+  .method-chip.locked {
+    opacity: .78;
+  }
+  .method-chip.unlocked {
+    border-color: var(--gold, #b8934a);
+  }
+
+  .chip-icon { font-size: 28px; flex: none; line-height: 1.2; }
+  .chip-body { flex: 1; min-width: 0; }
+  .chip-body strong { font-size: 16px; letter-spacing: 1px; display: block; }
+  .chip-body small { font-size: 12px; color: var(--ink-soft, #6b655c); }
+  .chip-body p { font-size: 13px; color: var(--ink-soft, #6b655c); margin-top: 6px; line-height: 1.5; }
+
+  .chip-footer { margin-top: 10px; }
+  .chip-price {
+    display: inline-block; background: var(--cinnabar, #9e2b25); color: #fff;
+    font-size: 13px; font-weight: 700; padding: 3px 12px; border-radius: 999px;
+  }
+  .chip-check {
+    font-size: 12px; color: var(--gold, #b8934a); font-weight: 600;
+  }
+
+  .lock-overlay {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    background: rgba(255,255,255,.45);
+    pointer-events: none;
+  }
+  .lock-overlay span { font-size: 22px; }
+
+  @media (max-width: 600px) {
+    .method-grid { grid-template-columns: 1fr; }
+  }
+</style>

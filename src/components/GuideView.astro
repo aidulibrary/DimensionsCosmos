@@ -1,0 +1,130 @@
+---
+import type { Guide } from '../lib/data';
+import { getMethodInfo } from '../lib/data';
+import Field from './Field.astro';
+
+interface Props {
+  guide: Guide;
+  bookTitle: string;
+  bookAuthor: string;
+  bookDynasty: string;
+}
+
+const { guide, bookTitle, bookAuthor, bookDynasty } = Astro.props;
+const method = getMethodInfo(guide.method_id);
+const c = guide.content;
+
+function notEmpty(v: unknown): boolean {
+  if (v == null) return false;
+  if (typeof v === 'string') return v.trim().length > 0;
+  if (Array.isArray(v)) return v.length > 0;
+  if (typeof v === 'object') return Object.keys(v as object).length > 0;
+  return true;
+}
+---
+
+<article class="guide-view">
+  <header class="guide-header">
+    <div class="guide-meta-top">
+      <span class="method-badge">{method.icon} {method.name_zh}</span>
+      <span class="price-tag">{method.free ? '免费' : `¥${method.price}`}</span>
+    </div>
+    <h1>{bookTitle}</h1>
+    <p class="book-info">{bookAuthor} · {bookDynasty} — 以 {method.name_zh} 解读</p>
+    <p class="method-era">{method.era}</p>
+  </header>
+
+  <div class="guide-content">
+    {c.structure && <Field label="📐 逻辑结构" value={c.structure} />}
+    {c.explain_to_12_year_old && <Field label="👦 给 12 岁孩子讲" value={c.explain_to_12_year_old} />}
+    {c.analogy && <Field label="🌟 一个比喻" value={c.analogy} />}
+    {c.gaps_found && notEmpty(c.gaps_found) && <Field label="❓ 卡住的地方" value={c.gaps_found} />}
+    {c.re_read_insight && <Field label="🔁 重读新发现" value={c.re_read_insight} />}
+
+    {c.keywords && notEmpty(c.keywords) && <Field label="🔑 关键词" value={c.keywords} />}
+    {c.key_terms && notEmpty(c.key_terms) && <Field label="📝 关键术语" value={c.key_terms} />}
+
+    {c.suspension_of_judgment && <Field label="🧘 放下成见" value={c.suspension_of_judgment} />}
+    {c.personal_application && <Field label="🎯 切己体察" value={c.personal_application} />}
+
+    {c.faces && notEmpty(c.faces) && <Field label="🎭 各面解读" value={c.faces} />}
+    {c.deep_dive && notEmpty(c.deep_dive) && <Field label="🔬 深入剖析" value={c.deep_dive} />}
+    {c.coup_de_grace && <Field label="💫 东坡收尾" value={c.coup_de_grace} />}
+
+    {c.motif_parallels && notEmpty(c.motif_parallels) && <Field label="🔗 跨文本母题" value={c.motif_parallels} />}
+    {c.ironies_and_paradoxes && notEmpty(c.ironies_and_paradoxes) && <Field label="⚡ 反讽与悖论" value={c.ironies_and_paradoxes} />}
+    {c.cross_civilization_insight && <Field label="🌍 跨文明洞见" value={c.cross_civilization_insight} />}
+
+    {c.inner_resonance && <Field label="💗 心与文的呼应" value={c.inner_resonance} />}
+    {c.actionable_insight && <Field label="🏃 知行合一" value={c.actionable_insight} />}
+    {c.conscience_check && <Field label="⚖️ 良知检验" value={c.conscience_check} />}
+    {c.today_practice && <Field label="📅 今日可做" value={c.today_practice} />}
+
+    {c.classification && notEmpty(c.classification) && <Field label="📂 类型判定" value={c.classification} />}
+    {c.unity && notEmpty(c.unity) && <Field label="🏛️ 统一性" value={c.unity} />}
+    {c.outline && notEmpty(c.outline) && <Field label="📋 大纲" value={c.outline} />}
+    {c.key_propositions && notEmpty(c.key_propositions) && <Field label="💬 关键论断" value={c.key_propositions} />}
+    {c.judgment && notEmpty(c.judgment) && <Field label="⚖️ 评判" value={c.judgment} />}
+
+    {c.key_questions && notEmpty(c.key_questions) && <Field label="❓ 苏格拉底之问" value={c.key_questions} />}
+    {c.exposed_assumptions && notEmpty(c.exposed_assumptions) && <Field label="🔍 揭露的预设" value={c.exposed_assumptions} />}
+    {c.reductio_ad_absurdum && <Field label="🌀 归谬" value={c.reductio_ad_absurdum} />}
+    {c.maieutic_insight && <Field label="✨ 助产出的洞见" value={c.maieutic_insight} />}
+
+    {c.historical_situation && <Field label="📜 历史处境" value={c.historical_situation} />}
+    {c.what_author_fought_against && <Field label="⚔️ 作者在对抗什么" value={c.what_author_fought_against} />}
+    {c.excluded_voices && notEmpty(c.excluded_voices) && <Field label="🔇 被排除的声音" value={c.excluded_voices} />}
+    {c.thinking_without_banisters && <Field label="🧗 没有扶手的思想" value={c.thinking_without_banisters} />}
+
+    {c.civilization_phase && <Field label="🏛️ 文明阶段" value={c.civilization_phase} />}
+    {c.asabiyyah_analysis && <Field label="🤝 阿萨比亚分析" value={c.asabiyyah_analysis} />}
+    {c.causal_chain && notEmpty(c.causal_chain) && <Field label="⛓️ 因果链" value={c.causal_chain} />}
+    {c.badawa_vs_hadara && notEmpty(c.badawa_vs_hadara) && <Field label="🏕️ 游牧 vs 定居" value={c.badawa_vs_hadara} />}
+
+    {c.lenses_used && notEmpty(c.lenses_used) && <Field label="🔮 使用的透镜" value={c.lenses_used} />}
+    {c.per_lens_reading && notEmpty(c.per_lens_reading) && <Field label="👁️ 各透镜解读" value={c.per_lens_reading} />}
+    {c.tensions_and_syntheses && notEmpty(c.tensions_and_syntheses) && <Field label="⚡ 张力与融合" value={c.tensions_and_syntheses} />}
+    {c.emergent_insight && <Field label="💎 涌现洞见" value={c.emergent_insight} />}
+  </div>
+
+  <footer class="guide-footer">
+    <p>🤖 AI 生成于 {new Date(guide.generated_at).toLocaleDateString('zh-CN')} · 模型：{guide.model_used || '免费 API 降级链'} · 人工抽检中</p>
+    <p>📖 原文来源：中文维基文库（CC BY-SA 4.0）· <a href={`https://zh.wikisource.org/wiki/${bookTitle}`}>查看原文 →</a></p>
+  </footer>
+</article>
+
+<style>
+  .guide-view {
+    max-width: 760px; margin: 0 auto; padding: 20px 0 60px;
+  }
+  .guide-header {
+    text-align: center; margin-bottom: 40px;
+    padding-bottom: 30px; border-bottom: 1px solid #ddd2bd;
+  }
+  .guide-meta-top {
+    display: flex; justify-content: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .method-badge {
+    font-size: 14px; background: #2b2926; color: #f7f2e8;
+    padding: 4px 14px; border-radius: 999px; letter-spacing: 1px;
+  }
+  .price-tag {
+    font-size: 13px; background: #9e2b25; color: #fff;
+    padding: 4px 12px; border-radius: 999px; font-weight: 700;
+  }
+  .guide-header h1 {
+    font-size: 36px; letter-spacing: 6px; margin-bottom: 12px;
+  }
+  .book-info { color: #6b655c; font-size: 16px; }
+  .method-era { color: #b8934a; font-size: 13px; margin-top: 6px; }
+
+  .guide-content { margin-bottom: 36px; }
+
+  .guide-footer {
+    text-align: center; padding-top: 24px;
+    border-top: 1px solid #ddd2bd;
+    font-size: 12px; color: #6b655c;
+  }
+  .guide-footer p { margin: 4px 0; }
+</style>

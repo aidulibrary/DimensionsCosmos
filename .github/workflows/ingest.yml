@@ -1,18 +1,21 @@
-name: ingest
+name: ingest-deploy
 
-# 阶段 0 运行时：GitHub Actions 免费额度，每周一凌晨抓一次 + 支持手动触发。
-# 本地无需装任何环境，推送本仓库后在此页点 "Run workflow" 即可跑全量。
+# DimensionsCosmos 全自动管线：文本抓取 → AI 解读 → 前端数据生成 → 构建部署
+# 触发：每周一凌晨 2:00 UTC + 手动触发 + push 到 main 时
 
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 2 * * 1"
+  push:
+    branches: [main]
 
 permissions:
   contents: write
+  deployments: write
 
 jobs:
-  fetch:
+  fetch-and-ai:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,15 +24,49 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install -r requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
+      - run: pip install -r requirements.txt
+      - run: npm ci
+
+      # 阶段 1: 抓取 Wikisource 文本
       - name: fetch wikisource texts
         run: python pipeline/run.py
 
-      - name: commit database
+      # 阶段 2: AI 解读（仅当有 API Key 时运行）
+      - name: generate AI guides
+        if: ${{ env.GEMINI_API_KEY != '' || env.GROQ_API_KEY != '' }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          python pipeline/run_ai.py --method zhuxi,feynman,socratic,adler,qianzhongshu || echo "AI processing skipped (no key or rate limited)"
+
+      # 阶段 3: 生成前端数据
+      - name: generate frontend data
+        run: node scripts/gen-data.mjs
+
+      # 阶段 4: Astro 构建
+      - name: build Astro site
+        run: npx astro build
+
+      # 阶段 5: 提交更新
+      - name: commit changes
         run: |
           git config user.name "guji-bot"
           git config user.email "guji-bot@users.noreply.github.com"
-          git add data/guji.db
-          git commit -m "data: weekly ingest $(date +%F)" || echo "no changes"
+          git add data/ public/data/ dist/ scripts/task-manager.mjs 2>/dev/null || true
+          git commit -m "ci: weekly ingest + AI + build $(date +%F)" || echo "no changes"
           git push
+
+      # 阶段 6: 部署到 Cloudflare Pages（仅 push 触发时）
+      - name: deploy to Cloudflare Pages
+        if: ${{ success() && github.event_name == 'push' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: pages deploy dist/ --project-name=dimensions-cosmos
