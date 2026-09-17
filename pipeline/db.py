@@ -33,9 +33,17 @@ CREATE TABLE IF NOT EXISTS chapters (
 CREATE INDEX IF NOT EXISTS idx_chapters_work ON chapters(work_id);
 """
 
+# 增量列：老库 ALTER 升级；重复执行报 duplicate column 属正常，忽略
+_MIGRATIONS = ("ALTER TABLE works ADD COLUMN last_error TEXT",)
+
 
 def connect(db_path: Path) -> sqlite3.Connection:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(db_path))
     conn.executescript(SCHEMA)
+    for sql in _MIGRATIONS:
+        try:
+            conn.execute(sql)
+        except sqlite3.OperationalError:
+            pass
     return conn

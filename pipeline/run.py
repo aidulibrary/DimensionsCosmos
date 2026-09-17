@@ -53,21 +53,23 @@ def main():
         work_id = upsert_work(conn, row)
         title = row["title"]
         print(f"[fetch] {title} ...", flush=True)
+        error = None
         try:
             book = fetch_book(title, max_chapters=args.max_chapters)
         except Exception as exc:  # noqa: BLE001
-            print(f"  ! 抓取失败：{exc}")
+            error = str(exc)[:300]
+            print(f"  ! 抓取失败：{error}")
             book = None
         now = datetime.now(timezone.utc).isoformat(timespec="seconds")
         if book is None:
             conn.execute(
-                "UPDATE works SET status = 'missing', fetched_at = ? WHERE id = ?",
-                (now, work_id),
+                "UPDATE works SET status = 'missing', fetched_at = ?, last_error = ? WHERE id = ?",
+                (now, error or "page not found", work_id),
             )
             missing.append(title)
         else:
             conn.execute(
-                "UPDATE works SET ws_title = ?, status = 'ok', fetched_at = ? WHERE id = ?",
+                "UPDATE works SET ws_title = ?, status = 'ok', fetched_at = ?, last_error = NULL WHERE id = ?",
                 (book["title"], now, work_id),
             )
             for ch in book["chapters"]:
