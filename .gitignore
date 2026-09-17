@@ -3,8 +3,8 @@ node_modules/
 dist/
 .astro/
 
-# 构建产物
-public/data/
+# 构建产物（保留 public/data 原始数据入库，供 Cloudflare 构建读取）
+public/data/*.tmp
 
 # 环境变量
 .env

@@ -1,0 +1,585 @@
+{
+  "generated_at": "2026-09-17T13:51:42.523Z",
+  "phases": [
+    {
+      "id": "M0",
+      "title": "内容底座 | 本周第 1–2 天",
+      "tasks": [
+        {
+          "id": "0.1",
+          "title": "配置 Python 环境",
+          "executor": "👤用户",
+          "status": "done",
+          "dependsOn": [],
+          "description": "pip install -r requirements.txt"
+        },
+        {
+          "id": "0.2",
+          "title": "下载 Gutenberg 精选",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "0.1"
+          ],
+          "description": "python scripts/download_gutenberg.py --top 5 先试跑，确认正常后去掉 --top"
+        },
+        {
+          "id": "0.3",
+          "title": "下载 OpenStax 教材",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "0.2"
+          ],
+          "description": "python scripts/download_openstax.py"
+        },
+        {
+          "id": "0.4",
+          "title": "下载 Standard Ebooks",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "0.3"
+          ],
+          "description": "python scripts/download_standard_ebooks.py --limit 10 先试跑"
+        },
+        {
+          "id": "0.5",
+          "title": "克隆技术书仓库",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "0.4"
+          ],
+          "description": "python scripts/download_tech_books.py（需装 git）"
+        },
+        {
+          "id": "0.6",
+          "title": "一键全量下载",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "0.5"
+          ],
+          "description": "python scripts/download_all.py --skip tech_books"
+        },
+        {
+          "id": "0.7",
+          "title": "⚡ 放置殆知阁全集",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "0.6"
+          ],
+          "description": "将已下载的殆知阁 TXT 文件复制到 data/sources/daizhige/"
+        },
+        {
+          "id": "0.8",
+          "title": "⚡ 放置 ctext 下载内容",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "0.7"
+          ],
+          "description": "将 ctext.org 下载的文本放到 data/sources/ctext/（如有）"
+        },
+        {
+          "id": "0.9",
+          "title": "多语 Wikisource 抓取",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "0.8"
+          ],
+          "description": "修改 pipeline/wikisource.py 的 API_URL 前缀即可切换语言，在 Actions 中手动触发"
+        }
+      ]
+    },
+    {
+      "id": "M1",
+      "title": "首批 AI 解读 | 本周第 3–4 天",
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "⚡ 注册 API Key（三选一）",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "1.0"
+          ],
+          "description": "打开上面任一链接注册，把 key 设为环境变量"
+        },
+        {
+          "id": "1.2",
+          "title": "验证 AI 链路",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "1.1"
+          ],
+          "description": "python -c \"from pipeline.ai_client import chat; print(chat('你好'))\""
+        },
+        {
+          "id": "1.3",
+          "title": "冒烟测试（一书一法）",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "1.2"
+          ],
+          "description": "python pipeline/run_ai.py --book \"论语\" --method zhuxi"
+        },
+        {
+          "id": "1.4",
+          "title": "首批批量加工（28 书 × 5 法）",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "1.3"
+          ],
+          "description": "python pipeline/run_ai.py --method zhuxi,feynman,socratic,adler,qianzhongshu"
+        },
+        {
+          "id": "1.5",
+          "title": "检查生成质量",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "1.4"
+          ],
+          "description": "sqlite3 data/guji.db \"SELECT work_id, method_id, json_extract(result, '$.content') FROM ai_guides LIMIT 5\""
+        },
+        {
+          "id": "1.6",
+          "title": "更新 GitHub Actions",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "1.5"
+          ],
+          "description": "在 ingest.yml 中增加 AI 管线步骤，让 Actions 每周自动更新解读"
+        },
+        {
+          "id": "1.7",
+          "title": "重新生成前端数据",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "1.6"
+          ],
+          "description": "node scripts/gen-data.mjs （将 ai_guides 内容导出为 JSON）"
+        },
+        {
+          "id": "1.8",
+          "title": "本地预览",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "1.7"
+          ],
+          "description": "npm run dev → 打开 http://localhost:4321/DimensionsCosmos/"
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "title": "可售卖前端 | 第 2 周",
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "验证 Astro build 通过",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "2.0"
+          ],
+          "description": "npm run build（确认无编译错误）"
+        },
+        {
+          "id": "2.2",
+          "title": "本地 dev 预览全链路",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "2.1"
+          ],
+          "description": "逐页检查：首页→书库→书详情→解读页→方法页→定价页"
+        },
+        {
+          "id": "2.3",
+          "title": "调整 global.css 全局样式",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "2.2"
+          ],
+          "description": "补充缺失的 CSS 变量/响应式规则"
+        },
+        {
+          "id": "2.4",
+          "title": "部署到 Cloudflare Pages",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "2.3"
+          ],
+          "description": "连接 GitHub 仓库 → 自动部署（免费）"
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "title": "付费闭环 | 第 2–3 周",
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "⚡ 注册面包多账号",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "3.0"
+          ],
+          "description": "mbd.pub — 国内用户微信支付首选"
+        },
+        {
+          "id": "3.2",
+          "title": "⚡ 创建「AI 解读解锁」商品",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "3.1"
+          ],
+          "description": "设置 ¥3.9/5.9/12.9 三种价格（或用变量定价）"
+        },
+        {
+          "id": "3.3",
+          "title": "注册 Gumroad（备选）",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "3.2"
+          ],
+          "description": "gumroad.com — 国际用户信用卡支付"
+        },
+        {
+          "id": "3.4",
+          "title": "创建 Cloudflare Worker（鉴权）",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "3.3"
+          ],
+          "description": "轻量 token 验证：存 token → 校验 → 放行/拒绝"
+        },
+        {
+          "id": "3.5",
+          "title": "前端 token 输入框",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "3.4"
+          ],
+          "description": "在 PaywallGate 加入 token 输入 + localStorage 存储"
+        },
+        {
+          "id": "3.6",
+          "title": "面包多 webhook 自动发 token",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "3.5"
+          ],
+          "description": "用户付款后 → webhook → Worker 生成 token → 邮件发给用户"
+        },
+        {
+          "id": "3.7",
+          "title": "更新 pricing.astro 收款链接",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "3.6"
+          ],
+          "description": "替换 SHOUKUAN_URL 为实际链接"
+        }
+      ]
+    },
+    {
+      "id": "M4",
+      "title": "国际化 + B 端 | 第 4–6 周",
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "英文版首页 + 书库",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.0"
+          ],
+          "description": "基于 Gutenberg 精选数据，复用组件架构"
+        },
+        {
+          "id": "4.2",
+          "title": "英文版方法解读",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "4.1"
+          ],
+          "description": "run_ai.py 英文 prompt → 英文输出"
+        },
+        {
+          "id": "4.3",
+          "title": "OER 教材 AI 学习工具",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.2"
+          ],
+          "description": "OpenStax 教材 × 方法插件 → 「教材读懂器」"
+        },
+        {
+          "id": "4.4",
+          "title": "B 端 API 网关",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.3"
+          ],
+          "description": "/api/v1/guide?book=&method= → 按调用量计费"
+        },
+        {
+          "id": "4.5",
+          "title": "多语 Wikisource 管线",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.4"
+          ],
+          "description": "复用 pipeline，逐语种建立种子书单并抓取"
+        }
+      ]
+    },
+    {
+      "id": "M5",
+      "title": "用户创作平台 + 方法插件市场 | 第 7–10 周",
+      "tasks": [
+        {
+          "id": "5A.1",
+          "title": "方法编辑器前端页面",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "/methods/create — 表单：方法名、图标、时代、系统提示词、输出字段"
+        },
+        {
+          "id": "5A.2",
+          "title": "方法预览器",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "输入一段测试文本 → 实时调用 AI → 预览各字段输出"
+        },
+        {
+          "id": "5A.3",
+          "title": "方法导出为插件包",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "导出为标准 JSON/YAML 格式（method-plugin.json）"
+        },
+        {
+          "id": "5A.4",
+          "title": "插件市场页",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "/marketplace — 浏览、搜索、安装他人创建的方法插件"
+        },
+        {
+          "id": "5A.5",
+          "title": "评分 + 评论系统",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "⭐ 1–5 星 + 文本评价，评价最多的方法自动置顶"
+        },
+        {
+          "id": "5A.6",
+          "title": "收益分成结算",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "方法作者获得 50% 收益分成，通过面包多/Gumroad 自动结算"
+        },
+        {
+          "id": "5A.7",
+          "title": "方法版本管理",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "方法更新后通知已购买者，支持 diff 查看变更"
+        },
+        {
+          "id": "5B.1",
+          "title": "上传页面",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "/upload — 拖拽/粘贴文本（TXT/HTML/Markdown/PDF），或输入 Wikisource URL"
+        },
+        {
+          "id": "5B.2",
+          "title": "AI 自动处理管线",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "上传后自动：校勘（AI 比对版本）→ 标点（加标点）→ 分段（章节识别）→ 入库"
+        },
+        {
+          "id": "5B.3",
+          "title": "处理状态页",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "实时显示处理进度：排队中 → 校勘中 → 标点中 → 已就绪"
+        },
+        {
+          "id": "5B.4",
+          "title": "私密/公开管理",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "用户可选择将上传的书籍设为私密（仅自己可见）或公开（通过审核后入库）"
+        },
+        {
+          "id": "5B.5",
+          "title": "版权声明 + DMCA 合规",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "上传时需勾选版权声明；提供 DMCA 投诉入口"
+        },
+        {
+          "id": "5C.1",
+          "title": "用户系统",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "注册/登录（OAuth: GitHub + Google），个人主页"
+        },
+        {
+          "id": "5C.2",
+          "title": "个人主页",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "展示：我创建的方法 / 我上传的书 / 已购买 / 收益"
+        },
+        {
+          "id": "5C.3",
+          "title": "数据库升级为 PostgreSQL",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "从 SQLite 迁移到 PostgreSQL（支持复杂查询和事务）"
+        },
+        {
+          "id": "5C.4",
+          "title": "CDN 加速",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "4.9"
+          ],
+          "description": "静态资源 CDN；大文件（古籍全文）按需加载"
+        }
+      ]
+    },
+    {
+      "id": "M6",
+      "title": "持续运营 | 长期",
+      "tasks": [
+        {
+          "id": "6.1",
+          "title": "每周新方法",
+          "executor": "👤用户",
+          "status": "todo",
+          "dependsOn": [
+            "6.0"
+          ],
+          "description": "标准：1 位大师 = 1 份系统提示词档案"
+        },
+        {
+          "id": "6.2",
+          "title": "每周新书单",
+          "executor": "🤖命令行",
+          "status": "todo",
+          "dependsOn": [
+            "6.1"
+          ],
+          "description": "Wikisource 多语种子书单，每周 5 部"
+        },
+        {
+          "id": "6.3",
+          "title": "Newsletter 自动化",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "6.2"
+          ],
+          "description": "「本周新解读」邮件 → ConvertKit 发送"
+        },
+        {
+          "id": "6.4",
+          "title": "SEO + 社会化分享",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "6.3"
+          ],
+          "description": "Open Graph, Twitter Card, sitemap.xml"
+        },
+        {
+          "id": "6.5",
+          "title": "数据分析面板",
+          "executor": "🧠Claude",
+          "status": "todo",
+          "dependsOn": [
+            "6.4"
+          ],
+          "description": "排行：最热门书、最热门方法、转化率"
+        }
+      ]
+    }
+  ]
+}
