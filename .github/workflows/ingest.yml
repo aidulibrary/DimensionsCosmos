@@ -1,0 +1,35 @@
+name: ingest
+
+# 阶段 0 运行时：GitHub Actions 免费额度，每周一凌晨抓一次 + 支持手动触发。
+# 本地无需装任何环境，推送本仓库后在此页点 "Run workflow" 即可跑全量。
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * 1"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - name: fetch wikisource texts
+        run: python pipeline/run.py
+
+      - name: commit database
+        run: |
+          git config user.name "guji-bot"
+          git config user.email "guji-bot@users.noreply.github.com"
+          git add data/guji.db
+          git commit -m "data: weekly ingest $(date +%F)" || echo "no changes"
+          git push
