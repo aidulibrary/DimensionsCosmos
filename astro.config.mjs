@@ -1,8 +1,8 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig } from "astro/config";
 
-// GitHub Pages 部署：base 路径必须匹配仓库名
+// Cloudflare Pages 部署（根路径）
 export default defineConfig({
-  site: 'https://aidulibrary.github.io',
-  base: '/DimensionsCosmos/',
-  output: 'static',
+  site: "https://dimensionscosmos.pages.dev",
+  base: "/",
+  output: "static",
 });

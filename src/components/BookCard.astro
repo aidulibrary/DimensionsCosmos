@@ -9,7 +9,7 @@ interface Props {
 const { book, minimal = false } = Astro.props;
 const guideCount = book.guides?.length ?? 0;
 const freeGuide = book.guides?.find((g) => g.method_id === 'zhuxi');
-const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+const base = Astro.site?.pathname ?? '/';
 const href = minimal ? '#' : `${base}books/${book.slug}`;
 ---
 

@@ -9,7 +9,7 @@ export interface Props {
 
 const { methodId, bookSlug, freePreview } = Astro.props;
 const methodInfo = getMethodInfo(methodId);
-const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+const base = Astro.site?.pathname ?? '/';
 ---
 
 <div class="paywall-overlay" id="paywall-gate">

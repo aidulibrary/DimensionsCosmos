@@ -23,7 +23,7 @@ export async function getStaticPaths() {
 }
 
 const { slug, method } = Astro.params;
-const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+const base = Astro.site?.pathname ?? '/';
 
 let book: BookMeta | null = null;
 try {

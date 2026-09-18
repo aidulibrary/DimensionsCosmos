@@ -17,7 +17,7 @@ const works = indexData?.works?.filter((w) => w.ok) ?? [];
 const byBu = indexData?.byBu ?? {};
 const methods = getAllMethods();
 const freeMethods = methods.filter((m) => m.free);
-const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+const base = Astro.site?.pathname ?? '/';
 ---
 
 <BaseLayout title="维点图书馆 · 用大师的方法读一切书">

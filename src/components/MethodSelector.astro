@@ -4,7 +4,7 @@ import { getAllMethods } from '../lib/data';
 const methods = getAllMethods();
 const freeMethods = methods.filter((m) => m.free);
 const paidMethods = methods.filter((m) => !m.free);
-const base = Astro.site?.pathname ?? '/DimensionsCosmos/';
+const base = Astro.site?.pathname ?? '/';
 
 interface Props {
   bookSlug: string;
