@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-17T13:10:29.849Z",
+  "generatedAt": "2026-09-18T16:19:14.384Z",
   "total": 50,
   "ok": 28,
   "taxonomy": [
@@ -919,7 +919,8 @@
       "fetched_at": "2026-09-17T05:16:47+00:00",
       "chapter_count": 130,
       "slug": "13-史记",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 14,
@@ -933,7 +934,8 @@
       "fetched_at": "2026-09-17T05:16:47+00:00",
       "chapter_count": 0,
       "slug": "14-汉书",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 15,
@@ -947,7 +949,8 @@
       "fetched_at": "2026-09-17T05:17:52+00:00",
       "chapter_count": 131,
       "slug": "15-后汉书",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 16,
@@ -961,7 +964,8 @@
       "fetched_at": "2026-09-17T05:18:25+00:00",
       "chapter_count": 67,
       "slug": "16-三国志",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 17,
@@ -975,7 +979,8 @@
       "fetched_at": "2026-09-17T05:20:46+00:00",
       "chapter_count": 295,
       "slug": "17-资治通鉴",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 18,
@@ -989,7 +994,8 @@
       "fetched_at": "2026-09-17T05:20:47+00:00",
       "chapter_count": 0,
       "slug": "18-战国策",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 19,
@@ -1003,7 +1009,8 @@
       "fetched_at": "2026-09-17T05:20:48+00:00",
       "chapter_count": 0,
       "slug": "19-国语",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 20,
@@ -1017,7 +1024,8 @@
       "fetched_at": "2026-09-17T05:20:53+00:00",
       "chapter_count": 10,
       "slug": "20-贞观政要",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 21,
@@ -1031,7 +1039,8 @@
       "fetched_at": "2026-09-17T05:21:14+00:00",
       "chapter_count": 41,
       "slug": "21-水经注",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 22,
@@ -1045,7 +1054,8 @@
       "fetched_at": "2026-09-17T05:21:27+00:00",
       "chapter_count": 24,
       "slug": "22-史通",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 23,
@@ -1059,7 +1069,51 @@
       "fetched_at": "2026-09-17T05:21:28+00:00",
       "chapter_count": 1,
       "slug": "23-老子",
-      "ok": true
+      "ok": true,
+      "guides": [
+        {
+          "method_id": "arendt",
+          "generated_at": "2026-09-18T09:46:09.773118+00:00",
+          "model_used": "qwen3:4b",
+          "content": {
+            "historical_situation": "春秋时期（公元前770年-前476年），周王室权威崩解、诸侯国间频繁战争与礼制失序的社会危机中，老子以'道'的哲学框架试图为混乱的秩序提供一种超越性、自然性的解释，回应当时社会从宗法制度向权力斗争急剧滑动的历史断裂。",
+            "what_author_fought_against": "老子在对抗以周礼为根基的僵化社会结构、日益膨胀的战争暴力机器，以及人性在权力追逐中产生的异化；他主张'无为'，即减少人为强制干预，回归事物本然的运行规律以寻求内在和谐。",
+            "excluded_voices": [
+              "小农和手工业者等基层民众的实践智慧",
+              "女性在社会中的声音",
+              "少数民族和边缘群体的生存经验"
+            ],
+            "thinking_without_banisters": "悬置所有政治哲学流派的标签后，老子的'道'思想揭示：真正的政治行动必须源于对自然秩序的内在觉察，而非外在强制；在当代，这要求我们警惕人为设计的秩序对社会活力的压制，让公共领域在流动中自我更新——因为政治的健康生命在于承认并顺应本源的流动，而非试图征服或控制。"
+          }
+        },
+        {
+          "method_id": "ibn_khaldun",
+          "generated_at": "2026-09-18T10:31:00.944606+00:00",
+          "model_used": "qwen3:4b",
+          "content": {
+            "civilization_phase": "上升",
+            "asabiyyah_analysis": "道家学派在汉唐时期形成初步的群体认同，其asabiyyah以‘无为’与‘自然’为核心，但宋明理学兴起后，群体凝聚力转向对‘道’的哲学化阐释，体现为士大夫阶层的学术共同体",
+            "causal_chain": [
+              {
+                "cause": "秦朝焚书坑儒事件",
+                "effect": "汉代统治者重新发掘《老子》作为黄老之术的理论基础"
+              },
+              {
+                "cause": "唐宋科举制度的完善",
+                "effect": "《老子》成为士人阶层跨朝代的学术讨论对象，注释数量显著增加"
+              },
+              {
+                "cause": "明清时期理学对道家思想的系统化改造",
+                "effect": "《老子》的解释重心从政治实践转向形而上学，群体凝聚力逐渐内化为学术传统"
+              }
+            ],
+            "badawa_vs_hadara": {
+              "nomadic_view": "游牧者将《老子》视为应对环境变化的生存智慧，其‘道法自然’思想契合游牧社会对动态平衡的追求，群体凝聚力体现为对自然法则的本能适应，避免人为干预的冲突。",
+              "settled_view": "定居者将《老子》转化为治理策略，如汉代黄老之术、唐代无为而治的政策，其阿萨比亚体现为官僚体系对‘自然秩序’的理性化利用，通过制度设计实现社会和谐。"
+            }
+          }
+        }
+      ]
     },
     {
       "id": 24,
@@ -1073,7 +1127,8 @@
       "fetched_at": "2026-09-17T05:21:44+00:00",
       "chapter_count": 33,
       "slug": "24-庄子",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 25,
@@ -1087,7 +1142,8 @@
       "fetched_at": "2026-09-17T05:22:00+00:00",
       "chapter_count": 33,
       "slug": "25-荀子",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 26,
@@ -1101,7 +1157,8 @@
       "fetched_at": "2026-09-17T05:22:37+00:00",
       "chapter_count": 79,
       "slug": "26-韩非子",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 27,
@@ -1115,7 +1172,8 @@
       "fetched_at": "2026-09-17T05:23:02+00:00",
       "chapter_count": 53,
       "slug": "27-墨子",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 28,
@@ -1129,7 +1187,8 @@
       "fetched_at": "2026-09-17T05:23:03+00:00",
       "chapter_count": 1,
       "slug": "28-孙子兵法",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 29,
@@ -1143,7 +1202,8 @@
       "fetched_at": "2026-09-17T05:23:04+00:00",
       "chapter_count": 0,
       "slug": "29-吕氏春秋",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 30,
@@ -1157,7 +1217,8 @@
       "fetched_at": "2026-09-17T05:23:16+00:00",
       "chapter_count": 22,
       "slug": "30-淮南子",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 31,
@@ -1171,7 +1232,8 @@
       "fetched_at": "2026-09-17T05:23:16+00:00",
       "chapter_count": 0,
       "slug": "31-论衡",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 32,
@@ -1185,7 +1247,61 @@
       "fetched_at": "2026-09-17T05:23:20+00:00",
       "chapter_count": 7,
       "slug": "32-颜氏家训",
-      "ok": true
+      "ok": true,
+      "guides": [
+        {
+          "method_id": "arendt",
+          "generated_at": "2026-09-18T11:52:23.951201+00:00",
+          "model_used": "qwen3:4b",
+          "content": {
+            "historical_situation": "南北朝时期，南朝梁与北朝的礼仪差异，颜之推记录江南与北方在亲属称谓、丧葬习俗等方面的区别，以维护南朝礼制传统。",
+            "what_author_fought_against": "北人轻视礼仪、随意称呼导致家族伦理混乱，以及江南人过度拘谨而难以沟通的现实。",
+            "excluded_voices": [
+              "北人不拘礼的风俗习惯",
+              "某些非正式称谓（如'兄子弟子门中'）在正式礼仪中的排斥"
+            ],
+            "thinking_without_banisters": "在阿伦特的悬置框架下，礼仪作为社会道德的基础，其规范性能够有效维系家族伦理与社会秩序，避免文化冲突导致的伦理解体。"
+          }
+        },
+        {
+          "method_id": "ibn_khaldun",
+          "generated_at": "2026-09-18T12:46:09.084822+00:00",
+          "model_used": "qwen3:4b",
+          "content": {
+            "civilization_phase": "鼎盛",
+            "asabiyyah_analysis": "北方以军事血缘为纽带，群体凝聚力强；南方以文化礼制为纽带，群体凝聚力较弱",
+            "causal_chain": [
+              {
+                "cause": "南北朝长期政治分裂",
+                "effect": "江南与北方亲属称谓体系差异"
+              },
+              {
+                "cause": "江南儒家礼制深度渗透",
+                "effect": "丧礼中哀哭行为更频繁，体现高情感表达强度"
+              },
+              {
+                "cause": "北方游牧文化影响",
+                "effect": "丧礼简化以维持社会决策效率"
+              }
+            ],
+            "badawa_vs_hadara": {
+              "nomadic_view": "北方游牧社会通过简朴丧礼维持高效决策与集体行动能力",
+              "settled_view": "南方农耕社会以繁复丧礼强化文化认同与血缘纽带"
+            }
+          }
+        },
+        {
+          "method_id": "socratic",
+          "generated_at": "2026-09-18T11:40:34.611361+00:00",
+          "model_used": "qwen3:4b",
+          "content": {
+            "key_questions": "为什么南北朝时期亲属称谓存在显著差异？, 江南与北朝丧礼习俗差异的根本原因是什么？, 若强行统一南北朝的亲属称谓体系，会引发哪些社会问题？",
+            "exposed_assumptions": "南北朝文化差异是历史自然演化的结果，礼制差异无需刻意调和。",
+            "reductio_ad_absurdum": "若接受江南丧礼中频繁哭泣的习俗而忽视北朝人的实际情感表达需求，可能导致社会信任破裂与人际疏离。",
+            "maieutic_insight": "礼制的深层价值在于通过规范化的社会互动，平衡文化差异与情感需求，从而维系家族与社会的稳定。"
+          }
+        }
+      ]
     },
     {
       "id": 33,
@@ -1199,7 +1315,32 @@
       "fetched_at": "2026-09-17T05:23:39+00:00",
       "chapter_count": 37,
       "slug": "33-世说新语",
-      "ok": true
+      "ok": true,
+      "guides": [
+        {
+          "method_id": "ibn_khaldun",
+          "generated_at": "2026-09-18T13:58:43.636886+00:00",
+          "model_used": "qwen3:4b",
+          "content": {
+            "civilization_phase": "鼎盛",
+            "asabiyyah_analysis": "士族门阀社会以礼法与道德约束维持高凝聚力，个体自由度高，体现内聚力与流动性并存",
+            "causal_chain": [
+              {
+                "cause": "殷洪乔临别掷书于水",
+                "effect": "群体对其清廉品格的持久认可，成为后世士族行为典范"
+              },
+              {
+                "cause": "谢仁祖异舞展示才艺",
+                "effect": "王公对其艺术天赋的赞赏，反映士族间以才艺与风度为评价标准"
+              }
+            ],
+            "badawa_vs_hadara": {
+              "nomadic_view": "此维度需要阅读更完整的原文才能判断",
+              "settled_view": "士族门阀社会以礼法和家族纽带构建稳定结构，个体在集体规范下保持高流动性"
+            }
+          }
+        }
+      ]
     },
     {
       "id": 34,
@@ -1213,7 +1354,8 @@
       "fetched_at": "2026-09-17T05:23:48+00:00",
       "chapter_count": 19,
       "slug": "34-山海经",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 35,
@@ -1227,7 +1369,8 @@
       "fetched_at": "2026-09-17T05:23:49+00:00",
       "chapter_count": 0,
       "slug": "35-搜神记",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 36,
@@ -1241,7 +1384,8 @@
       "fetched_at": "2026-09-17T05:24:06+00:00",
       "chapter_count": 36,
       "slug": "36-黄帝内经",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 37,
@@ -1255,7 +1399,8 @@
       "fetched_at": "2026-09-17T05:24:07+00:00",
       "chapter_count": 0,
       "slug": "37-伤寒杂病论",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 38,
@@ -1269,7 +1414,8 @@
       "fetched_at": "2026-09-17T05:24:08+00:00",
       "chapter_count": 0,
       "slug": "38-齐民要术",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 39,
@@ -1283,7 +1429,8 @@
       "fetched_at": "2026-09-17T05:24:23+00:00",
       "chapter_count": 29,
       "slug": "39-梦溪笔谈",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 40,
@@ -1297,7 +1444,8 @@
       "fetched_at": "2026-09-17T05:24:24+00:00",
       "chapter_count": 0,
       "slug": "40-天工开物",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 1,
@@ -1311,7 +1459,93 @@
       "fetched_at": "2026-09-17T05:12:23+00:00",
       "chapter_count": 22,
       "slug": "1-论语",
-      "ok": true
+      "ok": true,
+      "guides": [
+        {
+          "method_id": "adler",
+          "generated_at": "2026-09-18T15:33:34.407695+00:00",
+          "model_used": "qwen2.5:1.5b",
+          "content": {
+            "classification": "{type, sub_type, rationale}",
+            "unity": "{one_sentence_summary, paragraph_summary}",
+            "outline": "[{section, key_argument}]",
+            "key_terms": "[{term, author_meaning}]",
+            "key_propositions": "[string]",
+            "judgment": "{agree, disagree_reason, suspension}"
+          }
+        },
+        {
+          "method_id": "feynman",
+          "generated_at": "2026-09-18T15:36:54.865320+00:00",
+          "model_used": "qwen2.5:1.5b",
+          "content": {
+            "explain_to_12_year_old": "解释给十二岁的孩子听。",
+            "gaps_found": "[缺少原文内容]",
+            "re_read_insight": "在读原文时发现的问题。",
+            "analogy": "这是一个日常类比，例如：用一条鱼比喻‘不可不知鱼死也要死，不可不知鱼活也要活’。"
+          }
+        },
+        {
+          "method_id": "qianzhongshu",
+          "generated_at": "2026-09-18T15:27:30.358176+00:00",
+          "model_used": "qwen2.5:1.5b",
+          "content": [
+            {
+              "motif_parallels": "[{motif, chinese_source, western_source, comparison}]",
+              "ironies_and_paradoxes": "[string]",
+              "cross_civilization_insight": "string"
+            }
+          ]
+        },
+        {
+          "method_id": "sushi",
+          "generated_at": "2026-09-18T15:24:21.870505+00:00",
+          "model_used": "qwen2.5:1.5b",
+          "content": {
+            "name": "子曰：『君子易事而難說也；說之不以道，不說也；及其使人也，器之。小人難事而易說也。說之雖不以道，說也；及其使人也，任之。』",
+            "insight": "这句话通过对比君子和小人的对待方式，强调了如何对待有才能的人。",
+            "key_points": [
+              "君子和小人的对待方式",
+              "如何对待有才能的人"
+            ]
+          }
+        },
+        {
+          "method_id": "wangyangming",
+          "generated_at": "2026-09-18T15:30:12.462391+00:00",
+          "model_used": "qwen2.5:1.5b",
+          "content": {
+            "raw": "此维度需要阅读更完整的原文才能判断"
+          }
+        },
+        {
+          "method_id": "zhuxi",
+          "generated_at": "2026-09-18T08:15:15.791333+00:00",
+          "model_used": "qwen3:4b",
+          "content": {
+            "structure": "子路第十三篇聚焦治国方略与君子修身，逻辑结构为：先阐明为政原则（先之、劳之），再深入探讨‘正名’对社会秩序的基础性作用，最终落脚于‘君子和而不同’的实践智慧，体现儒家‘道’与‘器’的统一性。",
+            "keywords": [
+              {
+                "term": "正名",
+                "frequency": "1",
+                "meaning": "名分的正确确立，是治理国家的基础，强调社会秩序需以名分规范为前提"
+              },
+              {
+                "term": "君子",
+                "frequency": "4",
+                "meaning": "具备德行与修养者，是社会秩序的维护者，需以身作则践行道德原则"
+              },
+              {
+                "term": "和而不同",
+                "frequency": "1",
+                "meaning": "和谐但保持差异，体现包容性与原则性的统一，是处理人际关系与社会事务的智慧"
+              }
+            ],
+            "suspension_of_judgment": "朱熹解读‘正名’时，强调其不仅是形式上的名分界定，更需结合实际民生需求，避免因过度追求名分而忽视治理实效，体现儒家‘道’与‘器’的辩证统一。",
+            "personal_application": "当代实践中，个人应先正己身，方能有效影响他人；处理公共事务时，需兼顾原则性与灵活性，避免因僵化名分而失却实效，实现社会和谐与秩序的动态平衡。"
+          }
+        }
+      ]
     },
     {
       "id": 2,
@@ -1325,7 +1559,8 @@
       "fetched_at": "2026-09-17T05:12:30+00:00",
       "chapter_count": 14,
       "slug": "2-孟子",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 3,
@@ -1339,7 +1574,8 @@
       "fetched_at": "2026-09-17T05:12:31+00:00",
       "chapter_count": 0,
       "slug": "3-大学",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 4,
@@ -1353,7 +1589,8 @@
       "fetched_at": "2026-09-17T05:12:32+00:00",
       "chapter_count": 1,
       "slug": "4-中庸",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 5,
@@ -1367,7 +1604,8 @@
       "fetched_at": "2026-09-17T05:15:02+00:00",
       "chapter_count": 313,
       "slug": "5-诗经",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 6,
@@ -1381,7 +1619,8 @@
       "fetched_at": "2026-09-17T05:15:03+00:00",
       "chapter_count": 0,
       "slug": "6-尚书",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 7,
@@ -1395,7 +1634,8 @@
       "fetched_at": "2026-09-17T05:15:03+00:00",
       "chapter_count": 0,
       "slug": "7-礼记",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 8,
@@ -1409,7 +1649,8 @@
       "fetched_at": "2026-09-17T05:15:37+00:00",
       "chapter_count": 73,
       "slug": "8-周易",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 9,
@@ -1423,7 +1664,8 @@
       "fetched_at": "2026-09-17T05:15:38+00:00",
       "chapter_count": 0,
       "slug": "9-左传",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 10,
@@ -1437,7 +1679,8 @@
       "fetched_at": "2026-09-17T05:15:39+00:00",
       "chapter_count": 0,
       "slug": "10-孝经",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 11,
@@ -1451,7 +1694,8 @@
       "fetched_at": "2026-09-17T05:15:41+00:00",
       "chapter_count": 0,
       "slug": "11-尔雅",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 12,
@@ -1465,7 +1709,8 @@
       "fetched_at": "2026-09-17T05:15:41+00:00",
       "chapter_count": 0,
       "slug": "12-说文解字",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 41,
@@ -1479,7 +1724,8 @@
       "fetched_at": "2026-09-17T05:24:24+00:00",
       "chapter_count": 0,
       "slug": "41-楚辞",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 42,
@@ -1493,7 +1739,8 @@
       "fetched_at": "2026-09-17T05:24:25+00:00",
       "chapter_count": 0,
       "slug": "42-文选",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 43,
@@ -1507,7 +1754,8 @@
       "fetched_at": "2026-09-17T05:24:26+00:00",
       "chapter_count": 1,
       "slug": "43-唐诗三百首",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 44,
@@ -1521,7 +1769,8 @@
       "fetched_at": "2026-09-17T05:24:27+00:00",
       "chapter_count": 0,
       "slug": "44-宋词三百首",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 45,
@@ -1535,7 +1784,8 @@
       "fetched_at": "2026-09-17T05:24:27+00:00",
       "chapter_count": 0,
       "slug": "45-古文观止",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 46,
@@ -1549,7 +1799,8 @@
       "fetched_at": "2026-09-17T05:24:52+00:00",
       "chapter_count": 51,
       "slug": "46-文心雕龙",
-      "ok": true
+      "ok": true,
+      "guides": []
     },
     {
       "id": 47,
@@ -1563,7 +1814,8 @@
       "fetched_at": "2026-09-17T05:24:53+00:00",
       "chapter_count": 0,
       "slug": "47-诗品",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 48,
@@ -1577,7 +1829,8 @@
       "fetched_at": "2026-09-17T05:24:54+00:00",
       "chapter_count": 0,
       "slug": "48-陶渊明集",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 49,
@@ -1591,7 +1844,8 @@
       "fetched_at": "2026-09-17T05:24:54+00:00",
       "chapter_count": 0,
       "slug": "49-李太白集",
-      "ok": false
+      "ok": false,
+      "guides": []
     },
     {
       "id": 50,
@@ -1605,8 +1859,9 @@
       "fetched_at": "2026-09-17T05:24:57+00:00",
       "chapter_count": 4,
       "slug": "50-杜工部集",
-      "ok": true
+      "ok": true,
+      "guides": []
     }
   ],
-  "guidesCount": 0
+  "guidesCount": 12
 }

@@ -11,10 +11,18 @@ import os
 
 import requests
 
-TIMEOUT = 600
+TIMEOUT = 3600
+
+_LAST_MODEL = None
+
+
+def get_last_model():
+    """返回最近一次成功调用实际使用的模型名（用于追溯）。"""
+    return _LAST_MODEL
 
 
 def _chat_completions(url, key, model, prompt, system, max_tokens):
+    global _LAST_MODEL
     messages = ([{"role": "system", "content": system}] if system else []) + [
         {"role": "user", "content": prompt}
     ]
@@ -27,17 +35,37 @@ def _chat_completions(url, key, model, prompt, system, max_tokens):
     if resp.status_code == 429:
         raise RuntimeError("rate limited")
     resp.raise_for_status()
+    _LAST_MODEL = model
     return resp.json()["choices"][0]["message"]["content"]
 
 
 def _ollama(prompt, system, max_tokens):
-    """本地 Ollama（OpenAI 兼容接口），无需真实 Key。"""
-    return _chat_completions(
-        "http://localhost:11434/v1/chat/completions",
-        os.environ.get("OLLAMA_API_KEY", "ollama"),
-        os.getenv("OLLAMA_MODEL", "qwen3:4b"),
-        prompt, system, max_tokens,
+    """本地 Ollama（原生 /api/chat 接口 + think:false）。
+
+    qwen3 是推理模型，OpenAI 兼容接口下 think 参数不生效，
+    推理 token 会挤占 content 导致空输出；改用原生接口显式关闭思考。
+    """
+    global _LAST_MODEL
+    messages = ([{"role": "system", "content": system}] if system else []) + [
+        {"role": "user", "content": prompt}
+    ]
+    resp = requests.post(
+        "http://localhost:11434/api/chat",
+        json={
+            "model": os.getenv("OLLAMA_MODEL", "qwen3:4b"),
+            "messages": messages,
+            "stream": False,
+            "think": False,
+            "options": {"num_predict": max_tokens},
+        },
+        timeout=TIMEOUT,
     )
+    if resp.status_code == 429:
+        raise RuntimeError("rate limited")
+    resp.raise_for_status()
+    data = resp.json()
+    _LAST_MODEL = data.get("model", os.getenv("OLLAMA_MODEL", "qwen3:4b"))
+    return data["message"]["content"]
 
 
 def _groq(prompt, system, max_tokens):

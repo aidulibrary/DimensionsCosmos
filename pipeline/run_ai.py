@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "pipeline"))
 
-from ai_client import chat  # noqa: E402
+from ai_client import chat, get_last_model  # noqa: E402
 from db import connect  # noqa: E402
 from method_plugins import METHODS, list_methods  # noqa: E402
 
@@ -107,6 +107,33 @@ def build_prompt(method, book_meta, chapters_text):
 content 字段中的每一个 key 都要有内容。如果某个字段确实无法分析（例如原文没有提供足够信息），请写「此维度需要阅读更完整的原文才能判断」，而不是空着。"""
 
 
+def extract_json(text):
+    """从模型输出中提取最外层完整 JSON 对象。
+
+    qwen3 关闭 thinking 后，content 开头仍可能混入思考文本
+    （以 </think> 或闲聊文字结尾），因此优先取 </think> 之后
+    的部分；再从每个 '{' 处尝试 raw_decode，取解析跨度最长
+    （end 最大）的对象——即最外层的完整 JSON。
+    """
+    from json import JSONDecoder
+    text = text.strip()
+    idx = text.rfind("</think>")
+    if idx != -1:
+        text = text[idx + len("</think>"):]
+    decoder = JSONDecoder()
+    best, best_end = None, -1
+    for i in range(len(text)):
+        if text[i] != "{":
+            continue
+        try:
+            obj, end = decoder.raw_decode(text[i:])
+            if end > best_end:
+                best, best_end = obj, end
+        except Exception:
+            continue
+    return best
+
+
 def generate_guide(conn, work_id, method_id, model_tracker):
     """为一部书生成一种方法的解读。返回 (ok, error_msg)。"""
     method = METHODS[method_id]
@@ -130,16 +157,12 @@ def generate_guide(conn, work_id, method_id, model_tracker):
     print(f"    提示长度: {len(prompt):,} 字符", end="", flush=True)
 
     try:
-        result_text = chat(prompt, max_tokens=2048)
-        model_used = model_tracker.get("last_model", "unknown")
-        # 尝试从响应中提取 JSON
-        json_start = result_text.find("{")
-        json_end = result_text.rfind("}") + 1
-        if json_start >= 0 and json_end > json_start:
-            json_str = result_text[json_start:json_end]
-            parsed = json.loads(json_str)
-        else:
-            parsed = {"raw": result_text}
+        result_text = chat(prompt, max_tokens=4096)
+        model_used = get_last_model() or model_tracker.get("last_model", "unknown")
+        # 尝试从响应中提取 JSON（从末尾取最后一个完整对象）
+        parsed = extract_json(result_text)
+        if parsed is None:
+            parsed = {"raw": result_text[:8000]}
 
         conn.execute(
             "INSERT OR REPLACE INTO ai_guides (work_id, method_id, result, generated_at, model_used) "

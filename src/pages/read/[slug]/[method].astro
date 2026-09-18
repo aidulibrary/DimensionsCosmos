@@ -9,12 +9,14 @@ import type { BookMeta, Guide } from '../../../lib/data';
 import { getMethodInfo } from '../../../lib/data';
 
 export async function getStaticPaths() {
+  const ALL_METHODS = ['zhuxi', 'feynman', 'socratic', 'adler', 'qianzhongshu', 'sushi', 'wangyangming', 'arendt', 'ibn_khaldun', 'multimodal'];
   const raw = readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8');
-  const data = JSON.parse(raw) as { works: { slug: string; guides: Guide[] }[] };
+  const data = JSON.parse(raw) as { works: { slug: string; ok: boolean }[] };
   const paths: { params: { slug: string; method: string } }[] = [];
   for (const w of (data.works ?? [])) {
-    for (const g of (w.guides ?? [])) {
-      paths.push({ params: { slug: w.slug, method: g.method_id } });
+    if (!w.ok) continue;
+    for (const m of ALL_METHODS) {
+      paths.push({ params: { slug: w.slug, method: m } });
     }
   }
   return paths;
@@ -59,8 +61,57 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
     </section>
   </BaseLayout>
 ) : !guide ? (
-  <BaseLayout title="该解读暂不可用">
-    <section><p>该解读暂不可用</p></section>
+  <BaseLayout title={`${book.seed_title} x ${methodInfo.name_zh} · 维点图书馆`}>
+    <section class="coming-soon-page">
+      <nav class="breadcrumb">
+        <a href={base}>首页</a> / <a href={`${base}books/${slug}`}>{book.seed_title}</a> / <span>{methodInfo.name_zh}</span>
+      </nav>
+
+      <div class="cs-card">
+        <div class="cs-icon">🧠</div>
+        <h2>{book.seed_title} × {methodInfo.name_zh}</h2>
+        <p class="cs-meta">{book.author ?? '佚名'} · {book.dynasty ?? ''} — 以 {methodInfo.name_zh} 解读</p>
+        <p class="cs-era">{methodInfo.era}</p>
+
+        <div class="cs-divider"></div>
+
+        <div class="cs-status">
+          <span class="cs-badge">⏳ AI 解读生成中</span>
+        </div>
+        <p class="cs-desc">
+          这篇解读正在排队等待本地 Ollama（qwen2.5:1.5b）逐条生成。
+          每条约需 4-5 分钟，全部 28 部书 × 10 种方法预计 2 天内完成。
+        </p>
+
+        <div class="cs-actions">
+          <a href={`${base}books/${slug}`} class="btn-secondary">← 返回书详情</a>
+          <a href={`https://zh.wikisource.org/wiki/${book.seed_title}`} class="btn-primary" target="_blank" rel="noopener">📖 先看维基文库原文</a>
+        </div>
+
+        <!-- 这本书已有的其他解读 -->
+        {allGuides.length > 0 && (
+          <div class="cs-existing">
+            <h4>👀 这本书已有 {allGuides.length} 种解读可读</h4>
+            <div class="cs-pills">
+              {allGuides.map((mid) => (
+                <a href={`${base}read/${slug}/${mid}`} class="cs-pill">
+                  {getMethodInfo(mid).icon} {getMethodInfo(mid).name_zh}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div class="switch-section">
+        <h3>换个已就绪的视角</h3>
+        <MethodSelector
+          bookSlug={slug ?? ''}
+          selectedMethod={method}
+          unlockedMethods={allGuides}
+        />
+      </div>
+    </section>
   </BaseLayout>
 ) : (
   <BaseLayout title={`${book.seed_title} x ${methodInfo.name_zh} - 维点图书馆`}>
@@ -101,4 +152,53 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
   .switch-section h3 { font-size: 18px; letter-spacing: 2px; margin-bottom: 16px; }
 
   .paywall-page { padding: 0; }
+
+  /* --- Coming-soon placeholder --- */
+  .coming-soon-page { max-width: 760px; margin: 0 auto; }
+
+  .cs-card {
+    background: #fff; border: 1.5px solid var(--line); border-radius: 14px;
+    padding: 40px 32px; text-align: center; margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .cs-icon { font-size: 48px; margin-bottom: 16px; }
+  .cs-card h2 { font-size: 28px; letter-spacing: 3px; margin-bottom: 8px; }
+  .cs-meta { font-size: 15px; color: var(--ink-soft); margin-bottom: 4px; }
+  .cs-era { font-size: 13px; color: var(--ink-soft); font-style: italic; }
+
+  .cs-divider { width: 60px; height: 2px; background: var(--line); margin: 24px auto; }
+
+  .cs-status { margin-bottom: 12px; }
+  .cs-badge {
+    display: inline-block; font-size: 14px; font-weight: 700;
+    background: #fef3c7; color: #92400e; border: 1px solid #fbbf24;
+    padding: 5px 16px; border-radius: 20px; letter-spacing: 1px;
+  }
+  .cs-desc { font-size: 14px; color: var(--ink-soft); line-height: 1.75; max-width: 520px; margin: 0 auto 24px; }
+
+  .cs-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+  .cs-actions a {
+    display: inline-block; padding: 10px 22px; border-radius: 8px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--cinnabar); color: var(--white);
+  }
+  .btn-primary:hover { background: var(--cinnabar-deep); }
+  .btn-secondary {
+    background: #fff; color: var(--ink); border: 1.5px solid var(--line);
+  }
+  .btn-secondary:hover { background: var(--paper); }
+
+  .cs-existing {
+    border-top: 1px solid var(--line); padding-top: 20px; margin-top: 8px;
+  }
+  .cs-existing h4 { font-size: 15px; margin-bottom: 12px; color: var(--ink); }
+  .cs-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .cs-pill {
+    display: inline-block; font-size: 13px; padding: 4px 14px;
+    border-radius: 20px; text-decoration: none;
+    background: var(--paper); color: var(--ink); border: 1px solid var(--line);
+  }
+  .cs-pill:hover { border-color: var(--cinnabar); color: var(--cinnabar); }
 </style>

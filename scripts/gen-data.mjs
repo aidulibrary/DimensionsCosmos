@@ -111,7 +111,7 @@ const indexJson = {
   ok: worksWithSlug.filter((w) => w.ok).length,
   taxonomy: db.prepare("SELECT name, parent FROM taxonomy ORDER BY name").all(),
   byBu,
-  works: worksWithSlug,
+  works: worksWithSlug.map((w) => ({ ...w, guides: worksGuides[w.id] || [] })),
   guidesCount: Object.values(worksGuides).reduce((sum, g) => sum + g.length, 0),
 };
 
