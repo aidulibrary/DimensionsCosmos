@@ -65,11 +65,34 @@ const safeSlug = (t) =>
   String(t || "untitled")
     .replace(/[/\?#]/g, "-")
     .replace(/\s+/g, "-");
+// 版本档案（EGV 裁决）：无 A1 锚定时 grade=reference，但 version_text 仍可能给出可读底本说明
+const profiles = {};
+try {
+  for (const p of db
+    .prepare(
+      `SELECT work_id, version_text, structure_note, reading_tip, grade, score
+       FROM work_profiles`,
+    )
+    .all()) {
+    if (!p.version_text && !p.structure_note && !p.reading_tip) continue;
+    profiles[p.work_id] = {
+      text: p.version_text || null,
+      structure: p.structure_note || null,
+      readingTip: p.reading_tip || null,
+      grade: p.grade || null,
+      score: p.score ?? null,
+    };
+  }
+} catch (_) {
+  /* 表可能不存在 */
+}
+
 const worksWithSlug = works.map((w) => ({
   ...w,
   slug: `${w.id}-${safeSlug(w.seed_title)}`,
   ok: w.status === "ok",
   readable: w.status === "ok" && (w.quality ?? "ok") !== "unavailable",
+  version: profiles[w.id] || null,
 }));
 
 // 2) 分类聚合

@@ -110,6 +110,14 @@ export interface BookMeta {
   slug: string;
   ok: boolean;
   readable: boolean;
+  /** 版本档案（EGV 裁决结果）：version 为纸本/可读本说明，底本缺省时退回电子本说明 */
+  version?: {
+    text?: string | null;
+    structure?: string | null;
+    readingTip?: string | null;
+    grade?: string | null;
+    score?: number | null;
+  } | null;
   chapters: Chapter[];
   guides: Guide[];
 }
