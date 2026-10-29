@@ -1,0 +1,801 @@
+{
+  "generated_at": "2026-10-29T13:39:48",
+  "dry_run": false,
+  "chapters": 1527,
+  "works": 50,
+  "total_clean_chars": 7993127,
+  "elapsed_sec": 6.3,
+  "ms_per_chapter": 4.12,
+  "works_detail": [
+    {
+      "work_id": 1,
+      "title": "论语",
+      "bu": "经部",
+      "chapters": 22,
+      "total_chars": 23453,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 1
+    },
+    {
+      "work_id": 2,
+      "title": "孟子",
+      "bu": "经部",
+      "chapters": 14,
+      "total_chars": 45465,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 3,
+      "title": "大学",
+      "bu": "经部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 4,
+      "title": "中庸",
+      "bu": "经部",
+      "chapters": 1,
+      "total_chars": 16,
+      "quality": "unavailable",
+      "note": "底本仅 16 字，不可用",
+      "chapter_not_ok": 1
+    },
+    {
+      "work_id": 5,
+      "title": "诗经",
+      "bu": "经部",
+      "chapters": 313,
+      "total_chars": 53551,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 34
+    },
+    {
+      "work_id": 6,
+      "title": "尚书",
+      "bu": "经部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 7,
+      "title": "礼记",
+      "bu": "经部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 8,
+      "title": "周易",
+      "bu": "经部",
+      "chapters": 73,
+      "total_chars": 44141,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 9,
+      "title": "左传",
+      "bu": "经部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 10,
+      "title": "孝经",
+      "bu": "经部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 11,
+      "title": "尔雅",
+      "bu": "经部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 12,
+      "title": "说文解字",
+      "bu": "经部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 13,
+      "title": "史记",
+      "bu": "史部",
+      "chapters": 130,
+      "total_chars": 648455,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 14,
+      "title": "汉书",
+      "bu": "史部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 15,
+      "title": "后汉书",
+      "bu": "史部",
+      "chapters": 131,
+      "total_chars": 1161327,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 16,
+      "title": "三国志",
+      "bu": "史部",
+      "chapters": 67,
+      "total_chars": 847029,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 17,
+      "title": "资治通鉴",
+      "bu": "史部",
+      "chapters": 295,
+      "total_chars": 3138537,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 18,
+      "title": "战国策",
+      "bu": "史部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 19,
+      "title": "国语",
+      "bu": "史部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 20,
+      "title": "贞观政要",
+      "bu": "史部",
+      "chapters": 10,
+      "total_chars": 86571,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 21,
+      "title": "水经注",
+      "bu": "史部",
+      "chapters": 41,
+      "total_chars": 375964,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 22,
+      "title": "史通",
+      "bu": "史部",
+      "chapters": 24,
+      "total_chars": 127632,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 23,
+      "title": "老子",
+      "bu": "子部",
+      "chapters": 1,
+      "total_chars": 491,
+      "quality": "incomplete",
+      "note": "底本为全书单页（491 字），未分章",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 24,
+      "title": "庄子",
+      "bu": "子部",
+      "chapters": 33,
+      "total_chars": 80077,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 25,
+      "title": "荀子",
+      "bu": "子部",
+      "chapters": 33,
+      "total_chars": 139042,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 26,
+      "title": "韩非子",
+      "bu": "子部",
+      "chapters": 79,
+      "total_chars": 286262,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 27,
+      "title": "墨子",
+      "bu": "子部",
+      "chapters": 53,
+      "total_chars": 91830,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 28,
+      "title": "孙子兵法",
+      "bu": "子部",
+      "chapters": 1,
+      "total_chars": 10225,
+      "quality": "incomplete",
+      "note": "底本为全书单页（10225 字），未分章",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 29,
+      "title": "吕氏春秋",
+      "bu": "子部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 30,
+      "title": "淮南子",
+      "bu": "子部",
+      "chapters": 22,
+      "total_chars": 159051,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 31,
+      "title": "论衡",
+      "bu": "子部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 32,
+      "title": "颜氏家训",
+      "bu": "子部",
+      "chapters": 7,
+      "total_chars": 40892,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 33,
+      "title": "世说新语",
+      "bu": "子部",
+      "chapters": 37,
+      "total_chars": 198264,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 34,
+      "title": "山海经",
+      "bu": "子部",
+      "chapters": 19,
+      "total_chars": 47362,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 35,
+      "title": "搜神记",
+      "bu": "子部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 36,
+      "title": "黄帝内经",
+      "bu": "子部",
+      "chapters": 36,
+      "total_chars": 187773,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 37,
+      "title": "伤寒杂病论",
+      "bu": "子部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 38,
+      "title": "齐民要术",
+      "bu": "子部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 39,
+      "title": "梦溪笔谈",
+      "bu": "子部",
+      "chapters": 29,
+      "total_chars": 126814,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 40,
+      "title": "天工开物",
+      "bu": "子部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 41,
+      "title": "楚辞",
+      "bu": "集部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 42,
+      "title": "文选",
+      "bu": "集部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 43,
+      "title": "唐诗三百首",
+      "bu": "集部",
+      "chapters": 1,
+      "total_chars": 2580,
+      "quality": "incomplete",
+      "note": "底本为全书单页（2580 字），未分章",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 44,
+      "title": "宋词三百首",
+      "bu": "集部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 45,
+      "title": "古文观止",
+      "bu": "集部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 46,
+      "title": "文心雕龙",
+      "bu": "集部",
+      "chapters": 51,
+      "total_chars": 48310,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 47,
+      "title": "诗品",
+      "bu": "集部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 48,
+      "title": "陶渊明集",
+      "bu": "集部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 49,
+      "title": "李太白集",
+      "bu": "集部",
+      "chapters": 0,
+      "total_chars": 0,
+      "quality": "unavailable",
+      "note": "未获取到可用正文（底本缺失或为目录页）",
+      "chapter_not_ok": 0
+    },
+    {
+      "work_id": 50,
+      "title": "杜工部集",
+      "bu": "集部",
+      "chapters": 4,
+      "total_chars": 22013,
+      "quality": "ok",
+      "note": "",
+      "chapter_not_ok": 0
+    }
+  ],
+  "chapter_issues": [
+    {
+      "chapter_id": 17,
+      "title": "論語/知道第二十二",
+      "raw_chars": 31,
+      "clean_chars": 31,
+      "quality": "incomplete",
+      "note": "仅 31 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 41,
+      "title": "中庸",
+      "raw_chars": 17,
+      "clean_chars": 16,
+      "quality": "incomplete",
+      "note": "仅 16 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 42,
+      "title": "詩經/七月",
+      "raw_chars": 87,
+      "clean_chars": 48,
+      "quality": "incomplete",
+      "note": "仅 48 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 77,
+      "title": "詩經/南陔",
+      "raw_chars": 59,
+      "clean_chars": 39,
+      "quality": "incomplete",
+      "note": "仅 39 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 85,
+      "title": "詩經/君子陽陽",
+      "raw_chars": 96,
+      "clean_chars": 62,
+      "quality": "incomplete",
+      "note": "仅 62 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 94,
+      "title": "詩經/大東",
+      "raw_chars": 95,
+      "clean_chars": 61,
+      "quality": "incomplete",
+      "note": "仅 61 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 97,
+      "title": "詩經/天作",
+      "raw_chars": 113,
+      "clean_chars": 75,
+      "quality": "incomplete",
+      "note": "仅 75 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 113,
+      "title": "詩經/崇丘",
+      "raw_chars": 62,
+      "clean_chars": 42,
+      "quality": "incomplete",
+      "note": "仅 42 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 155,
+      "title": "詩經/有駜",
+      "raw_chars": 78,
+      "clean_chars": 44,
+      "quality": "incomplete",
+      "note": "仅 44 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 180,
+      "title": "詩經/樛木",
+      "raw_chars": 214,
+      "clean_chars": 47,
+      "quality": "incomplete",
+      "note": "仅 47 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 183,
+      "title": "詩經/武",
+      "raw_chars": 107,
+      "clean_chars": 70,
+      "quality": "incomplete",
+      "note": "仅 70 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 185,
+      "title": "詩經/殷武",
+      "raw_chars": 85,
+      "clean_chars": 51,
+      "quality": "incomplete",
+      "note": "仅 51 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 196,
+      "title": "詩經/泮水",
+      "raw_chars": 77,
+      "clean_chars": 43,
+      "quality": "incomplete",
+      "note": "仅 43 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 203,
+      "title": "詩經/漢廣",
+      "raw_chars": 105,
+      "clean_chars": 68,
+      "quality": "incomplete",
+      "note": "仅 68 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 205,
+      "title": "詩經/潛",
+      "raw_chars": 105,
+      "clean_chars": 68,
+      "quality": "incomplete",
+      "note": "仅 68 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 208,
+      "title": "詩經/烈祖",
+      "raw_chars": 70,
+      "clean_chars": 36,
+      "quality": "incomplete",
+      "note": "仅 36 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 212,
+      "title": "詩經/無衣",
+      "raw_chars": 32,
+      "clean_chars": 27,
+      "quality": "incomplete",
+      "note": "仅 27 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 220,
+      "title": "詩經/玄鳥",
+      "raw_chars": 70,
+      "clean_chars": 36,
+      "quality": "incomplete",
+      "note": "仅 36 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 227,
+      "title": "詩經/由儀",
+      "raw_chars": 64,
+      "clean_chars": 44,
+      "quality": "incomplete",
+      "note": "仅 44 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 228,
+      "title": "詩經/由庚",
+      "raw_chars": 61,
+      "clean_chars": 41,
+      "quality": "incomplete",
+      "note": "仅 41 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 231,
+      "title": "詩經/白華 (鹿鳴之什)",
+      "raw_chars": 71,
+      "clean_chars": 38,
+      "quality": "incomplete",
+      "note": "仅 38 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 233,
+      "title": "詩經/皇皇者華",
+      "raw_chars": 97,
+      "clean_chars": 63,
+      "quality": "incomplete",
+      "note": "仅 63 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 241,
+      "title": "詩經/碩鼠",
+      "raw_chars": 96,
+      "clean_chars": 66,
+      "quality": "incomplete",
+      "note": "仅 66 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 253,
+      "title": "詩經/維清",
+      "raw_chars": 98,
+      "clean_chars": 62,
+      "quality": "incomplete",
+      "note": "仅 62 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 264,
+      "title": "詩經/般",
+      "raw_chars": 113,
+      "clean_chars": 77,
+      "quality": "incomplete",
+      "note": "仅 77 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 267,
+      "title": "詩經/芣苢",
+      "raw_chars": 287,
+      "clean_chars": 47,
+      "quality": "incomplete",
+      "note": "仅 47 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 272,
+      "title": "詩經/華黍",
+      "raw_chars": 61,
+      "clean_chars": 41,
+      "quality": "incomplete",
+      "note": "仅 41 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 278,
+      "title": "詩經/蒹葭",
+      "raw_chars": 100,
+      "clean_chars": 55,
+      "quality": "incomplete",
+      "note": "仅 55 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 285,
+      "title": "詩經/螽斯",
+      "raw_chars": 225,
+      "clean_chars": 54,
+      "quality": "incomplete",
+      "note": "仅 54 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 297,
+      "title": "詩經/豐年",
+      "raw_chars": 112,
+      "clean_chars": 76,
+      "quality": "incomplete",
+      "note": "仅 76 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 309,
+      "title": "詩經/那",
+      "raw_chars": 141,
+      "clean_chars": 73,
+      "quality": "incomplete",
+      "note": "仅 73 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 319,
+      "title": "詩經/采蘩",
+      "raw_chars": 514,
+      "clean_chars": 54,
+      "quality": "incomplete",
+      "note": "仅 54 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 322,
+      "title": "詩經/長發",
+      "raw_chars": 88,
+      "clean_chars": 54,
+      "quality": "incomplete",
+      "note": "仅 54 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 324,
+      "title": "詩經/閟宮",
+      "raw_chars": 99,
+      "clean_chars": 78,
+      "quality": "incomplete",
+      "note": "仅 78 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 327,
+      "title": "詩經/陟岵",
+      "raw_chars": 86,
+      "clean_chars": 60,
+      "quality": "incomplete",
+      "note": "仅 60 字，疑为残缺底本"
+    },
+    {
+      "chapter_id": 347,
+      "title": "詩經/鳲鳩",
+      "raw_chars": 70,
+      "clean_chars": 50,
+      "quality": "incomplete",
+      "note": "仅 50 字，疑为残缺底本"
+    }
+  ]
+}

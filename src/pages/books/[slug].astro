@@ -49,8 +49,22 @@ const guideList = guides as Guide[] ?? [];
       <p class="stats">
         <span>📄 {(chapters ?? []).length} 章</span>
         <span>🧠 {guideList.length} 种大师解读</span>
-        <span>📖 <a href={`https://zh.wikisource.org/wiki/${title}`}>维基文库原文 →</a></span>
+        <span>✍️ {(book.total_chars ?? 0).toLocaleString()} 字</span>
       </p>
+
+      {book.readable ? (
+        <div class="read-cta">
+          <a class="btn-read" href={`${base}books/${slug}/read`}>开始阅读原文 →</a>
+          <span class="read-hint">可切换目录、记忆上次读到的位置</span>
+        </div>
+      ) : (
+        <p class="read-blocked">
+          该书在线底本残缺严重（{book.chapters?.[0]?.qualityNote || '篇幅异常'}），暂不提供阅读页，以免误导读者的版本判断。
+        </p>
+      )}
+      {book.quality === 'incomplete' && book.readable && (
+        <p class="read-blocked soft">⚠ 底本部分篇章不完整，阅读页会逐章标注，缺失内容不做补写。</p>
+      )}
     </header>
 
     <!-- 已有的免费解读预览（朱熹） -->
@@ -95,6 +109,23 @@ const guideList = guides as Guide[] ?? [];
   .stats { margin-top: 16px; font-size: 14px; color: var(--ink-soft); }
   .stats span { margin: 0 14px; }
   .stats a { color: var(--cinnabar); }
+
+  .read-cta { margin-top: 22px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .btn-read {
+    display: inline-block; background: var(--cinnabar); color: var(--white);
+    padding: 12px 34px; border-radius: 8px; font-size: 15px; font-weight: 700;
+    letter-spacing: 2px; text-decoration: none; box-shadow: var(--shadow-sm);
+    transition: background 0.18s, transform 0.18s;
+  }
+  .btn-read:hover { background: var(--cinnabar-deep); transform: translateY(-1px); }
+  .read-hint { font-size: 12px; color: var(--ink-soft); }
+
+  .read-blocked {
+    margin: 20px auto 0; max-width: 620px; font-size: 13.5px; line-height: 1.8;
+    color: #6b5a2a; background: #fdf6e3; border: 1px solid #e8d9a8;
+    border-radius: 8px; padding: 12px 18px; text-align: left;
+  }
+  .read-blocked.soft { background: none; border: none; color: var(--ink-soft); padding: 6px 0 0; }
 
   .preview-box {
     background: #fff; border: 1.5px solid var(--line); border-radius: 10px;

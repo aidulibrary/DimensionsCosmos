@@ -4,7 +4,16 @@ dist/
 .astro/
 
 # 构建产物（保留 public/data 原始数据入库，供 Cloudflare 构建读取）
+# public/data/book-*.json 目录 + public/data/ch/{chapterId}.json 正文（约 24MB / 1527 文件）
+# 必须入库：Cloudflare 构建环境没有 data/guji.db，gen-data 会 exit(0) 直接复用这些 JSON
 public/data/*.tmp
+
+# 本地数据库（73MB，不入库；由 pipeline/ 脚本本地生成与维护）
+# 无 DB 时 scripts/gen-data.mjs 会跳过生成，直接使用已入库的 public/data
+data/guji.db
+data/guji.db-journal
+data/guji.db-wal
+data/guji.db-shm
 
 # 环境变量
 .env

@@ -1,9 +1,40 @@
+export interface Block {
+  /** h=标题 p=段落 q=引文 v=诗行 t=表格 */
+  t: "h" | "p" | "q" | "v" | "t";
+  /** 标题层级，仅 h 有 */
+  l?: number;
+  x: string;
+}
+
+/** 章节目录项（book-*.json 内，不含正文） */
 export interface Chapter {
   id: number;
   title: string;
-  text: string;
-  excerpt: string;
   chars: number;
+  /** 篇目序；负数=前置附文，null=未定位 */
+  ord: number | null;
+  /** 分组标记（如诗经「國風」「小雅」、周易「十翼」） */
+  ordGroup: string | null;
+  /** ok | incomplete | unavailable */
+  quality: string;
+  qualityNote: string | null;
+  excerpt: string;
+  /** 兼容旧字段 */
+  text?: string;
+}
+
+/** 单章正文（ch/{id}.json） */
+export interface ChapterContent {
+  id: number;
+  workId: number;
+  workTitle: string;
+  title: string;
+  ord: number | null;
+  ordGroup: string | null;
+  chars: number;
+  quality: string;
+  qualityNote: string | null;
+  blocks: Block[];
 }
 
 export interface GuideContent {
@@ -73,8 +104,12 @@ export interface BookMeta {
   wikidata_qid: string | null;
   fetched_at: string | null;
   chapter_count: number;
+  total_chars: number;
+  /** ok | incomplete | unavailable */
+  quality: string;
   slug: string;
   ok: boolean;
+  readable: boolean;
   chapters: Chapter[];
   guides: Guide[];
 }

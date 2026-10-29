@@ -32,6 +32,11 @@ const href = minimal ? '#' : `${base}books/${book.slug}`;
       </p>
     )}
   </a>
+  {book.readable && (
+    <a class="card-read" href={`${base}books/${book.slug}/read`}>
+      读原文 <span aria-hidden="true">→</span>
+    </a>
+  )}
 </div>
 
 <style>
@@ -84,4 +89,13 @@ const href = minimal ? '#' : `${base}books/${book.slug}`;
     border-top: 1px dotted var(--line, #ddd2bd);
     padding-top: 10px;
   }
+  .card-read {
+    display: block; padding: 10px 22px;
+    border-top: 1px solid var(--line, #ddd2bd);
+    font-size: 13px; letter-spacing: 1px;
+    color: var(--cinnabar, #9e2b25); text-decoration: none;
+    background: rgba(158,43,37,.03);
+    transition: background .2s, letter-spacing .2s;
+  }
+  .card-read:hover { background: rgba(158,43,37,.08); letter-spacing: 2px; }
 </style>

@@ -1,0 +1,751 @@
+---
+// 原文阅读页 /books/{slug}/read/
+// 设计要点：
+//   1) 章节目录按 chapters.ord 排序（前置附文为负值，未定位者置末）
+//   2) 首章服务端直出，其余章客户端按需 fetch /data/ch/{id}.json
+//   3) 章节用 hash 定位（#ch-123），可分享、可刷新还原
+//   4) 质量闸门：incomplete 章顶部显式提示底本残缺
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import type { IndexData, BookMeta, Chapter, ChapterContent } from '../../../lib/data';
+
+export async function getStaticPaths() {
+  const raw = readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8');
+  const data = JSON.parse(raw) as IndexData;
+  return (data.works ?? [])
+    .filter((w) => w.readable)
+    .map((w) => ({ params: { slug: w.slug } }));
+}
+
+const { slug } = Astro.params;
+const base = Astro.site?.pathname ?? '/';
+
+let book: BookMeta | null = null;
+try {
+  const idStr = (slug ?? '0').split('-')[0];
+  const raw = readFileSync(join(process.cwd(), 'public', 'data', `book-${idStr}.json`), 'utf-8');
+  book = JSON.parse(raw) as BookMeta;
+} catch {
+  book = null;
+}
+if (!book) {
+  return new Response('未找到该书', { status: 404 });
+}
+
+const allChapters: Chapter[] = book.chapters ?? [];
+
+// 前置附文（ord < 0）单独成组
+const frontMatter = allChapters.filter((c) => typeof c.ord === 'number' && c.ord < 0);
+const bodyChapters = allChapters.filter((c) => !(typeof c.ord === 'number' && c.ord < 0));
+
+// 首章：正文第一章，没有正文则退回第一个附文
+const firstChapter = bodyChapters[0] ?? allChapters[0] ?? null;
+
+// 目录分组：ordGroup 变化处插分组标题
+type TocItem = { kind: 'group'; label: string } | { kind: 'ch'; ch: Chapter };
+const toc: TocItem[] = [];
+let lastGroup: string | null = null;
+for (const c of bodyChapters) {
+  if (c.ordGroup && c.ordGroup !== lastGroup) {
+    toc.push({ kind: 'group', label: c.ordGroup });
+    lastGroup = c.ordGroup;
+  }
+  toc.push({ kind: 'ch', ch: c });
+}
+
+// 首章正文
+let firstContent: ChapterContent | null = null;
+if (firstChapter) {
+  try {
+    const raw = readFileSync(join(process.cwd(), 'public', 'data', 'ch', `${firstChapter.id}.json`), 'utf-8');
+    firstContent = JSON.parse(raw) as ChapterContent;
+  } catch {
+    firstContent = null;
+  }
+}
+
+const title = book.seed_title;
+const totalChars = book.total_chars || allChapters.reduce((s, c) => s + (c.chars || 0), 0);
+const incomplete = book.quality === 'incomplete';
+
+// 传给客户端的最小目录（避免整份 book JSON 重复下发）
+const tocLite = allChapters.map((c) => ({
+  id: c.id,
+  title: c.title,
+  ord: c.ord,
+  g: c.ordGroup,
+  q: c.quality,
+  n: c.qualityNote,
+}));
+const passData = { base, slug: slug ?? '', toc: tocLite, first: firstChapter?.id ?? null };
+
+// 简繁/脏字标记：把正文中常见的维基残留符号做最后一次兜底清理
+const cleanLine = (s: string) =>
+  s
+    .replace(/\[\d+\]/g, '')
+    .replace(/\[(註|注|编辑|編輯|来源|來源)\]/g, '')
+    .replace(/\u200b/g, '')
+    .trim();
+---
+
+<BaseLayout
+  title={`${title} · 原文 · 维点图书馆`}
+  description={`${book.author ?? '佚名'}《${title}》原文全文在线阅读，${allChapters.length} 章 ${totalChars.toLocaleString()} 字。`}
+>
+  <div class="reader-shell">
+    <!-- 进度条 -->
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+    <!-- 面包屑 -->
+    <nav class="breadcrumb">
+      <a href={base}>首页</a> / <a href={`${base}books`}>书库</a> /
+      <a href={`${base}books/${slug}`}>{title}</a> / <span>原文</span>
+    </nav>
+
+    {incomplete && (
+      <div class="quality-banner">
+        <b>底本残缺提示</b>
+        该书在线底本存在缺章或篇幅异常，部分篇章可能不完整。缺失内容不做补写，以免混淆原文。
+      </div>
+    )}
+
+    <div class="reader-grid">
+      <!-- 目录 -->
+      <aside class="toc">
+        <div class="toc-head">
+          <h2>{title}</h2>
+          <p class="toc-meta">
+            {book.author && <span>{book.author}</span>}
+            {book.dynasty && <span>· {book.dynasty}</span>}
+            <span>· {allChapters.length} 章</span>
+          </p>
+        </div>
+
+        {frontMatter.length > 0 && (
+          <details class="toc-front">
+            <summary>序跋 · 校勘 · 提要（{frontMatter.length}）</summary>
+            <ul>
+              {frontMatter.map((c) => (
+                <li>
+                  <a href={`#ch-${c.id}`} data-cid={c.id} class="toc-link front">
+                    {c.title.split('/').pop()}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+
+        <ol class="toc-list">
+          {toc.map((item) =>
+            item.kind === 'group' ? (
+              <li class="toc-group">{item.label}</li>
+            ) : (
+              <li>
+                <a
+                  href={`#ch-${item.ch.id}`}
+                  data-cid={item.ch.id}
+                  class:list={['toc-link', { active: item.ch.id === firstChapter?.id, bad: item.ch.quality !== 'ok' }]}
+                >
+                  {item.ch.title.split('/').pop()}
+                </a>
+              </li>
+            ),
+          )}
+        </ol>
+      </aside>
+
+      <!-- 正文 -->
+      <main class="content">
+        <div class="toolbar">
+          <div class="tb-left">
+            <span class="tb-title" id="curTitle">{firstChapter?.title.split('/').pop() ?? ''}</span>
+            <span class="tb-chars" id="curChars">
+              {firstChapter ? `${firstChapter.chars.toLocaleString()} 字` : ''}
+            </span>
+          </div>
+          <div class="tb-right">
+            <button id="fontMinus" title="字号减小">A−</button>
+            <button id="fontPlus" title="字号增大">A+</button>
+            <a class="tb-guide" href={`${base}read/${slug}/zhuxi`}>看解读</a>
+          </div>
+        </div>
+
+        <article id="reader" class="article">
+          {firstContent ? (
+            <>
+              <h1 class="ch-title">{firstContent.title.split('/').pop()}</h1>
+              {firstContent.quality !== 'ok' && (
+                <p class="ch-note">
+                  ⚠ {firstContent.qualityNote || '该篇底本不完整，内容可能缺失。'}
+                </p>
+              )}
+              {firstContent.blocks.map((b) =>
+                b.t === 'h' ? (
+                  <h3 class:list={['bk-h', `lv${b.l ?? 2}`]}>{cleanLine(b.x)}</h3>
+                ) : b.t === 'q' ? (
+                  <blockquote class="bk-q">{cleanLine(b.x)}</blockquote>
+                ) : b.t === 'v' ? (
+                  <p class="bk-v">{cleanLine(b.x)}</p>
+                ) : (
+                  <p class="bk-p">{cleanLine(b.x)}</p>
+                ),
+              )}
+            </>
+          ) : (
+            <p class="empty">该章暂无正文。</p>
+          )}
+        </article>
+
+        <nav class="pager">
+          <button id="prevCh" class="pg-btn">← 上一篇</button>
+          <a class="pg-btn back" href={`${base}books/${slug}`}>返回书籍</a>
+          <button id="nextCh" class="pg-btn">下一篇 →</button>
+        </nav>
+
+        <p class="source-note">
+          原文底本：中文维基文库（CC BY-SA 4.0）。已过清洗管线去除维基标记、注脚与模板残留。
+        </p>
+      </main>
+    </div>
+  </div>
+
+  <script type="application/json" id="reader-data" set:html={JSON.stringify(passData)} />
+</BaseLayout>
+
+<script>
+  const dataEl = document.getElementById('reader-data');
+  const D = dataEl ? JSON.parse(dataEl.textContent || '{}') : { toc: [], base: '/' };
+  const toc: { id: number; title: string; ord: number | null; g: string | null; q: string; n: string | null }[] = D.toc || [];
+  const base: string = D.base || '/';
+  const CH_URL = (id: number) => `${base}data/ch/${id}.json`.replace(/\/+/g, '/');
+
+  const reader = document.getElementById('reader')!;
+  const curTitle = document.getElementById('curTitle')!;
+  const curChars = document.getElementById('curChars')!;
+  const bar = document.getElementById('progressBar')!;
+  const prevBtn = document.getElementById('prevCh') as HTMLButtonElement;
+  const nextBtn = document.getElementById('nextCh') as HTMLButtonElement;
+
+  const clean = (s: string) =>
+    s.replace(/\[\d+\]/g, '').replace(/\[(註|注|编辑|編輯|来源|來源)\]/g, '').replace(/\u200b/g, '').trim();
+
+  const idxOf = (id: number) => toc.findIndex((c) => c.id === id);
+  let currentIndex = D.first ? idxOf(D.first) : 0;
+  if (currentIndex < 0) currentIndex = 0;
+
+  function render(ch: any) {
+    reader.innerHTML = '';
+    const h1 = document.createElement('h1');
+    h1.className = 'ch-title';
+    h1.textContent = String(ch.title).split('/').pop() || '';
+    reader.appendChild(h1);
+
+    if (ch.quality && ch.quality !== 'ok') {
+      const note = document.createElement('p');
+      note.className = 'ch-note';
+      note.textContent = '⚠ ' + (ch.qualityNote || '该篇底本不完整，内容可能缺失。');
+      reader.appendChild(note);
+    }
+
+    for (const b of ch.blocks || []) {
+      const tag = b.t === 'h' ? 'h3' : b.t === 'q' ? 'blockquote' : 'p';
+      const el = document.createElement(tag);
+      el.className =
+        b.t === 'h' ? `bk-h lv${b.l ?? 2}` : b.t === 'q' ? 'bk-q' : b.t === 'v' ? 'bk-v' : 'bk-p';
+      el.textContent = clean(String(b.x || ''));
+      if (el.textContent) reader.appendChild(el);
+    }
+  }
+
+  function setActive(id: number) {
+    document.querySelectorAll('.toc-link').forEach((a) => {
+      a.classList.toggle('active', (a as HTMLElement).dataset.cid === String(id));
+    });
+    const active = document.querySelector('.toc-link.active') as HTMLElement | null;
+    if (active) {
+      const box = active.closest('.toc') as HTMLElement | null;
+      if (box) {
+        const r = active.getBoundingClientRect();
+        const br = box.getBoundingClientRect();
+        if (r.top < br.top + 40 || r.bottom > br.bottom - 40) {
+          active.scrollIntoView({ block: 'center' });
+        }
+      }
+    }
+  }
+
+  function updateNav() {
+    prevBtn.disabled = currentIndex <= 0;
+    nextBtn.disabled = currentIndex >= toc.length - 1;
+    bar.style.width = toc.length ? (((currentIndex + 1) / toc.length) * 100).toFixed(2) + '%' : '0%';
+  }
+
+  const cache = new Map<number, any>();
+
+  async function go(id: number, push = true) {
+    const i = idxOf(id);
+    if (i < 0) return;
+    currentIndex = i;
+    const meta = toc[i];
+    curTitle.textContent = String(meta.title).split('/').pop() || '';
+    curChars.textContent = '';
+    setActive(id);
+    updateNav();
+    if (push) history.replaceState(null, '', `#ch-${id}`);
+
+    if (cache.has(id)) {
+      render(cache.get(id));
+    } else {
+      reader.classList.add('loading');
+      try {
+        const res = await fetch(CH_URL(id));
+        if (!res.ok) throw new Error(String(res.status));
+        const json = await res.json();
+        cache.set(id, json);
+        render(json);
+        curChars.textContent = json.chars ? json.chars.toLocaleString() + ' 字' : '';
+      } catch {
+        reader.innerHTML = '<p class="empty">正文加载失败，请刷新页面重试。</p>';
+      } finally {
+        reader.classList.remove('loading');
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      localStorage.setItem('dc:last:' + D.slug, String(id));
+      localStorage.setItem('dc:toc-scroll:' + D.slug, String((document.querySelector('.toc') as HTMLElement)?.scrollTop || 0));
+    } catch { /* ignore */ }
+  }
+
+  document.querySelectorAll('.toc-link').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = Number((a as HTMLElement).dataset.cid);
+      if (id) go(id);
+    });
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentIndex > 0) go(toc[currentIndex - 1].id);
+  });
+  nextBtn.addEventListener('click', () => {
+    if (currentIndex < toc.length - 1) go(toc[currentIndex + 1].id);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
+    if (e.key === 'ArrowLeft' && currentIndex > 0) go(toc[currentIndex - 1].id);
+    if (e.key === 'ArrowRight' && currentIndex < toc.length - 1) go(toc[currentIndex + 1].id);
+  });
+
+  // 字号
+  const applyFont = (px: number) => {
+    document.documentElement.style.setProperty('--reader-font', px + 'px');
+    try {
+      localStorage.setItem('dc:font', String(px));
+    } catch { /* ignore */ }
+  };
+  let font = 19;
+  try {
+    font = Number(localStorage.getItem('dc:font')) || 19;
+  } catch { /* ignore */ }
+  applyFont(font);
+  document.getElementById('fontPlus')?.addEventListener('click', () => {
+    font = Math.min(28, font + 1);
+    applyFont(font);
+  });
+  document.getElementById('fontMinus')?.addEventListener('click', () => {
+    font = Math.max(15, font - 1);
+    applyFont(font);
+  });
+
+  // 初始：hash 优先，其次上次阅读位置
+  const fromHash = Number((location.hash.match(/^#ch-(\d+)$/) || [])[1] || 0);
+  let target = fromHash;
+  if (!target) {
+    try {
+      target = Number(localStorage.getItem('dc:last:' + D.slug)) || 0;
+    } catch { /* ignore */ }
+  }
+  if (target && target !== D.first) go(target, false);
+  else {
+    setActive(D.first || 0);
+    updateNav();
+  }
+
+  window.addEventListener('hashchange', () => {
+    const id = Number((location.hash.match(/^#ch-(\d+)$/) || [])[1] || 0);
+    if (id && id !== toc[currentIndex]?.id) go(id, false);
+  });
+</script>
+
+<style is:global>
+  :root {
+    --reader-font: 19px;
+  }
+</style>
+
+<style>
+  .reader-shell {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 4vw 80px;
+  }
+
+  .progress-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: transparent;
+    z-index: 60;
+  }
+  .progress-bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--cinnabar), var(--gold));
+    transition: width 0.25s ease;
+  }
+
+  .breadcrumb {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 26px 0 18px;
+  }
+  .breadcrumb a {
+    color: var(--cinnabar);
+    text-decoration: none;
+  }
+
+  .quality-banner {
+    background: #fdf6e3;
+    border: 1px solid #e8d9a8;
+    border-left: 4px solid var(--gold);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #6b5a2a;
+    margin-bottom: 18px;
+  }
+  .quality-banner b {
+    color: #8a6d1f;
+    margin-right: 8px;
+  }
+
+  .reader-grid {
+    display: grid;
+    grid-template-columns: 268px minmax(0, 1fr);
+    gap: 40px;
+    align-items: start;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc {
+    position: sticky;
+    top: 18px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 6px 18px 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .toc::-webkit-scrollbar {
+    width: 6px;
+  }
+  .toc::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 3px;
+  }
+  .toc-head {
+    padding: 0 10px 12px 0;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 10px;
+  }
+  .toc-head h2 {
+    font-size: 20px;
+    letter-spacing: 3px;
+    margin: 0 0 6px;
+  }
+  .toc-meta {
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .toc-meta span {
+    margin-right: 3px;
+  }
+
+  .toc-front {
+    margin: 0 0 8px;
+    padding: 0 10px 0 0;
+  }
+  .toc-front summary {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 5px 0;
+    list-style: none;
+  }
+  .toc-front summary::before {
+    content: '▸ ';
+  }
+  .toc-front[open] summary::before {
+    content: '▾ ';
+  }
+  .toc-front ul {
+    list-style: none;
+    margin: 2px 0 6px;
+    padding: 0 0 0 10px;
+    border-left: 2px solid var(--line);
+  }
+
+  .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 10px 0 0;
+  }
+  .toc-group {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--gold);
+    padding: 12px 0 5px;
+    border-top: 1px dashed var(--line);
+    margin-top: 6px;
+  }
+  .toc-group:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 4px;
+  }
+
+  .toc-link {
+    display: block;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border-left: 2px solid transparent;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  .toc-link:hover {
+    background: var(--paper);
+    color: var(--cinnabar);
+  }
+  .toc-link.active {
+    background: #f8efe2;
+    border-left-color: var(--cinnabar);
+    color: var(--cinnabar-deep);
+    font-weight: 600;
+  }
+  .toc-link.bad {
+    color: var(--ink-soft);
+  }
+  .toc-link.front {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .content {
+    min-width: 0;
+  }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0 14px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 26px;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(180deg, var(--paper) 78%, rgba(247, 242, 232, 0.7));
+    z-index: 20;
+  }
+  .tb-left {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    overflow: hidden;
+  }
+  .tb-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tb-chars {
+    font-size: 12px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .tb-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .tb-right button {
+    border: 1px solid var(--line);
+    background: var(--white);
+    color: var(--ink-soft);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  .tb-right button:hover {
+    border-color: var(--cinnabar);
+    color: var(--cinnabar);
+  }
+  .tb-guide {
+    font-size: 13px;
+    color: var(--cinnabar);
+    text-decoration: none;
+    font-weight: 600;
+    padding-left: 4px;
+    white-space: nowrap;
+  }
+
+  .article {
+    font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+    font-size: var(--reader-font);
+    line-height: 2.05;
+    color: var(--ink);
+    letter-spacing: 0.015em;
+    transition: opacity 0.18s ease;
+  }
+  .article.loading {
+    opacity: 0.35;
+  }
+
+  .ch-title {
+    font-size: 26px;
+    letter-spacing: 5px;
+    text-align: center;
+    margin: 0 0 30px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    font-weight: 900;
+  }
+
+  .ch-note {
+    background: #fdf6e3;
+    border-left: 3px solid var(--gold);
+    padding: 8px 14px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #6b5a2a;
+    margin: 0 0 24px;
+    font-family: system-ui, sans-serif;
+  }
+
+  .article :global(.bk-p) {
+    text-indent: 2em;
+    margin: 0 0 0.75em;
+  }
+  .article :global(.bk-h) {
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin: 1.8em 0 0.8em;
+    text-align: center;
+  }
+  .article :global(.bk-h.lv2) {
+    font-size: 1.05em;
+  }
+  .article :global(.bk-h.lv3) {
+    font-size: 0.95em;
+    color: var(--ink-soft);
+  }
+  .article :global(.bk-q) {
+    margin: 0.8em 0 1.1em;
+    padding: 0.4em 0 0.4em 1.2em;
+    border-left: 3px solid var(--line);
+    color: var(--ink-soft);
+    text-indent: 0;
+  }
+  .article :global(.bk-v) {
+    text-indent: 0;
+    margin: 0 0 0.4em;
+    padding-left: 2em;
+  }
+  .article :global(.empty) {
+    text-align: center;
+    color: var(--ink-soft);
+    padding: 60px 0;
+    text-indent: 0;
+  }
+
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .pg-btn {
+    font-size: 14px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--white);
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+  }
+  .pg-btn:hover:not(:disabled) {
+    border-color: var(--cinnabar);
+    color: var(--cinnabar);
+  }
+  .pg-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .pg-btn.back {
+    color: var(--ink-soft);
+  }
+
+  .source-note {
+    margin-top: 26px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  /* ---------- 移动端 ---------- */
+  @media (max-width: 900px) {
+    .reader-grid {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .toc {
+      position: static;
+      max-height: 260px;
+    }
+    .toolbar {
+      position: static;
+      background: none;
+    }
+    .ch-title {
+      font-size: 21px;
+      letter-spacing: 3px;
+    }
+  }
+</style>

@@ -1,0 +1,92 @@
+The user wants me to generate a push task for Marvis - the local AI assistant that runs commands on their machine. The key task right now is to:
+
+1. `git push` the committed changes to GitHub
+2. Verify deployment on Cloudflare Pages
+
+Let me check the current git status to confirm what's staged and ready to push.
+
+Local is at commit `589416f` (the CSS fix). Remote (`origin/main`) is at `129a39e` (the P0 fix). So there's one commit ahead that needs to be pushed. The task for Marvis is simply `git push`.
+
+Let me create a concise task document. The user previously mentioned Marvis has a 5000-character input limit, so I'll keep it under that.
+
+Good. The task is simple: 1 commit ahead, 11 files changed, just needs `git push`. Let me create the Marvis task.
+
+The key info Marvis needs:
+
+1. What to do: `git push`
+2. After pushing: verify Cloudflare Pages rebuild
+3. After deploy: verify the site works at the new URL
+4. Why: base path fix
+
+Let me keep it concise and under 5000 characters.
+
+## Marvis 任务：推送部署 + 线上验证
+
+> 复制以下全文发送给 Marvis：
+
+---
+
+### 任务：推送最新代码到 GitHub → Cloudflare 自动部署 → 验证全站
+
+**背景（一句话）**：本机已 commit 好两个修复（P0 解读页不再 404 + CSS 根路径修正），但 GitHub 网络不通，由你执行 `git push` 并验证线上。
+
+---
+
+**步骤 1：推送**
+
+```powershell
+cd d:\DimensionsCosmos
+git push
+```
+
+预期输出 `main -> main` 成功。若失败报网络错误，重试 1-2 次。共 1 个待推送 commit：
+
+```
+589416f fix: change base path from /DimensionsCosmos/ to / for Cloudflare Pages
+```
+
+---
+
+**步骤 2：等 Cloudflare 重建（约 1-3 分钟）**
+
+推送后 Cloudflare Pages 自动构建。你无需操作，只需等待。
+
+---
+
+**步骤 3：逐条验证以下 6 个链接（用浏览器打开）**
+
+| #   | 页面                        | URL                                                   | 检查点                                                             |
+| --- | --------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------ |
+| 1   | 首页                        | https://dimensionscosmos.pages.dev/                   | Hero 有朱砂红标题 + 28 张书卡网格 + 页面有彩色样式（不是白底黑字） |
+| 2   | 书库                        | https://dimensionscosmos.pages.dev/books              | 28 本书 + 搜索框 + 经/史/子/集 分类过滤                            |
+| 3   | 方法                        | https://dimensionscosmos.pages.dev/methods            | 10 种大师方法卡片                                                  |
+| 4   | 定价                        | https://dimensionscosmos.pages.dev/pricing            | 3 档定价卡片                                                       |
+| 5   | 论语详情（有解读）          | https://dimensionscosmos.pages.dev/books/1-论语       | 书名/作者/朝代 + 6 种大师解读 badge + 朱熹免费预览                 |
+| 6   | 论语 × 朱熹（AI 解读）      | https://dimensionscosmos.pages.dev/read/1-论语/zhuxi  | 显示"逻辑结构""关键词"等完整 AI 解读内容                           |
+| 7   | 史记 × 朱熹（无解读、免费） | https://dimensionscosmos.pages.dev/read/13-史记/zhuxi | 显示"⏳ AI 解读生成中" + 维基文库链接，不 404                      |
+| 8   | 史记 × 阿德勒（付费墙）     | https://dimensionscosmos.pages.dev/read/13-史记/adler | 显示"🔐 付费解锁" + 价格 ¥3.90                                     |
+
+---
+
+**步骤 4：汇报**
+
+按以下格式汇报 Marvis 交付结果：
+
+```
+[Marvis 交付] 推送+部署验证
+git push: 成功/失败
+Cloudflare: 构建中/已完成
+验证:
+  1 首页…………… [正常/异常]  [异常说明]
+  2 书库…………… [正常/异常]  [异常说明]
+  3 方法…………… [正常/异常]  [异常说明]
+  4 定价…………… [正常/异常]  [异常说明]
+  5 论语详情…………… [正常/异常]  [异常说明]
+  6 论语×朱熹…………… [正常/异常]  [异常说明]
+  7 史记×朱熹…………… [正常/异常]  [异常说明]
+  8 史记×阿德勒…………… [正常/异常]  [异常说明]
+```
+
+---
+
+**重要：不要改任何代码，不要执行任何 npm/build 命令。只做 git push + 浏览器验证。**

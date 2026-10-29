@@ -5,6 +5,9 @@
   "description": "维点图书馆 / DimensionsCosmos Library —— 古籍 AI 导读引擎",
   "private": true,
   "scripts": {
+    "gen": "node --experimental-sqlite scripts/gen-data.mjs",
+    "prebuild": "node --experimental-sqlite scripts/gen-data.mjs",
+    "predev": "node --experimental-sqlite scripts/gen-data.mjs",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",

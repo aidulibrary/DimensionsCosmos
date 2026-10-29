@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>维点图书馆 · DimensionsCosmos — 独立预览页</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f7f2e8;
+        --paper-deep: #efe7d6;
+        --ink: #2b2926;
+        --ink-soft: #6b655c;
+        --cinnabar: #9e2b25;
+        --cinnabar-deep: #7e211c;
+        --line: #ddd2bd;
+        --gold: #b8934a;
+        --white: #fefcf7;
+        --success: #3a7d44;
+        --shadow-sm: 0 2px 8px rgba(43, 41, 38, 0.08);
+        --shadow-md: 0 8px 24px rgba(43, 41, 38, 0.12);
+        --shadow-lg: 0 18px 50px rgba(43, 41, 38, 0.16);
+        --radius: 8px;
+        --radius-lg: 14px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+        line-height: 1.7;
+      }
+
+      /* ===== NAV ===== */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 6vw;
+        background: rgba(247, 242, 232, 0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: var(--ink);
+      }
+      .seal {
+        width: 42px;
+        height: 42px;
+        border-radius: 6px;
+        background: var(--cinnabar);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        writing-mode: vertical-rl;
+        box-shadow: 2px 2px 0 rgba(43, 41, 38, 0.18);
+      }
+      .brand b {
+        font-size: 20px;
+        letter-spacing: 4px;
+      }
+      .brand small {
+        display: block;
+        font-size: 11px;
+        color: var(--ink-soft);
+        letter-spacing: 1px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 28px;
+        align-items: center;
+      }
+      .nav-links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 15px;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--cinnabar);
+      }
+      .nav-cta {
+        background: var(--ink);
+        color: var(--paper) !important;
+        padding: 8px 18px;
+        border-radius: 4px;
+        font-size: 14px !important;
+      }
+
+      /* ===== HERO ===== */
+      .hero {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 5vw;
+        align-items: center;
+        padding: 72px 6vw 56px;
+      }
+      .hero-kicker {
+        display: inline-block;
+        font-size: 13px;
+        letter-spacing: 3px;
+        color: var(--cinnabar);
+        border: 1px solid var(--cinnabar);
+        padding: 3px 12px;
+        border-radius: 999px;
+        margin-bottom: 22px;
+      }
+      .hero h1 {
+        font-size: clamp(34px, 4.6vw, 58px);
+        line-height: 1.3;
+        letter-spacing: 2px;
+      }
+      .hero h1 em {
+        font-style: normal;
+        color: var(--cinnabar);
+      }
+      .hero p.motto {
+        margin-top: 16px;
+        font-size: 18px;
+        letter-spacing: 6px;
+        color: var(--cinnabar);
+      }
+      .hero p.sub {
+        margin: 14px 0 30px;
+        color: var(--ink-soft);
+        font-size: 17px;
+        max-width: 34em;
+        line-height: 1.7;
+      }
+      .hero-search {
+        display: flex;
+        max-width: 520px;
+        border: 1.5px solid var(--ink);
+        border-radius: 6px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .hero-search input {
+        flex: 1;
+        border: 0;
+        outline: 0;
+        padding: 14px 16px;
+        font-size: 16px;
+        font-family: inherit;
+        background: transparent;
+      }
+      .hero-search button {
+        border: 0;
+        background: var(--cinnabar);
+        color: #fff;
+        padding: 0 26px;
+        font-size: 16px;
+        font-family: inherit;
+        cursor: pointer;
+      }
+      .hero-search button:hover {
+        background: var(--cinnabar-deep);
+      }
+      .hero-stats {
+        display: flex;
+        gap: 36px;
+        margin-top: 34px;
+      }
+      .stat-link {
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s;
+      }
+      .stat-link:hover {
+        transform: translateY(-2px);
+      }
+      .stat-link b {
+        display: block;
+        font-size: 36px;
+        color: var(--cinnabar);
+      }
+      .stat-link span {
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+      .hero-art {
+        text-align: center;
+      }
+      .hero-placeholder {
+        background: var(--white);
+        border: 1.5px solid var(--line);
+        border-radius: var(--radius-lg);
+        padding: 36px 24px;
+        box-shadow: var(--shadow-md);
+      }
+      .hero-big-icon {
+        font-size: 52px;
+        display: block;
+        margin-bottom: 16px;
+      }
+      .hero-placeholder p {
+        font-size: 14px;
+        color: var(--ink-soft);
+        line-height: 2;
+        letter-spacing: 1px;
+      }
+      .vertical-note {
+        display: block;
+        margin-top: 16px;
+        font-size: 12px;
+        color: var(--ink-soft);
+        letter-spacing: 4px;
+        writing-mode: vertical-rl;
+      }
+
+      /* ===== SECTION COMMON ===== */
+      .sec-head {
+        text-align: center;
+        margin-bottom: 44px;
+      }
+      .sec-head h2 {
+        font-size: 30px;
+        letter-spacing: 6px;
+        margin-bottom: 10px;
+      }
+      .sec-head p {
+        color: var(--ink-soft);
+        margin-top: 8px;
+      }
+      .sec-head .rule {
+        width: 56px;
+        height: 3px;
+        background: var(--cinnabar);
+        margin: 16px auto 0;
+        border-radius: 2px;
+      }
+
+      /* ===== BOOK GRID ===== */
+      .library {
+        padding: 64px 6vw;
+      }
+      .filters {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+      }
+      .filters button {
+        font-family: inherit;
+        font-size: 15px;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink-soft);
+        padding: 7px 20px;
+        border-radius: 999px;
+        transition: all 0.2s;
+      }
+      .filters button:hover {
+        border-color: var(--cinnabar);
+        color: var(--cinnabar);
+      }
+      .filters button.active {
+        background: var(--ink);
+        color: var(--paper);
+        border-color: var(--ink);
+      }
+      .book-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+      }
+      .book-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 16px;
+        box-shadow: var(--shadow-sm);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .book-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+      }
+      .card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 6px;
+      }
+      .card-header h3 {
+        font-size: 17px;
+        letter-spacing: 1px;
+      }
+      .badge {
+        font-size: 11px;
+        background: var(--cinnabar);
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .badge.paid {
+        background: var(--gold);
+      }
+      .card-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+      }
+      .card-meta .bu {
+        color: var(--gold);
+        font-weight: 600;
+      }
+      .preview {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        border-top: 1px solid var(--line);
+        padding-top: 8px;
+        margin-top: 8px;
+      }
+      .center-link {
+        text-align: center;
+        margin-top: 32px;
+      }
+      .center-link a {
+        color: var(--cinnabar);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      /* ===== METHOD STRIP ===== */
+      .method-strip {
+        background: var(--white);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .strip-inner {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        padding: 32px 6vw;
+        flex-wrap: wrap;
+      }
+      .strip-text {
+        flex: 1;
+        min-width: 260px;
+      }
+      .strip-text h3 {
+        font-size: 19px;
+        letter-spacing: 2px;
+        margin-bottom: 6px;
+      }
+      .strip-text p {
+        font-size: 14px;
+        color: var(--ink-soft);
+      }
+      .strip-pills {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .strip-pill {
+        display: inline-block;
+        font-size: 13px;
+        padding: 6px 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        background: var(--paper);
+        color: var(--ink);
+        border: 1px solid var(--line);
+        transition: all 0.2s;
+      }
+      .strip-pill:hover {
+        border-color: var(--cinnabar);
+        color: var(--cinnabar);
+      }
+      .strip-pill.more {
+        background: var(--ink);
+        color: var(--paper);
+        border-color: var(--ink);
+      }
+
+      /* ===== OPEN BAND ===== */
+      .open-band {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        padding: 64px 6vw;
+      }
+      .open-band > div {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 24px 20px;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+      }
+      .open-band h4 {
+        font-size: 16px;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+      }
+      .open-band p {
+        font-size: 13px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+
+      /* ===== FOOTER ===== */
+      footer {
+        text-align: center;
+        padding: 36px 6vw;
+        border-top: 1px solid var(--line);
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+      footer a {
+        color: var(--cinnabar);
+        text-decoration: none;
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 32px;
+        }
+        .hero-art {
+          order: -1;
+        }
+        .open-band {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .nav-links a:not(.nav-cta) {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        .hero h1 {
+          font-size: clamp(28px, 7vw, 42px) !important;
+        }
+        .hero-stats {
+          flex-direction: column;
+          gap: 14px;
+        }
+        .book-grid {
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+        .open-band {
+          grid-template-columns: 1fr;
+        }
+        .strip-inner {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============ NAV ============ -->
+    <nav>
+      <a href="#" class="brand">
+        <span class="seal">维</span>
+        <span>
+          <b>维点图书馆</b>
+          <small>DimensionsCosmos</small>
+        </span>
+      </a>
+      <div class="nav-links">
+        <a href="#">首页</a>
+        <a href="#">书库</a>
+        <a href="#">方法</a>
+        <a href="#" class="nav-cta">💰 定价</a>
+      </div>
+    </nav>
+
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div>
+        <span class="hero-kicker">伟大心智 · 阅读操作系统</span>
+        <h1>用<em>大师</em>的方法，<br />读<em>一切</em>书</h1>
+        <p class="motto">浇灌自由生长的文明</p>
+        <p class="sub">
+          同样的文本，不同的大师会看到完全不同的东西。
+          选一部经典，再选一位大师的视角——<br />
+          朱熹带你涵泳，费曼帮你白话，苏格拉底追着你问。
+        </p>
+        <div class="hero-search">
+          <input
+            id="q"
+            type="text"
+            placeholder="搜书名：论语 / 史记 / 庄子 ……"
+            autocomplete="off"
+          />
+          <button>检索</button>
+        </div>
+        <div class="hero-stats">
+          <a href="#" class="stat-link"><b>28</b><span>部经典可读</span></a>
+          <a href="#" class="stat-link"><b>10</b><span>种大师视角</span></a>
+          <a href="#" class="stat-link"><b>2</b><span>个免费体验</span></a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="hero-placeholder">
+          <span class="hero-big-icon">📚</span>
+          <p>朱熹 × 费曼 × 苏格拉底</p>
+          <p>苏轼 × 钱锺书 × 王阳明</p>
+          <p>阿伦特 × 伊本·赫勒敦 × 阿德勒</p>
+        </div>
+        <span class="vertical-note">筛选 · 组织 · 导读</span>
+      </div>
+    </section>
+
+    <!-- ============ BOOK LIBRARY ============ -->
+    <section class="library">
+      <div class="sec-head">
+        <h2>经典书库</h2>
+        <p>经史子集 · 首批 28 部 · 原文来自中文维基文库（CC BY-SA）</p>
+        <div class="rule"></div>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="active" data-bu="">全部</button>
+        <button data-bu="经">经</button>
+        <button data-bu="史">史</button>
+        <button data-bu="子">子</button>
+        <button data-bu="集">集</button>
+      </div>
+
+      <div class="book-grid" id="bookGrid">
+        <!-- 经部 -->
+        <div class="book-card" data-bu="经">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>论语</h3>
+              <span class="badge">6 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>孔子</span><span>·</span><span>春秋</span
+              ><span class="bu">经</span>
+            </div>
+            <div class="preview">
+              学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知而不愠，不亦君子乎？
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="经">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>孟子</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>孟子</span><span>·</span><span>战国</span
+              ><span class="bu">经</span>
+            </div>
+            <div class="preview">
+              孟子见梁惠王。王曰："叟，不远千里而来，亦将有以利吾国乎？"
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="经">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>中庸</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>子思</span><span>·</span><span>战国</span
+              ><span class="bu">经</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="经">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>诗经</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>佚名</span><span>·</span><span>周</span
+              ><span class="bu">经</span>
+            </div>
+            <div class="preview">
+              关关雎鸠，在河之洲。窈窕淑女，君子好逑。
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="经">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>周易</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>佚名</span><span>·</span><span>商周</span
+              ><span class="bu">经</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="经">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>尔雅</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>佚名</span><span>·</span><span>汉</span
+              ><span class="bu">经</span>
+            </div></a
+          >
+        </div>
+        <!-- 史部 -->
+        <div class="book-card" data-bu="史">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>史记</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>司马迁</span><span>·</span><span>西汉</span
+              ><span class="bu">史</span>
+            </div>
+            <div class="preview">130 章 · 五帝本纪第一</div></a
+          >
+        </div>
+        <div class="book-card" data-bu="史">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>后汉书</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>范晔</span><span>·</span><span>南朝宋</span
+              ><span class="bu">史</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="史">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>三国志</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>陈寿</span><span>·</span><span>西晋</span
+              ><span class="bu">史</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="史">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>资治通鉴</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>司马光</span><span>·</span><span>北宋</span
+              ><span class="bu">史</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="史">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>贞观政要</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>吴兢</span><span>·</span><span>唐</span
+              ><span class="bu">史</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="史">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>水经注</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>郦道元</span><span>·</span><span>北魏</span
+              ><span class="bu">史</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="史">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>史通</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>刘知几</span><span>·</span><span>唐</span
+              ><span class="bu">史</span>
+            </div></a
+          >
+        </div>
+        <!-- 子部 -->
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>老子</h3>
+              <span class="badge">2 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>老子</span><span>·</span><span>春秋</span
+              ><span class="bu">子</span>
+            </div>
+            <div class="preview">道可道，非常道；名可名，非常名。</div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>庄子</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>庄子</span><span>·</span><span>战国</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>荀子</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>荀子</span><span>·</span><span>战国</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>韩非子</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>韩非</span><span>·</span><span>战国</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>墨子</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>墨子</span><span>·</span><span>战国</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>孙子兵法</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>孙武</span><span>·</span><span>春秋</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>淮南子</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>刘安</span><span>·</span><span>西汉</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>颜氏家训</h3>
+              <span class="badge">3 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>颜之推</span><span>·</span><span>北齐</span
+              ><span class="bu">子</span>
+            </div>
+            <div class="preview">
+              夫圣贤之书，教人诚孝，慎言检迹，立身扬名。
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>世说新语</h3>
+              <span class="badge">1 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>刘义庆</span><span>·</span><span>南朝宋</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>山海经</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>佚名</span><span>·</span><span>战国</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>黄帝内经</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>佚名</span><span>·</span><span>战国</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="子">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>梦溪笔谈</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>沈括</span><span>·</span><span>北宋</span
+              ><span class="bu">子</span>
+            </div></a
+          >
+        </div>
+        <!-- 集部 -->
+        <div class="book-card" data-bu="集">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>唐诗三百首</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>蘅塘退士</span><span>·</span><span>清</span
+              ><span class="bu">集</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="集">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>文心雕龙</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>刘勰</span><span>·</span><span>南朝梁</span
+              ><span class="bu">集</span>
+            </div></a
+          >
+        </div>
+        <div class="book-card" data-bu="集">
+          <a class="card-link" href="#"
+            ><div class="card-header">
+              <h3>杜工部集</h3>
+              <span class="badge paid">0 种解读</span>
+            </div>
+            <div class="card-meta">
+              <span>杜甫</span><span>·</span><span>唐</span
+              ><span class="bu">集</span>
+            </div></a
+          >
+        </div>
+      </div>
+
+      <p class="center-link"><a href="#">浏览全部书库 →</a></p>
+    </section>
+
+    <!-- ============ METHOD STRIP ============ -->
+    <section class="method-strip">
+      <div class="strip-inner">
+        <div class="strip-text">
+          <h3>🧠 选好书了？挑一种大师视角来读</h3>
+          <p>每本书内置 10 种解读方法——从朱熹到苏格拉底，从费曼到阿伦特</p>
+        </div>
+        <div class="strip-pills">
+          <span class="strip-pill">📖 朱熹读书法</span>
+          <span class="strip-pill">⚛️ 费曼教学法</span>
+          <span class="strip-pill">🏛️ 苏格拉底诘问法</span>
+          <span class="strip-pill">🔍 阿德勒分析阅读</span>
+          <span class="strip-pill">⚔️ 钱锺书打通法</span>
+          <span class="strip-pill more" style="cursor: pointer"
+            >+5 种更多 →</span
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FOUR CAPABILITIES ============ -->
+    <section class="open-band">
+      <div>
+        <h4>📖 先选书，再选方法</h4>
+        <p>
+          主流流程：浏览书库 → 找到感兴趣的书 → 选择一位大师的视角 → 开始阅读。
+        </p>
+      </div>
+      <div>
+        <h4>🧪 创建自己的读书法</h4>
+        <p>即将开放：上传你的阅读方法论，转换为可售卖插件，获得收益分成。</p>
+      </div>
+      <div>
+        <h4>📤 上传你的藏书</h4>
+        <p>即将开放：像识典古籍一样整理并上传自己的文本，AI 自动校勘后入库。</p>
+      </div>
+      <div>
+        <h4>🔌 方法即插件</h4>
+        <p>
+          每种大师方法都是独立 AI 插件——可组合、可复用、可导出为 Markdown /
+          JSON。
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer>
+      <p>维点图书馆 · DimensionsCosmos</p>
+      <p>内容来自中文维基文库（CC BY-SA 4.0）· AI 解读由本地 Ollama 生成</p>
+      <p><a href="#">GitHub</a> · <a href="#">返回顶部</a></p>
+    </footer>
+
+    <script>
+      document.querySelectorAll("#filters button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll("#filters button")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          const bu = btn.dataset.bu;
+          document.querySelectorAll("#bookGrid .book-card").forEach((card) => {
+            card.style.display = !bu || card.dataset.bu === bu ? "" : "none";
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
