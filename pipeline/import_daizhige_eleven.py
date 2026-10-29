@@ -58,6 +58,13 @@ def body_lines(name: str) -> list[str]:
             if m:
                 out.append(m.group(1).strip())
             continue
+        # 底本小字注记「作者：屈原」：整行删；与正文同行则只剥前缀
+        m_author = re.match(r"^作\s*者\s*[：:]\s*(\S{1,8})(?:\s+|$)(.*)$", l)
+        if m_author:
+            rest = m_author.group(2).strip()
+            if not rest:
+                continue
+            l = rest
         out.append(l)
     return out
 
