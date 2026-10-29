@@ -1,0 +1,179 @@
+{
+  "work_id": 6,
+  "title": "尚书",
+  "entries": [
+    {
+      "grade": "A2",
+      "weight": 0.9,
+      "source_name": "中华书局",
+      "url": "http://www.zhbc.com.cn/zhsj/fg/book/bookinfo.html?bookid=402885967f8affff017fab3766e000e7",
+      "fields": {
+        "isbn": "9787101083033",
+        "publisher": "中华书局",
+        "editor": "王世舜、王翠叶",
+        "edition": "译注"
+      },
+      "quote": "第五辑·书目：尚书 ISBN 978-7-101-08303-3 王世舜、王翠叶译注 36.00（中华经典名著全本全注全译丛书）",
+      "grabbed_at": "2026-10-29T08:41:44+00:00"
+    },
+    {
+      "grade": "A2",
+      "weight": 0.9,
+      "source_name": "中华书局",
+      "url": "http://www.zhbc.com.cn/zhsj/pad/news/info.html?newsid=297ec13d94fe0ac9019517b99062020c",
+      "fields": {
+        "isbn": "9787101083033",
+        "publisher": "中华书局",
+        "year": "2012",
+        "editor": "王世舜、王翠叶",
+        "edition": "译注"
+      },
+      "quote": "书名 书号 定价 出版时间 分类：5 尚书 978-7-101-08303-3 42 2012 历史/地理",
+      "grabbed_at": "2026-10-29T08:41:44+00:00"
+    },
+    {
+      "grade": "B",
+      "weight": 0.85,
+      "source_name": "中国哲学书电子化计划",
+      "url": "https://ctext.org/searchbooks.pl?searchu=ctp:work:shang-shu",
+      "fields": {
+        "base_text": "白文本五十八篇（虞书5、夏书4、商书17、周书32，含东晋所出伪古文二十五篇），底本属《武英殿十三经注疏》本系统，参校《尚書正義》（四部叢刊本，漢籍リポジトリ KR1b0003）与《尚書注疏》（武英殿本，KR1b0004）"
+      },
+      "quote": "《尚書》版本表：春秋 尚書 武英殿十三經注疏本 ctp:shang-shu（代表性文献）；西漢 孔安國 傳 尚書 四部叢刊初編本 ctp:wb111907",
+      "grabbed_at": "2026-10-29T08:38:52+00:00"
+    },
+    {
+      "grade": "B",
+      "weight": 0.85,
+      "source_name": "Kanripo漢籍リポジトリ",
+      "url": "https://www.kanripo.org/text/KR1b0003/001",
+      "fields": {
+        "base_text": "白文本五十八篇（虞书5、夏书4、商书17、周书32，含东晋所出伪古文二十五篇），底本属《武英殿十三经注疏》本系统，参校《尚書正義》（四部叢刊本，漢籍リポジトリ KR1b0003）与《尚書注疏》（武英殿本，KR1b0004）"
+      },
+      "quote": "KR1b0003 尚書正義-唐-孔穎達（四部叢刊本，全文可读，可作白文本注疏对读）",
+      "grabbed_at": "2026-10-29T08:38:52+00:00"
+    },
+    {
+      "grade": "B",
+      "weight": 0.8,
+      "source_name": "中国人民大学",
+      "url": "https://vstudy.ruc.edu.cn/mystudy/searchDetail/mbf5f51b45f562992d867daacb5b78167",
+      "fields": {
+        "isbn": "9787101122848"
+      },
+      "quote": "尚書註疏彙校 尚書註疏彙校 云书房。尚書註疏彙校 尚書註疏彙校 杜澤遜主編 详细信息 题名/责任者:尚書註疏彙校:杜澤遜主編 出版发行项:北京:中華書局,2018 ISBN及定价:978-7-101-12284-8 CNY368.00 (全9冊) 载体形态项:9册 (, 3269页):21cm 简体题名:尚书注疏汇校 丛编项:十三經注疏彙校 个人责任者:杜澤遜 主編 其他责任者:杜泽逊 主编 题名主题:《尚书》 注释 学科主题:古代史 史料 中国 商周时代 中图法分类号:K221.04 一般附注:教育部“長江學者獎勵計劃”資助項目《十三經註疏匯校》階段成果山東大學儒學高等研究院重大項目“《十三",
+      "grabbed_at": "2026-10-29T08:14:45+00:00"
+    },
+    {
+      "grade": "B",
+      "weight": 0.8,
+      "source_name": "浙江图书馆",
+      "url": "http://uopac.zjlib.cn/detail?channelid=11&dxid=5951916&enc=02c13d094672fe52b043f7d787b82785",
+      "fields": {
+        "isbn": "9787101083033",
+        "publisher": "中华书局",
+        "year": "2021"
+      },
+      "quote": "尚书 尚书 浙江图书馆。尚书 *【作者】*王世舜 , 王翠叶 译注 *【关键词】*商周时代 历史 *【出版社】*中华书局 *【出版日期】*2021 *【ISBN】*978-7-101-08303-3 【中图分类号】 K221.04 *【内容简介】*本书以《十三经注疏》(中华书局影印本)为底本而略有改动;无论今文或古文均按底本分为《虞书》、《夏书》、《商书》、《周书》四部分;各篇正文以底本为据,有些语句酌取了古今学者的校勘成果,对此相关注释中均有说明。全部展开 *【内容简介】*本书以《十三经注疏》(中华书局影印本)为底本而略有改动;无论今文或古文均按底本分为《虞书》、《夏书》、《商书》、《周书》",
+      "grabbed_at": "2026-10-29T08:14:45+00:00"
+    },
+    {
+      "grade": "B",
+      "weight": 0.8,
+      "source_name": "殆知阁",
+      "url": "https://github.com/daizhige-org/daizhigev20",
+      "fields": {
+        "base_text": "白文本五十八篇（虞书5、夏书4、商书17、周书32，含东晋所出伪古文二十五篇），底本属《武英殿十三经注疏》本系统，参校《尚書正義》（四部叢刊本，漢籍リポジトリ KR1b0003）与《尚書注疏》（武英殿本，KR1b0004）"
+      },
+      "quote": "殆知阁古籍库 v20（data 分支，约 2.1GB）：已归档 尚书.md 58 篇；另存 尚书正义.md（KR1b0003）、尚书注疏.md（KR1b0004/WYG）",
+      "grabbed_at": "2026-10-29T08:38:52+00:00"
+    },
+    {
+      "grade": "C",
+      "weight": 0.6,
+      "source_name": "维基文库",
+      "url": "https://zh.wikisource.org/wiki/%E5%B0%9A%E6%9B%B8",
+      "fields": {
+        "base_text": "白文本五十八篇（虞书5、夏书4、商书17、周书32，含东晋所出伪古文二十五篇），底本属《武英殿十三经注疏》本系统，参校《尚書正義》（四部叢刊本，漢籍リポジトリ KR1b0003）与《尚書注疏》（武英殿本，KR1b0004）"
+      },
+      "quote": "维基文库《尚書》全文（自由许可，可交叉校对用字）",
+      "grabbed_at": "2026-10-29T08:38:52+00:00"
+    },
+    {
+      "grade": "D",
+      "weight": 0.35,
+      "source_name": "百度百科",
+      "url": "https://baike.baidu.com/item/%E5%8D%81%E4%B8%89%E7%BB%8F%E6%B3%A8%E7%96%8F/62034652",
+      "fields": {
+        "isbn": "9787101153880",
+        "publisher": "中华书局",
+        "year": "2021-11"
+      },
+      "quote": "十三经注疏 十三经注疏 百度百科。十三经注疏 2021年中华书局出版图书 十三经注疏:千年儒典的现代解码 01:26 《十三经注疏》是由清代阮元校刻、方向东点校的儒家经典文献整理本,2021年11月中华书局出版。该版本以道光丙戌本为底本,参校南昌府学本、日藏北监本等十余种版本,采用简体横排全式标点,并将阮元校勘记移至正文段落之后方便阅读。全书共25册,完整收录《周易》《尚书》《毛诗》等十三部儒家经典及其汉魏唐宋注疏,是阮元校刻版本系统中最为完善的整理本 。 中文名 十三经注疏 作 者 阮元校刻、方向东点校 出版社 中华书局 出版时间 2021年11月 ISBN 9787101153880 册 ",
+      "grabbed_at": "2026-10-29T08:14:45+00:00"
+    },
+    {
+      "grade": "D",
+      "weight": 0.35,
+      "source_name": "孔夫子旧书网",
+      "url": "https://book.kongfz.com/272222/7662131820/",
+      "fields": {
+        "isbn": "9787101146776",
+        "publisher": "中华书局"
+      },
+      "quote": "十三经注疏 十三经注疏。图文详情 十三经注疏 举报 正版图书 包邮 ———十三经注疏 全20册 中华书局 校 / 中华书局 / 2020-10 / 平装 售价 ￥ 1200.00 7.6折 定价 ￥1580.00 品相 全新 优惠 满包邮 优惠 满减券 发货 承诺48小时内发货 运费 请选择所在地 本店暂时无法向该地区发货 延迟发货说明 时间: 说明: 上书时间2024-12-07 数量 库存2件 立即购买 加入购物车 收藏 分享 微信扫描下方二维码 微信扫描打开成功后,点击右上角”...“进行转发 卖家超过10天未登录 六年老店 早晚读书 店铺等级 资质认证 90天平均 成功完成 94.94",
+      "grabbed_at": "2026-10-29T08:14:45+00:00"
+    },
+    {
+      "grade": "D",
+      "weight": 0.35,
+      "source_name": "孔夫子旧书网",
+      "url": "https://item.kongfz.com/book/26367927_0_0_3.html",
+      "fields": {
+        "publisher": "中华书局"
+      },
+      "quote": "聚珍仿宋版十三经注疏 聚珍仿宋版十三经注疏 孔夫子旧书网。聚珍仿宋版十三经注疏 作者: 中华书局 校 出版社: 中华书局 出版时间: 2020-10 版次: 1 ISBN: 9787101146776 定价: 1580.00 装帧: 平装 开本: 32开 页数: 14472页 字数: 11252千字 分类: 社会文化 3 张插图图片 111人买过 四部典籍,经部为尊,“十三经”是认识了解一切中国传统学术与文化的基石。不读注疏,无以通经,“十三经”最核心的文献,莫过于“十三经注疏”:《周易正义》《尚书正义》《毛诗正义》《礼记正义》《仪礼注疏》《周礼注疏》《春秋左传正义》《春秋公羊传注疏》《春秋Y",
+      "grabbed_at": "2026-10-29T08:14:45+00:00"
+    },
+    {
+      "grade": "D",
+      "weight": 0.35,
+      "source_name": "百度百科",
+      "url": "https://baike.baidu.com/item/%E5%B0%9A%E4%B9%A6%E6%B3%A8%E7%96%8F%E6%B1%87%E6%A0%A1/24698588",
+      "fields": {
+        "isbn": "9787101122848",
+        "publisher": "中华书局",
+        "year": "2018-04"
+      },
+      "quote": "尚书注疏汇校 尚书注疏汇校 百度百科。尚书注疏汇校 中华书局出版的书籍 《尚书注疏汇校》是山东大学教授杜泽逊主持编纂的古籍整理著作,2018年4月由中华书局出版。该书为2012年启动的《十三经注疏》汇校点校工程成果,以明万历北京国子监刻《十三经注疏》本为底本,通校唐开成石经本、宋刻单疏本等18种版本,收录清代15家校勘成果,采用影印原文与排印校记结合的体例编纂 。 该书系统整理《尚书注疏》版本源流及文字演变,被赵逵夫、崔富章等学者认为在校勘广度和深度上超越阮元校勘记 。先后获全国古籍出版社年度百家图书一等奖、第四届全球华人国学成果奖、山东省第三十五届社会科学优秀成果奖特等奖并一等奖及第九届高等",
+      "grabbed_at": "2026-10-29T08:14:45+00:00"
+    },
+    {
+      "grade": "D",
+      "weight": 0.3,
+      "source_name": "cuhksz.primo.exlibrisgroup.com.cn",
+      "url": "https://cuhksz.primo.exlibrisgroup.com.cn/nde/fulldisplay?context=L&docid=alma991022528503121&isFrbr=false&isHighlightedRecord=false&lang=en&vid=86CUHKSZ_INST:86CUHKSZ",
+      "fields": {
+        "isbn": "9787101122848",
+        "publisher": "中华书局",
+        "year": "2018"
+      },
+      "quote": "尚書注疏彙校 尚書注疏彙校 香港中文大学(深圳)图书馆。PL2465.Z6 S53 2018 v.7| 7 / 7 University Library AvailableGeneral Collection(4th Floor);PL2465.Z6 S53 2018 v.8| 8 / 8 University Library AvailableGeneral Collection(4th Floor);PL2465.Z6 S53 2018 v.6| 6 / 6 University Library AvailableGeneral Collection(4th Floor);PL2465.Z",
+      "grabbed_at": "2026-10-29T08:14:45+00:00"
+    },
+    {
+      "grade": "D",
+      "weight": 0.3,
+      "source_name": "cuhksz.primo.exlibrisgroup.com.cn",
+      "url": "https://cuhksz.primo.exlibrisgroup.com.cn/nde/fulldisplay?context=L&docid=alma991022528503121&isFrbr=false&isHighlightedRecord=false&lang=zh&vid=86CUHKSZ_INST:86CUHKSZ",
+      "fields": {
+        "isbn": "9787101122848",
+        "publisher": "中华书局",
+        "year": "2018"
+      },
+      "quote": "尚書注疏彙校 尚書注疏彙校 香港中文大学(深圳)图书馆。PL2465.Z6 S53 2018 v.6| 6 / 6 University Library 可获取General Collection(4th Floor);PL2465.Z6 S53 2018 v.2| 2 / 2 University Library 可获取General Collection(4th Floor);PL2465.Z6 S53 2018 v.3| 3 / 3 详情 题名 尚書注疏彙校 责任者 杜泽逊. 主题 尚书 -- 注释 中国历史 -- 商周时代 连续出版物 十三經注疏彙校 类型 史料. 标准出版号 ISBN",
+      "grabbed_at": "2026-10-29T08:14:45+00:00"
+    }
+  ],
+  "rejected_noise": 2
+}

@@ -1,0 +1,72 @@
+{
+  "work_id": 44,
+  "title": "宋词三百首",
+  "entries": [
+    {
+      "grade": "A1",
+      "weight": 1.0,
+      "source_name": "国家出版发行信息公共服务平台",
+      "url": "https://book.cppinfo.cn/Encyclopedias/home/index?id=4976798",
+      "fields": {
+        "isbn": "9787101174366",
+        "publisher": "中华书局",
+        "year": "2026-01"
+      },
+      "quote": "宋词三百首 宋词三百首 国家出版发行信息公共服务平台。书名: 宋词三百首 著者: 吕明涛 谷学彝 出版社: 中华书局 出版时间: 2026年01月 ISBN: 9787101174366",
+      "grabbed_at": "2026-10-29T13:33:12+00:00"
+    },
+    {
+      "grade": "A1",
+      "weight": 1.0,
+      "source_name": "国家出版发行信息公共服务平台",
+      "url": "https://book.cppinfo.cn/Encyclopedias/home/Index/4548872",
+      "fields": {
+        "isbn": "9787101158496",
+        "publisher": "中华书局",
+        "year": "2023-07"
+      },
+      "quote": "中华古典文学选本丛书 宋词三百首(上下册) 宋词三百首(上下册) 国家出版发行信息公共服务平台。(清)上彊村民编选 刘乃昌评注 出版社: 中华书局 出版时间: 2023年07月 ISBN: 9787101158496",
+      "grabbed_at": "2026-10-29T13:33:12+00:00"
+    },
+    {
+      "grade": "B",
+      "weight": 0.8,
+      "source_name": "浙江图书馆",
+      "url": "http://uopac.zjlib.cn/detail?dxid=3656771",
+      "fields": {
+        "isbn": "9787101086850",
+        "publisher": "中华书局",
+        "year": "2012"
+      },
+      "quote": "宋词三百首 宋词三百首 浙江图书馆。【作者】吕明涛,谷学彝 编注 【出版社】中华书局 【出版日期】2012 【ISBN】978-7-101-08685-0",
+      "grabbed_at": "2026-10-29T13:33:12+00:00"
+    },
+    {
+      "grade": "B",
+      "weight": 0.8,
+      "source_name": "中国海洋大学图书馆",
+      "url": "https://opac.ouc.edu.cn/mspace/searchDetailLocal/m6c85044883e4566c0fee7e45bb6d8846",
+      "fields": {
+        "isbn": "9787101114607",
+        "publisher": "中华书局",
+        "year": "2016"
+      },
+      "quote": "宋词三百首 宋词三百首 中国海洋大学图书馆。吕明涛, 谷学彝编注 北京:中华书局,2016 ISBN及定价:978-7-101-11460-7 中华经典藏书",
+      "grabbed_at": "2026-10-29T13:33:12+00:00"
+    },
+    {
+      "grade": "D",
+      "weight": 0.3,
+      "source_name": "德国中文书店",
+      "url": "https://www.zhongwenshu.de/goods.php?id=2988",
+      "fields": {
+        "isbn": "9787101114607",
+        "publisher": "中华书局",
+        "year": "2016"
+      },
+      "quote": "宋词三百首 宋词三百首(中华经典藏书･升级版) [作者] 吕明涛 谷学彝 译注 [出版社] 中华书局 [ISBN] 9787101114607 [出版日期] 2016年01月01日",
+      "grabbed_at": "2026-10-29T13:33:12+00:00"
+    }
+  ],
+  "rejected_noise": 0
+}

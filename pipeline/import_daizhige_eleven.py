@@ -251,10 +251,28 @@ def ch_tao():
 
 
 def ch_taibai():
-    """篇名行「○　远别离」；部分行内联首句与注文（「○　东武吟　　一作…」），
-    需拆出篇名、保留内联正文，避免整章落空。"""
+    """篇名两种形态：①「○　远别离」；② 卷二十五起无 ○，篇题行不缩进且不含句读
+    （如「明堂赋　　并序」）。正文行以全角空格缩进，据此区分标题与正文。"""
     lines = body_lines("李太白集.md")
-    hits = [i for i, l in enumerate(lines) if l.startswith("○")]
+
+    def is_title(l: str) -> bool:
+        if l.startswith("○"):
+            return True
+        if l.startswith("　"):
+            return False
+        if len(l) > 26:
+            return False
+        if re.match(r"^李太白全集", l) or l in ("李太白集", "目录"):
+            return False
+        if re.match(r"^卷[一二三四五六七八九十]", l):
+            return False
+        if re.search(r"[。！？；：，、（）“”‘’《》]", l):
+            return False
+        return True
+
+    hits = [i for i, l in enumerate(lines) if is_title(l)]
+    if not hits:
+        raise SystemExit("[fail] 李太白集 无篇题命中")
     out = []
     for k, i in enumerate(hits):
         raw = lines[i].lstrip("○").strip()
@@ -262,9 +280,12 @@ def ch_taibai():
         name = segs[0] if segs else raw
         name = re.split(r"(?:[\s　]+(?=一作|又作|二首|三首|四首|五首))", name)[0]
         name = re.sub(r"[\s　]+", "·", name).strip("·")
+        # 署衔后接撰人名（「宣州当涂县令　李阳冰」）：并入标题，避免标题停在官职上
+        if len(segs) > 1 and re.fullmatch(r"[\u4e00-\u9fa5]{2,3}", segs[1]) \
+                and segs[1] not in ("并序", "有序", "无注"):
+            name = f"{name}{segs[1]}"
         inline = []
         for s in segs[1:]:
-            # 注文（一作/二首/长安/上元…）与正文混排：长段保留并剥离注语
             if len(s) <= 10:
                 continue
             s = re.sub(r"^(一作|又作|二首|三首|四首|五首)[^\s　]*[\s　]+", "", s)
@@ -273,6 +294,9 @@ def ch_taibai():
         body = "\n".join(inline + lines[i + 1:end]).strip()
         if not body and len(raw) > len(name):
             body = raw[len(name):].strip()
+        # 卷首署名残行、拾遗残句（正文不足 15 字）不作独立篇目
+        if len(re.sub(r"[\s　]", "", body)) < 15:
+            continue
         out.append({"title": f"李太白集/{name}", "text": body})
     return out
 
@@ -353,6 +377,8 @@ def run(wid: int, apply: bool, db: str) -> None:
     cfg = BOOKS[wid]
     chapters = cfg["fn"]()
     rows = dedup_titles(build_rows(chapters, cfg["min_chars"]))
+    # 底本残缺的篇题（无正文）直接丢弃，避免页面出现空白章
+    rows = [r for r in rows if r["chars"] > 0]
     total = sum(r["chars"] for r in rows)
     wq, note = grade_work(rows, cfg["min_avg"], cfg["min_total"])
     print(f"\n[{wid}] {cfg['book']} 章数={len(rows)} 总字数={total} "

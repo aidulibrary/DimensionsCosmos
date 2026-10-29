@@ -1,0 +1,17 @@
+{
+ "work_id": 4,
+ "title": "中庸",
+ "entries": [
+  {
+   "grade": "B",
+   "weight": 0.8,
+   "source_name": "殆知阁本地库·中庸白文",
+   "url": "file:///D:/DimensionsCosmos/data/sources/daizhige/中庸.md",
+   "fields": {
+    "base_text": "《中庸》白文本，据《正统道藏》所收本；分章依朱熹《中庸章句》三十三章"
+   },
+   "quote": "《中庸》白文本，据《正统道藏》所收本；分章依朱熹《中庸章句》三十三章",
+   "grabbed_at": "2026-10-29T12:00:00+00:00"
+  }
+ ]
+}

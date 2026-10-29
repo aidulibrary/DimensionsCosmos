@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<script type="text/javascript">if ((navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i))) {window.location.href ="https://m.guwendao.net/default_1.aspx";}
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>古文岛-原古诗文网</title>
+<meta name="description" content="古文岛作为传承经典的网站专注于古诗服务，致力于让古诗爱好者更便捷地发表及获取古诗相关资料。" />
+<link href="/css/skin.css?time=260921" rel="stylesheet" type="text/css" />
+<link href="/css/layui.css?time=260206" rel="stylesheet" type="text/css" />
+<link href="/css/play.css?time=260206" rel="stylesheet" type="text/css" />
+<script src="/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script type="text/javascript">(function () {function getCookieValue(name) {var reg =new RegExp("(^| )" + name + "=([^;]*)(;|$)");var arr =document.cookie.match(reg);return arr ?unescape(arr[2]) :null;}
+window.getCookie =window.getCookie ||getCookieValue;window.setCookie =window.setCookie ||function (name,value) {var days =36500;var exp =new Date();exp.setTime(exp.getTime() + days *24 *60 *60 *1000);document.cookie =name + "=" + escape(value ||"") + ";expires=" + exp.toGMTString() + ";path=/;";};function hasLikeId(cookieName,id) {var value =getCookieValue(cookieName);return !!value &&("," + value + ",").indexOf("," + id + ",") !==-1;}
+function setLikeState(id,liked) {var img =document.getElementById("likeImg" + id);if (!img) {return;}
+ img.removeAttribute("onload");var target =liked ?"/img/tool/shou-cangok.png" :"/img/tool/shou-cang.png";if (img.getAttribute("src") !==target) {img.src =target;}
+img.alt =liked ?"已收藏" :"收藏";}
+window.selectLike =window.selectLike ||function (id) {setLikeState(id,hasLikeId("idsShiwen2017",id));};window.selectLikeMingju =window.selectLikeMingju ||function (id) {setLikeState(id,hasLikeId("idsMingju2017",id));};window.selectLikeAuthor =window.selectLikeAuthor ||function (id) {setLikeState(id,hasLikeId("idsAuthor2017",id));};window.selectLikeGuwen =window.selectLikeGuwen ||function (id) {setLikeState(id,hasLikeId("idsGuji2017",id));};})();</script>
+<script type="text/javascript">document.addEventListener('DOMContentLoaded',function () {var currentDomain =window.location.hostname;var _hmt =_hmt ||[];switch (currentDomain) {case "www.gushiwen.cn":loadGushiwenStat();break;default:loadGuwendaoStat();break;}
+});function loadGushiwenStat() {var hm =document.createElement("script");hm.src ="//hm.baidu.com/hm.js?9007fab6814e892d3020a64454da5a55";var s =document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s);}
+ function loadGuwendaoStat() {var hm =document.createElement("script");hm.src ="https://hm.baidu.com/hm.js?9811648d1409c4608cf19093200cee83";var s =document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s);}
+</script>
+</head>
+<body onclick="closeshowBosD()">
+<div class="maintopbc" style="background:url(https://oss.guwendao.net/siteimg/24jie/%E9%9C%9C%E9%99%8D.jpg) top center no-repeat; background-size:cover;">
+<div class="maintop">
+<div class="cont">
+<div class="left">
+<h1><a href="/">古文岛</a></h1>
+</div>
+<div class="right">
+<div class="son1">
+<a style="margin-left:1px;border-bottom:3px solid #5D6146; font-weight:bold; line-height:45px; height:43px;" href="/">推荐</a>
+<a href="/shiwens/">诗文</a>
+<a href="/mingjus/">名句</a>
+<a href="/guwen/">古籍</a>
+<a href="/authors/">作者</a>
+<a href="/zici/">字词</a>
+</div>
+<div class="son-right-group" style="display:flex; align-items:center; gap:8px;">
+<a href="/app/DefaultGwd.aspx" target="_blank" style="font-size:16px;color:#5D6146;"><img src="/img/wode/APP.png" alt="app" />APP</a>
+<a href="/user/wode.aspx" rel="nofollow" id="userLink" style="font-size:16px; color:#0F0F0F; display:inline-block; visibility:hidden;">
+<span style="border:1px solid #5D6146;width:22px;height:22px;border-radius:50%;display:inline-block;text-align:center;line-height:22px;background:#FBFAF6;margin-right:6px;margin-top:12px;vertical-align:middle;overflow:hidden;">
+<img id="userIcon" src="/img/wode/unlogin.png" alt="未登录" style="width:16px;height:16px;display:block;margin:0 auto;vertical-align:middle;border:none;padding-top:2px;" />
+</span>
+<span id="userText" style="vertical-align:middle;margin-top:12px;display:inline-block;">登录</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<div class="mainbtm">
+<div class="son2">
+<div id="search" class="search" style="border-radius:25px;" onclick="document.getElementById('txtKey').focus();">
+<form id="searchForm" method="get" action="/search.aspx" onsubmit="return selectSearch()" contenttype="text/html; charset=utf-8">
+<input onfocus="Focus(1)" onblur="Focus(0)" onkeydown="noajaxkeyUp()" oninput="goshowBosD()" id="txtKey" name="value" type="text" value="" maxlength="40" autocomplete="off" style="height:33px; line-height:33px; float:left; padding-left:10px; width:650px; font-size:14px; clear:left; border:0px;" />
+<input type="submit" id="searchBtn" style="float:right; width:27px; height:27px; clear:right; margin-top:3px; margin-right:4px; background-image:url(https://oss.guwendao.net/siteimg/docSearch230511.png); background-repeat:no-repeat; background-size:27px 27px; border:0px;cursor:pointer;" value="" />
+<input id="b" style="display:none;" type="text" />
+</form>
+</div>
+<div id="boxD"></div>
+</div>
+</div>
+</div>
+<main>
+<div class="main3">
+<div class="left">
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare47044">铜簧韵脆锵寒竹，新声慢奏移纤玉。眼色暗相钩，秋波横欲流。雨云深绣户，来便谐衷素。宴罢又成空，魂迷春梦中。(魂迷 一作：梦迷)——五代·李煜《菩萨蛮·铜簧韵脆锵寒竹》https://www.guwendao.net/shiwenv_8b0fd3c0cd7a.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;8b0fd3c0cd7a&#x27;,&#x27;8b0fd3c0cd7a&#x27;)" id="btnPinyin8b0fd3c0cd7a" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;8b0fd3c0cd7a&#x27;,&#x27;8b0fd3c0cd7a&#x27;)" id="btnShangxi8b0fd3c0cd7a" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;8b0fd3c0cd7a&#x27;,&#x27;8b0fd3c0cd7a&#x27;)" id="btnZhushi8b0fd3c0cd7a" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;8b0fd3c0cd7a&#x27;,&#x27;8b0fd3c0cd7a&#x27;)" id="btnYiwen8b0fd3c0cd7a" />
+</div>
+<div id="zhengwen8b0fd3c0cd7a">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_8b0fd3c0cd7a.aspx" target="_blank"><b>菩萨蛮·铜簧韵脆锵寒竹</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E6%9D%8E%E7%85%9C" target="_blank">
+<img src="https://oss.guwendao.net/authorImg300/liyu.jpg" alt="李煜" />
+李煜
+</a>
+<a href="/shiwens/default.aspx?cstr=%E4%BA%94%E4%BB%A3" target="_blank">〔五代〕</a>
+</p>
+<div class="contson" id="contson8b0fd3c0cd7a">
+<p>铜簧韵脆锵寒竹，新声慢奏移纤玉。眼色暗相钩，秋波横欲流。<br />雨云深绣户，来便谐衷素。宴罢又成空，魂迷春梦中。(魂迷 一作：梦迷)</p>
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg47044" name="0" onload="selectLike(47044)" onclick="changeLike(47044,&#x27;E45E67D1F6C7CBEC&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=8b0fd3c0cd7a"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(47044)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('8b0fd3c0cd7a',47044,'/')"><img id="speakerimg8b0fd3c0cd7a" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_8b0fd3c0cd7a.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7C8b0fd3c0cd7a%7C47044%7C%E8%8F%A9%E8%90%A8%E8%9B%AE%C2%B7%E9%93%9C%E7%B0%A7%E9%9F%B5%E8%84%86%E9%94%B5%E5%AF%92%E7%AB%B9%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E7%88%B1%E6%83%85">爱情</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E6%84%9F%E4%BC%A4">感伤</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E6%81%8B%E6%83%85">恋情</a>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare74974">秋尽。叶剪红绡，砌菊遗金粉。雁字一行来，还有边庭信。飘散露华清风紧。动翠幕，晓寒犹嫩，中酒残妆慵整顿。聚两眉离恨。——宋代·柳永《甘草子·秋尽》https://www.guwendao.net/shiwenv_e3e4ceead956.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;e3e4ceead956&#x27;,&#x27;e3e4ceead956&#x27;)" id="btnPinyine3e4ceead956" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;e3e4ceead956&#x27;,&#x27;e3e4ceead956&#x27;)" id="btnShangxie3e4ceead956" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;e3e4ceead956&#x27;,&#x27;e3e4ceead956&#x27;)" id="btnZhushie3e4ceead956" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;e3e4ceead956&#x27;,&#x27;e3e4ceead956&#x27;)" id="btnYiwene3e4ceead956" />
+</div>
+<div id="zhengwene3e4ceead956">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_e3e4ceead956.aspx" target="_blank"><b>甘草子·秋尽</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E6%9F%B3%E6%B0%B8" target="_blank">
+<img src="https://oss.guwendao.net/authorImg300/liuyong2.jpg" alt="柳永" />
+柳永
+</a>
+<a href="/shiwens/default.aspx?cstr=%E5%AE%8B%E4%BB%A3" target="_blank">〔宋代〕</a>
+</p>
+<div class="contson" id="contsone3e4ceead956">
+秋尽。叶剪红绡，砌菊遗金粉。雁字一行来，还有边庭信。<br />飘散露华清风紧。动翠幕，晓寒犹嫩，中酒残妆慵整顿。聚两眉离恨。
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg74974" name="0" onload="selectLike(74974)" onclick="changeLike(74974,&#x27;E090D5C73B9EAAE6&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=e3e4ceead956"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(74974)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('e3e4ceead956',74974,'/')"><img id="speakerimge3e4ceead956" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_e3e4ceead956.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7Ce3e4ceead956%7C74974%7C%E7%94%98%E8%8D%89%E5%AD%90%C2%B7%E7%A7%8B%E5%B0%BD%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E7%BE%8E%E5%A5%B3">美女</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E9%97%BA%E6%80%A8">闺怨</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E6%8A%92%E6%83%85">抒情</a>
+</div>
+</div>
+<div class="sons"><div class="cont" style="margin-top:0px; margin-right:0px; margin-left:0px;"><div class="changshi">常识</div><div class="pinyinContson" style="text-align:center;"><span><span class="pinyin">xū</span><span class="hanzi" onclick="window.location.href='/zici/search.aspx?value=%E9%A1%BB%E9%AB%AF'" style="background:url(https://oss.guwendao.net/siteimg/indexMibac.png) no-repeat 2px;background-size:32px 32px; font-size:22px;cursor: pointer;">须</span></span><span><span class="pinyin">r&#225;n</span><span class="hanzi" onclick="window.location.href='/zici/search.aspx?value=%E9%A1%BB%E9%AB%AF'" style="background:url(https://oss.guwendao.net/siteimg/indexMibac.png) no-repeat 2px;background-size:32px 32px; font-size:22px;cursor: pointer;">髯</span></span></div><div class="changshicont">1.指胡须。2.络腮胡子。</div></div></div> <div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare1300">惊起却回头，有恨无人省。https://www.guwendao.net/mingju/juv_823971195052.aspx</textarea>
+</div>
+<div class="sons">
+<div class="contImg">
+<img src="https://oss.guwendao.net/mingjuImg/B38A17D34E9DADE145C8544B7A20E659.jpg" alt="惊起却回头，有恨无人省。" width="100%" />
+<div class="info">江寒汀 紫滕小鸟图轴</div>
+<div class="jucount"><a target="_blank" style="font-size:18px;" href="/mingju/juv_823971195052.aspx">惊起却回头，有恨无人省。</a></div>
+<div class="sourceimg"><a target="_blank" href="/shiwenv_c1a07129a6d3.aspx">苏轼《卜算子·黄州定慧院寓居作》</a></div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg1300" name="0" onload="selectLikeMingju(1300)" onclick="changeLikeMingju(1300,&#x27;E986837F084F4040&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="javascript:copy(1300)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a target="_blank" href="/mingju/juv_823971195052.aspx"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=mingju%7C823971195052%7C1300%7C%E6%83%8A%E8%B5%B7%E5%8D%B4%E5%9B%9E%E5%A4%B4%EF%BC%8C%E6%9C%89%E6%81%A8%E6%97%A0%E4%BA%BA%E7%9C%81%E3%80%82%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare329268">董生唯巧笑，子都信美目。百万市一言，千金买相逐。不道参差菜，谁论窈窕淑。愿言捧绣被，来就越人宿。——南北朝·吴均《咏少年诗》https://www.guwendao.net/shiwenv_ec854c498e5a.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;ec854c498e5a&#x27;,&#x27;ec854c498e5a&#x27;)" id="btnPinyinec854c498e5a" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;ec854c498e5a&#x27;,&#x27;ec854c498e5a&#x27;)" id="btnShangxiec854c498e5a" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;ec854c498e5a&#x27;,&#x27;ec854c498e5a&#x27;)" id="btnZhushiec854c498e5a" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;ec854c498e5a&#x27;,&#x27;ec854c498e5a&#x27;)" id="btnYiwenec854c498e5a" />
+</div>
+<div id="zhengwenec854c498e5a">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_ec854c498e5a.aspx" target="_blank"><b>咏少年诗</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E5%90%B4%E5%9D%87" target="_blank">
+<img src="https://oss.guwendao.net/authorImg300/wujun.jpg" alt="吴均" />
+吴均
+</a>
+<a href="/shiwens/default.aspx?cstr=%E5%8D%97%E5%8C%97%E6%9C%9D" target="_blank">〔南北朝〕</a>
+</p>
+<div class="contson" id="contsonec854c498e5a">
+<p>董生唯巧笑，子都信美目。<br />百万市一言，千金买相逐。<br />不道参差菜，谁论窈窕淑。<br />愿言捧绣被，来就越人宿。</p>
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg329268" name="0" onload="selectLike(329268)" onclick="changeLike(329268,&#x27;D7B1F6BD659E217E&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=ec854c498e5a"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(329268)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('ec854c498e5a',329268,'/')"><img id="speakerimgec854c498e5a" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_ec854c498e5a.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7Cec854c498e5a%7C329268%7C%E5%92%8F%E5%B0%91%E5%B9%B4%E8%AF%97%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E5%86%99%E4%BA%BA">写人</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E8%B5%9E%E7%BE%8E">赞美</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E6%8A%92%E6%83%85">抒情</a>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare238680">堆几尽埃简，攻之如蠹虫。谁知圣人意，不尽书籍中。曲尽弦犹在，器成机见空。妙哉斫轮手，堂下笑桓公。——宋代·苏轼《嘲子由》https://www.guwendao.net/shiwenv_270fc289d615.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;270fc289d615&#x27;,&#x27;270fc289d615&#x27;)" id="btnPinyin270fc289d615" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;270fc289d615&#x27;,&#x27;270fc289d615&#x27;)" id="btnShangxi270fc289d615" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;270fc289d615&#x27;,&#x27;270fc289d615&#x27;)" id="btnZhushi270fc289d615" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;270fc289d615&#x27;,&#x27;270fc289d615&#x27;)" id="btnYiwen270fc289d615" />
+</div>
+<div id="zhengwen270fc289d615">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_270fc289d615.aspx" target="_blank"><b>嘲子由</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E8%8B%8F%E8%BD%BC" target="_blank">
+<img src="https://oss.guwendao.net/authorImg300/sushi.jpg" alt="苏轼" />
+苏轼
+</a>
+<a href="/shiwens/default.aspx?cstr=%E5%AE%8B%E4%BB%A3" target="_blank">〔宋代〕</a>
+</p>
+<div class="contson" id="contson270fc289d615">
+堆几尽埃简，攻之如蠹虫。<br />谁知圣人意，不尽书籍中。<br />曲尽弦犹在，器成机见空。<br />妙哉斫轮手，堂下笑桓公。
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg238680" name="0" onload="selectLike(238680)" onclick="changeLike(238680,&#x27;151D719A953DD419&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=270fc289d615"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(238680)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('270fc289d615',238680,'/')"><img id="speakerimg270fc289d615" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_270fc289d615.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7C270fc289d615%7C238680%7C%E5%98%B2%E5%AD%90%E7%94%B1%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E6%8A%92%E6%83%85">抒情</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E5%86%99%E4%BA%BA">写人</a>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare49569">玉房金蕊，宜在玉人纤手里。淡月朦胧，更有微微弄袖风。温香熟美，醉慢云鬟垂两耳。多谢春工，不是花红是玉红。——宋代·苏轼《减字木兰花·花》https://www.guwendao.net/shiwenv_c5ee2a1720d1.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;c5ee2a1720d1&#x27;,&#x27;c5ee2a1720d1&#x27;)" id="btnPinyinc5ee2a1720d1" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;c5ee2a1720d1&#x27;,&#x27;c5ee2a1720d1&#x27;)" id="btnShangxic5ee2a1720d1" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;c5ee2a1720d1&#x27;,&#x27;c5ee2a1720d1&#x27;)" id="btnZhushic5ee2a1720d1" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;c5ee2a1720d1&#x27;,&#x27;c5ee2a1720d1&#x27;)" id="btnYiwenc5ee2a1720d1" />
+</div>
+<div id="zhengwenc5ee2a1720d1">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_c5ee2a1720d1.aspx" target="_blank"><b>减字木兰花·花</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E8%8B%8F%E8%BD%BC" target="_blank">
+<img src="https://oss.guwendao.net/authorImg300/sushi.jpg" alt="苏轼" />
+苏轼
+</a>
+<a href="/shiwens/default.aspx?cstr=%E5%AE%8B%E4%BB%A3" target="_blank">〔宋代〕</a>
+</p>
+<div class="contson" id="contsonc5ee2a1720d1">
+玉房金蕊，宜在玉人纤手里。淡月朦胧，更有微微弄袖风。<br />温香熟美，醉慢云鬟垂两耳。多谢春工，不是花红是玉红。
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg49569" name="0" onload="selectLike(49569)" onclick="changeLike(49569,&#x27;576CD23132D4FC70&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=c5ee2a1720d1"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(49569)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('c5ee2a1720d1',49569,'/')"><img id="speakerimgc5ee2a1720d1" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_c5ee2a1720d1.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7Cc5ee2a1720d1%7C49569%7C%E5%87%8F%E5%AD%97%E6%9C%A8%E5%85%B0%E8%8A%B1%C2%B7%E8%8A%B1%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E5%92%8F%E7%89%A9">咏物</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E5%86%99%E8%8A%B1">写花</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E7%89%A1%E4%B8%B9">牡丹</a>
+</div>
+</div>
+<div class="sons" style="padding-bottom:12px;">
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_78da6081daa8.aspx">秋声江一片，曙影月三分。</a>
+<span style="color:#666666; margin-left:5px; font-size:16px;">——</span>
+<a style="color:#666666; font-size:16px; margin-left:3px;" target="_blank" href="/shiwenv_fa307987c6b2.aspx">
+文天祥《晓起》
+</a>
+</div>
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_26fe81a25df9.aspx">何时石门路，重有金樽开。</a>
+<span style="color:#666666; margin-left:5px; font-size:16px;">——</span>
+<a style="color:#666666; font-size:16px; margin-left:3px;" target="_blank" href="/shiwenv_09fe9942aa96.aspx">
+李白《鲁郡东石门送杜二甫》
+</a>
+</div>
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_bed9f1e8aee3.aspx">天涯何处无芳草！</a>
+<span style="color:#666666; margin-left:5px; font-size:16px;">——</span>
+<a style="color:#666666; font-size:16px; margin-left:3px;" target="_blank" href="/shiwenv_69a11cbab0b4.aspx">
+苏轼《蝶恋花·春景》
+</a>
+</div>
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_8facb531d3eb.aspx">但将千岁叶，常奉万年杯。</a>
+<span style="color:#666666; margin-left:5px; font-size:16px;">——</span>
+<a style="color:#666666; font-size:16px; margin-left:3px;" target="_blank" href="/shiwenv_a668c93b53a2.aspx">
+赵彦昭《奉和元日赐群臣柏叶应制》
+</a>
+</div>
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_c54d1e09a7bd.aspx">日日思君不见君，共饮长江水。</a>
+<span style="color:#666666; margin-left:5px; font-size:16px;">——</span>
+<a style="color:#666666; font-size:16px; margin-left:3px;" target="_blank" href="/shiwenv_d096804a25ff.aspx">
+李之仪《卜算子·我住长江头》
+</a>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare67890">淫慢则不能励精，险躁则不能治性。https://www.guwendao.net/mingju/juv_fbb3b3d110c5.aspx</textarea>
+</div>
+<div class="sons">
+<div class="contImg">
+<img src="https://oss.guwendao.net/mingjuImg/B38A17D34E9DADE1903023A584E9DED5.jpg" alt="淫慢则不能励精，险躁则不能治性。" width="100%" />
+<div class="info">马远 松下弹琴图</div>
+<div class="jucount"><a target="_blank" style="font-size:18px;" href="/mingju/juv_fbb3b3d110c5.aspx">淫慢则不能励精，险躁则不能治性。</a></div>
+<div class="sourceimg"><a target="_blank" href="/shiwenv_c0509bfa84a1.aspx">诸葛亮《诫子书》</a></div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg67890" name="0" onload="selectLikeMingju(67890)" onclick="changeLikeMingju(67890,&#x27;3DA027D0A29A45D9&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="javascript:copy(67890)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a target="_blank" href="/mingju/juv_fbb3b3d110c5.aspx"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=mingju%7Cfbb3b3d110c5%7C67890%7C%E6%B7%AB%E6%85%A2%E5%88%99%E4%B8%8D%E8%83%BD%E5%8A%B1%E7%B2%BE%EF%BC%8C%E9%99%A9%E8%BA%81%E5%88%99%E4%B8%8D%E8%83%BD%E6%B2%BB%E6%80%A7%E3%80%82%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare15">于以采蘋？南涧之滨。于以采藻？于彼行潦。于以盛之？维筐及筥。于以湘之？维锜及釜。于以奠之？宗室牖下。谁其尸之？有齐季女。——先秦·诗经·国风·召南《采蘋》https://www.guwendao.net/shiwenv_0542f2d34e65.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;0542f2d34e65&#x27;,&#x27;0542f2d34e65&#x27;)" id="btnPinyin0542f2d34e65" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;0542f2d34e65&#x27;,&#x27;0542f2d34e65&#x27;)" id="btnShangxi0542f2d34e65" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;0542f2d34e65&#x27;,&#x27;0542f2d34e65&#x27;)" id="btnZhushi0542f2d34e65" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;0542f2d34e65&#x27;,&#x27;0542f2d34e65&#x27;)" id="btnYiwen0542f2d34e65" />
+</div>
+<div id="zhengwen0542f2d34e65">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_0542f2d34e65.aspx" target="_blank"><b>采蘋</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E8%AF%97%E7%BB%8F%C2%B7%E5%9B%BD%E9%A3%8E%C2%B7%E5%8F%AC%E5%8D%97" target="_blank">
+诗经·国风·召南
+</a>
+<a href="/shiwens/default.aspx?cstr=%E5%85%88%E7%A7%A6" target="_blank">〔先秦〕</a>
+</p>
+<div class="contson" id="contson0542f2d34e65">
+于以采蘋？南涧之滨。于以采藻？于彼行潦。<br />于以盛之？维筐及筥。于以湘之？维锜及釜。<br />于以奠之？宗室牖下。谁其尸之？有齐季女。
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg15" name="0" onload="selectLike(15)" onclick="changeLike(15,&#x27;8FDF9A8C682C70B2&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=0542f2d34e65"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(15)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('0542f2d34e65',15,'/')"><img id="speakerimg0542f2d34e65" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_0542f2d34e65.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7C0542f2d34e65%7C15%7C%E9%87%87%E8%98%8B%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E8%AF%97%E7%BB%8F">诗经</a>
+</div>
+</div>
+<div class="sons"><div class="cont" style="margin-top:0px; margin-right:0px; margin-left:0px;"><div class="changshi">常识</div><div class="pinyinContson" style="text-align:center;"><span><span class="pinyin">jiān</span><span class="hanzi" onclick="window.location.href='/zici/search.aspx?value=%E7%9B%91%E4%B8%B4'" style="background:url(https://oss.guwendao.net/siteimg/indexMibac.png) no-repeat 2px;background-size:32px 32px; font-size:22px;cursor: pointer;">监</span></span><span><span class="pinyin">l&#237;n</span><span class="hanzi" onclick="window.location.href='/zici/search.aspx?value=%E7%9B%91%E4%B8%B4'" style="background:url(https://oss.guwendao.net/siteimg/indexMibac.png) no-repeat 2px;background-size:32px 32px; font-size:22px;cursor: pointer;">临</span></span></div><div class="changshicont">1.负责督察或监督管理。2.指负责监督、监察事务的官吏。3.科举制度中负责乡试监考的官员。</div></div></div> <div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare299232">久厌尘坌乐静元，俸微犹乏买山钱。徘徊真境不能去，且寄云房一榻眠。——宋代·周敦颐《题酆都观·宿山房》https://www.guwendao.net/shiwenv_a19cd06376ff.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;a19cd06376ff&#x27;,&#x27;a19cd06376ff&#x27;)" id="btnPinyina19cd06376ff" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;a19cd06376ff&#x27;,&#x27;a19cd06376ff&#x27;)" id="btnShangxia19cd06376ff" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;a19cd06376ff&#x27;,&#x27;a19cd06376ff&#x27;)" id="btnZhushia19cd06376ff" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;a19cd06376ff&#x27;,&#x27;a19cd06376ff&#x27;)" id="btnYiwena19cd06376ff" />
+</div>
+<div id="zhengwena19cd06376ff">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_a19cd06376ff.aspx" target="_blank"><b>题酆都观·宿山房</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E5%91%A8%E6%95%A6%E9%A2%90" target="_blank">
+<img src="https://oss.guwendao.net/authorImg300/zhoudunyi.jpg" alt="周敦颐" />
+周敦颐
+</a>
+<a href="/shiwens/default.aspx?cstr=%E5%AE%8B%E4%BB%A3" target="_blank">〔宋代〕</a>
+</p>
+<div class="contson" id="contsona19cd06376ff">
+久厌尘坌乐静元，俸微犹乏买山钱。<br />徘徊真境不能去，且寄云房一榻眠。
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg299232" name="0" onload="selectLike(299232)" onclick="changeLike(299232,&#x27;2A9A387F6FFC0061&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=a19cd06376ff"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(299232)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('a19cd06376ff',299232,'/')"><img id="speakerimga19cd06376ff" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_a19cd06376ff.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7Ca19cd06376ff%7C299232%7C%E9%A2%98%E9%85%86%E9%83%BD%E8%A7%82%C2%B7%E5%AE%BF%E5%B1%B1%E6%88%BF%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E9%A2%98%E8%AF%97">题诗</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E6%84%9F%E6%85%A8">感慨</a>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare7838">木兰之枻沙棠舟，玉箫金管坐两头。美酒樽中置千斛，载妓随波任去留。仙人有待乘黄鹤，海客无心随白鸥。屈平辞赋悬日月，楚王台榭空山丘。兴酣落笔摇五岳，诗成笑傲凌沧洲。功名富贵若长在，汉水亦应西北流。——唐代·李白《江上吟》https://www.guwendao.net/shiwenv_9c5e81f89b48.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;9c5e81f89b48&#x27;,&#x27;9c5e81f89b48&#x27;)" id="btnPinyin9c5e81f89b48" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;9c5e81f89b48&#x27;,&#x27;9c5e81f89b48&#x27;)" id="btnShangxi9c5e81f89b48" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;9c5e81f89b48&#x27;,&#x27;9c5e81f89b48&#x27;)" id="btnZhushi9c5e81f89b48" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;9c5e81f89b48&#x27;,&#x27;9c5e81f89b48&#x27;)" id="btnYiwen9c5e81f89b48" />
+</div>
+<div id="zhengwen9c5e81f89b48">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_9c5e81f89b48.aspx" target="_blank"><b>江上吟</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E6%9D%8E%E7%99%BD" target="_blank">
+<img src="https://oss.guwendao.net/authorImg300/libai.jpg" alt="李白" />
+李白
+</a>
+<a href="/shiwens/default.aspx?cstr=%E5%94%90%E4%BB%A3" target="_blank">〔唐代〕</a>
+</p>
+<div class="contson" id="contson9c5e81f89b48">
+<p>木兰之枻沙棠舟，玉箫金管坐两头。<br />美酒樽中置千斛，载妓随波任去留。<br />仙人有待乘黄鹤，海客无心随白鸥。<br />屈平辞赋悬日月，楚王台榭空山丘。<br />兴酣落笔摇五岳，诗成笑傲凌沧洲。<br />功名富贵若长在，汉水亦应西北流。</p>
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg7838" name="0" onload="selectLike(7838)" onclick="changeLike(7838,&#x27;14326BFD586F9A37&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=9c5e81f89b48"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(7838)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('9c5e81f89b48',7838,'/')"><img id="speakerimg9c5e81f89b48" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_9c5e81f89b48.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7C9c5e81f89b48%7C7838%7C%E6%B1%9F%E4%B8%8A%E5%90%9F%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E5%90%91%E5%BE%80">向往</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E8%87%AA%E7%94%B1">自由</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E7%94%9F%E6%B4%BB">生活</a>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare32564">失之毫厘，差以千里。——《汉书·传·东方朔传》https://www.guwendao.net/mingju/juv_d6e24de09095.aspx</textarea>
+</div>
+<div class="sons">
+<div class="contImg">
+<img src="https://oss.guwendao.net/mingjuImg/B38A17D34E9DADE1A18BDF4CB4B3451F.jpg" alt="失之毫厘，差以千里。" width="100%" />
+<div class="info">方从义 山水图</div>
+<div class="jucount"><a target="_blank" style="font-size:18px;" href="/mingju/juv_d6e24de09095.aspx">失之毫厘，差以千里。</a></div>
+<div class="sourceimg"><a target="_blank" href="/guwen/bookv_4855157adc4e.aspx">《汉书·传·东方朔传》</a></div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg32564" name="0" onload="selectLikeMingju(32564)" onclick="changeLikeMingju(32564,&#x27;D342124BF27D0A4C&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="javascript:copy(32564)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a target="_blank" href="/mingju/juv_d6e24de09095.aspx"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=mingju%7Cd6e24de09095%7C32564%7C%E5%A4%B1%E4%B9%8B%E6%AF%AB%E5%8E%98%EF%BC%8C%E5%B7%AE%E4%BB%A5%E5%8D%83%E9%87%8C%E3%80%82%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare1014482">燕语莺啼三月半，烟蘸柳条金线乱。五陵原上有仙娥，携歌扇，香烂漫，留住九华云一片。犀玉满头花满面，负妾一双偷泪眼。泪珠若得似真珠，拈不散，知何限，串向红丝点百万。——五代·佚名《天仙子·燕语莺啼三月半》https://www.guwendao.net/shiwenv_de38df63434b.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;de38df63434b&#x27;,&#x27;de38df63434b&#x27;)" id="btnPinyinde38df63434b" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;de38df63434b&#x27;,&#x27;de38df63434b&#x27;)" id="btnShangxide38df63434b" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;de38df63434b&#x27;,&#x27;de38df63434b&#x27;)" id="btnZhushide38df63434b" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;de38df63434b&#x27;,&#x27;de38df63434b&#x27;)" id="btnYiwende38df63434b" />
+</div>
+<div id="zhengwende38df63434b">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_de38df63434b.aspx" target="_blank"><b>天仙子·燕语莺啼三月半</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E4%BD%9A%E5%90%8D" target="_blank">
+<img src="https://oss.guwendao.net/authorImg300/%E4%BA%94%E4%BB%A3.jpg" alt="佚名" />
+佚名
+</a>
+<a href="/shiwens/default.aspx?cstr=%E4%BA%94%E4%BB%A3" target="_blank">〔五代〕</a>
+</p>
+<div class="contson" id="contsonde38df63434b">
+燕语莺啼三月半，烟蘸柳条金线乱。五陵原上有仙娥，携歌扇，香烂漫，留住九华云一片。<br />犀玉满头花满面，负妾一双偷泪眼。泪珠若得似真珠，拈不散，知何限，串向红丝点百万。
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg1014482" name="0" onload="selectLike(1014482)" onclick="changeLike(1014482,&#x27;865BB66A21E68ADF3E011E97921E97BF&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=de38df63434b"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(1014482)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('de38df63434b',1014482,'/')"><img id="speakerimgde38df63434b" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_de38df63434b.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7Cde38df63434b%7C1014482%7C%E5%A4%A9%E4%BB%99%E5%AD%90%C2%B7%E7%87%95%E8%AF%AD%E8%8E%BA%E5%95%BC%E4%B8%89%E6%9C%88%E5%8D%8A%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E5%86%99%E4%BA%BA">写人</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E5%A5%B3%E5%AD%90">女子</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E6%8A%92%E6%83%85">抒情</a>
+</div>
+</div>
+<div style="width:1px;height:1px;overflow:hidden;">
+<textarea style="background-color:#F0EFE2; border:0px;overflow:hidden;" cols="1" rows="1" id="txtare131986">异乡何处最牵愁？独上边城城上楼。日暮北来惟有雁，地寒西去更无州。数声塞角高还咽，一派泾河冻不流。君作贫官我为客，此中离恨共难收。——宋代·魏野《登原州城呈张蕡从事》https://www.guwendao.net/shiwenv_f13e568ee05f.aspx</textarea>
+</div>
+<div class="sons">
+<div class="cont">
+<div class="yizhu">
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yin-pic.png" width="25" height="25" alt="拼音" onclick="OnPinyin230427(&#x27;f13e568ee05f&#x27;,&#x27;f13e568ee05f&#x27;)" id="btnPinyinf13e568ee05f" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/shang-pic.png" width="25" height="25" alt="赏析" onclick="OnShangxi230427(&#x27;f13e568ee05f&#x27;,&#x27;f13e568ee05f&#x27;)" id="btnShangxif13e568ee05f" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/zhu-pic.png" width="25" height="25" alt="注释" onclick="OnZhushi230427(&#x27;f13e568ee05f&#x27;,&#x27;f13e568ee05f&#x27;)" id="btnZhushif13e568ee05f" />
+<img style="display:block;" src="https://oss.guwendao.net/siteimg/yi-pic.png" width="25" height="25" alt="译文" onclick="OnYiwen230427(&#x27;f13e568ee05f&#x27;,&#x27;f13e568ee05f&#x27;)" id="btnYiwenf13e568ee05f" />
+</div>
+<div id="zhengwenf13e568ee05f">
+<p><a style="font-size:18px; line-height:22px; height:22px;" href="/shiwenv_f13e568ee05f.aspx" target="_blank"><b>登原州城呈张蕡从事</b></a></p>
+<p class="source">
+<a href="/authorv.aspx?name=%E9%AD%8F%E9%87%8E" target="_blank">
+<img src="https://oss.guwendao.net/authorImg300/weiye.jpg" alt="魏野" />
+魏野
+</a>
+<a href="/shiwens/default.aspx?cstr=%E5%AE%8B%E4%BB%A3" target="_blank">〔宋代〕</a>
+</p>
+<div class="contson" id="contsonf13e568ee05f">
+异乡何处最牵愁？独上边城城上楼。<br />日暮北来惟有雁，地寒西去更无州。<br />数声塞角高还咽，一派泾河冻不流。<br />君作贫官我为客，此中离恨共难收。
+</div>
+</div>
+</div>
+<div class="tool">
+<div class="shoucang">
+<img id="likeImg131986" name="0" onload="selectLike(131986)" onclick="changeLike(131986,&#x27;BFF53EFC3CBE6A1B&#x27;,&#x27;/&#x27;)" src="/img/tool/shou-cang.png" alt="收藏" width="19" height="19" />
+</div>
+<div class="toolpinglun"><a href="/pdf/viewPdf.aspx?id=f13e568ee05f"><img src="/img/tool/download.png" alt="下载" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:copy(131986)"><img src="/img/tool/copy.png" alt="复制" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="javascript:Play('f13e568ee05f',131986,'/')"><img id="speakerimgf13e568ee05f" src="/img/tool/speaker.png" alt="" width="19" height="19" /></a></div>
+<div class="toolpinglun"><a href="/shiwenv_f13e568ee05f.aspx" target="_blank"><img src="/img/tool/detail.png" alt="详情" width="19" height="19" /></a></div>
+<div class="jiucuo"><a href="/jiucuo.aspx?u=shiwen%7Cf13e568ee05f%7C131986%7C%E7%99%BB%E5%8E%9F%E5%B7%9E%E5%9F%8E%E5%91%88%E5%BC%A0%E8%95%A1%E4%BB%8E%E4%BA%8B%7Ccontext%7C%7C" target="_blank">完善</a></div>
+</div>
+<div class="tag">
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E8%BE%B9%E5%A1%9E">边塞</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E5%86%99%E6%99%AF">写景</a>
+<a target="_blank" href="/shiwens/default.aspx?tstr=%E6%84%81%E7%BB%AA">愁绪</a>
+</div>
+</div>
+<div class="sons" style="padding-bottom:12px;">
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_9bf6a9111c34.aspx">万山拜其下，孤云卧此中。</a>
+</div>
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_47f3439fd6e4.aspx">饮酒不醉是英豪，恋色不迷最为高；不义之财不可取，有气不生气自消。</a>
+</div>
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_a4c526fe7a0e.aspx">川原缭绕浮云外，宫阙参差落照间。</a>
+<span style="color:#666666; margin-left:5px; font-size:16px;">——</span>
+<a style="color:#666666; font-size:16px; margin-left:3px;" target="_blank" href="/shiwenv_be47e46d1dfa.aspx">
+卢纶《长安春望》
+</a>
+</div>
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_a33d837eabb1.aspx">却下水晶帘，玲珑望秋月。</a>
+<span style="color:#666666; margin-left:5px; font-size:16px;">——</span>
+<a style="color:#666666; font-size:16px; margin-left:3px;" target="_blank" href="/shiwenv_f1ad949fed22.aspx">
+李白《玉阶怨》
+</a>
+</div>
+<div class="cont" style="margin-top:20px; display:block; align-items:center; line-height:1; border-bottom:1px dashed #DAD9D1; padding-bottom:20px;">
+<a style="font-size:18px;" target="_blank" href="/mingju/juv_65e64cb9989b.aspx">金阙晓钟开万户，玉阶仙仗拥千官。</a>
+<span style="color:#666666; margin-left:5px; font-size:16px;">——</span>
+<a style="color:#666666; font-size:16px; margin-left:3px;" target="_blank" href="/shiwenv_e434c47819cc.aspx">
+岑参《奉和中书舍人贾至早朝大明宫》
+</a>
+</div>
+</div>
+<form id="FromPage" method="get" action="/default.aspx">
+<div class="pagesright">
+<a id="amore" class="amore" style="width:770px;" href="/default_2.aspx">下一页</a>
+<a style="color:#808080;background-color:#e7e6d8;">上一页</a>
+<label id="temppage" style="display:none;">1</label>
+</div>
+</form>
+</div>
+<div class="right">
+<div class="sons">
+<div class="title">
+<img alt="" src="/img/main/shiwen.png" style="width:16px;height:16px;" />
+诗文
+</div>
+<div style="width:300px;height:1px;background:#DAD9D1;border-radius:0;margin-top:16px;margin-left:0;"></div>
+<div class="cont" style="margin-top:10px;">
+<a href="/gushi/tangshi.aspx" target="_blank">唐诗三百</a>
+<a href="/gushi/sanbai.aspx" target="_blank">古诗三百</a>
+<a href="/gushi/songsan.aspx" target="_blank">宋词三百</a>
+<a href="/gushi/xiaoxue.aspx" target="_blank">小学古诗</a>
+<a href="/gushi/chuzhong.aspx" target="_blank">初中古诗</a>
+<a href="/gushi/gaozhong.aspx" target="_blank">高中古诗</a>
+<a href="/wenyan/xiaowen.aspx" target="_blank">小学文言</a>
+<a href="/wenyan/chuwen.aspx" target="_blank">初中文言</a>
+<a href="/wenyan/gaowen.aspx" target="_blank">高中文言</a>
+<a href="/gushi/songci.aspx" target="_blank">宋词精选</a>
+<a href="/gushi/shijiu.aspx" target="_blank">古诗十九</a>
+<a href="/gushi/shijing.aspx" target="_blank">诗经</a>
+<a href="/gushi/chuci.aspx" target="_blank">楚辞</a>
+<a href="/gushi/yuefu.aspx" target="_blank">乐府</a>
+<a href="/gushi/xiejing.aspx" target="_blank">写景</a>
+<a href="/gushi/yongwu.aspx" target="_blank">咏物</a>
+<a href="/gushi/chuntian.aspx" target="_blank">春天</a>
+<a href="/gushi/xiatian.aspx" target="_blank">夏天</a>
+<a href="/gushi/qiutian.aspx" target="_blank">秋天</a>
+<a href="/gushi/dongtian.aspx" target="_blank">冬天</a>
+<a href="/gushi/yu.aspx" target="_blank">写雨</a>
+<a href="/gushi/xue.aspx" target="_blank">写雪</a>
+<a href="/gushi/feng.aspx" target="_blank">写风</a>
+<a href="/gushi/hua.aspx" target="_blank">写花</a>
+<a href="/gushi/meihua.aspx" target="_blank">梅花</a>
+<a href="/gushi/hehua.aspx" target="_blank">荷花</a>
+<a href="/gushi/juhua.aspx" target="_blank">菊花</a>
+<a href="/gushi/liushu.aspx" target="_blank">柳树</a>
+<a href="/gushi/yueliang.aspx" target="_blank">月亮</a>
+<a href="/gushi/shanshui.aspx" target="_blank">山水</a>
+<a href="/gushi/shan.aspx" target="_blank">写山</a>
+<a href="/gushi/shui.aspx" target="_blank">写水</a>
+<a href="/gushi/changjiang.aspx" target="_blank">长江</a>
+<a href="/gushi/huanghe.aspx" target="_blank">黄河</a>
+<a href="/gushi/ertong.aspx" target="_blank">儿童</a>
+<a href="/gushi/niao.aspx" target="_blank">写鸟</a>
+<a href="/gushi/ma.aspx" target="_blank">写马</a>
+<a href="/gushi/tianyuan.aspx" target="_blank">田园</a>
+<a href="/gushi/biansai.aspx" target="_blank">边塞</a>
+<a href="/gushi/diming.aspx" target="_blank">地名</a>
+<a href="/gushi/jieri.aspx" target="_blank">节日</a>
+<a href="/gushi/chunjie.aspx" target="_blank">春节</a>
+<a href="/gushi/yuanxiao.aspx" target="_blank">元宵</a>
+<a href="/gushi/hanshi.aspx" target="_blank">寒食</a>
+<a href="/gushi/qingming.aspx" target="_blank">清明</a>
+<a href="/gushi/duanwu.aspx" target="_blank">端午</a>
+<a href="/gushi/qixi.aspx" target="_blank">七夕</a>
+<a href="/gushi/zhongqiu.aspx" target="_blank">中秋</a>
+<a href="/gushi/chongyang.aspx" target="_blank">重阳</a>
+<a href="/gushi/huaigu.aspx" target="_blank">怀古</a>
+<a href="/gushi/shuqing.aspx" target="_blank">抒情</a>
+<a href="/gushi/aiguo.aspx" target="_blank">爱国</a>
+<a href="/gushi/libie.aspx" target="_blank">离别</a>
+<a href="/gushi/songbie.aspx" target="_blank">送别</a>
+<a href="/gushi/sixiang.aspx" target="_blank">思乡</a>
+<a href="/gushi/sinian.aspx" target="_blank">思念</a>
+<a href="/gushi/aiqing.aspx" target="_blank">爱情</a>
+<a href="/gushi/lizhi.aspx" target="_blank">励志</a>
+<a href="/gushi/zheli.aspx" target="_blank">哲理</a>
+<a href="/gushi/guiyuan.aspx" target="_blank">闺怨</a>
+<a href="/gushi/daowang.aspx" target="_blank">悼亡</a>
+<a href="/gushi/xieren.aspx" target="_blank">写人</a>
+<a href="/gushi/laoshi.aspx" target="_blank">老师</a>
+<a href="/gushi/muqin.aspx" target="_blank">母亲</a>
+<a href="/gushi/youqing.aspx" target="_blank">友情</a>
+<a href="/gushi/zhanzheng.aspx" target="_blank">战争</a>
+<a href="/gushi/dushu.aspx" target="_blank">读书</a>
+<a href="/gushi/xishi.aspx" target="_blank">惜时</a>
+<a href="/gushi/youguo.aspx" target="_blank">忧民</a>
+<a href="/gushi/wanyue.aspx" target="_blank">婉约</a>
+<a href="/gushi/haofang.aspx" target="_blank">豪放</a>
+<a href="/gushi/minyao.aspx" target="_blank">民谣</a>
+<a href="/wenyan/guanzhi.aspx" target="_blank">古文观止</a>
+<a href="/shiwens/">更多<img alt="" src="/img/main/more.png" style="vertical-align:-2px;width:14px;height:14px;margin-left:4px;" /></a>
+</div>
+</div>
+<div class="sons">
+<div class="title">
+<img alt="" src="/img/main/mingju.png" style="width:16px;height:16px;" />
+名句
+</div>
+<div style="width:300px;height:1px;background:#DAD9D1;border-radius:0;margin-top:16px;margin-left:0;"></div>
+<div class="cont" style="margin-top:10px;">
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E6%99%AF" target="_blank">写景</a>
+<a href="/mingjus/default.aspx?tstr=%E5%92%8F%E7%89%A9" target="_blank">咏物</a>
+<a href="/mingjus/default.aspx?tstr=%E6%98%A5%E5%A4%A9" target="_blank">春天</a>
+<a href="/mingjus/default.aspx?tstr=%E5%A4%8F%E5%A4%A9" target="_blank">夏天</a>
+<a href="/mingjus/default.aspx?tstr=%E7%A7%8B%E5%A4%A9" target="_blank">秋天</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%AC%E5%A4%A9" target="_blank">冬天</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E9%9B%A8" target="_blank">写雨</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E9%9B%AA" target="_blank">写雪</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E9%A3%8E" target="_blank">写风</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E8%8A%B1" target="_blank">写花</a>
+<a href="/mingjus/default.aspx?tstr=%E6%A2%85%E8%8A%B1" target="_blank">梅花</a>
+<a href="/mingjus/default.aspx?tstr=%E8%8D%B7%E8%8A%B1" target="_blank">荷花</a>
+<a href="/mingjus/default.aspx?tstr=%E8%8F%8A%E8%8A%B1" target="_blank">菊花</a>
+<a href="/mingjus/default.aspx?tstr=%E6%9F%B3%E6%A0%91" target="_blank">柳树</a>
+<a href="/mingjus/default.aspx?tstr=%E6%9C%88%E4%BA%AE" target="_blank">月亮</a>
+<a href="/mingjus/default.aspx?tstr=%E5%B1%B1%E6%B0%B4" target="_blank">山水</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E5%B1%B1" target="_blank">写山</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E6%B0%B4" target="_blank">写水</a>
+<a href="/mingjus/default.aspx?tstr=%E9%95%BF%E6%B1%9F" target="_blank">长江</a>
+<a href="/mingjus/default.aspx?tstr=%E9%BB%84%E6%B2%B3" target="_blank">黄河</a>
+<a href="/mingjus/default.aspx?tstr=%E5%84%BF%E7%AB%A5" target="_blank">儿童</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E9%B8%9F" target="_blank">写鸟</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E9%A9%AC" target="_blank">写马</a>
+<a href="/mingjus/default.aspx?tstr=%E7%94%B0%E5%9B%AD" target="_blank">田园</a>
+<a href="/mingjus/default.aspx?tstr=%E8%BE%B9%E5%A1%9E" target="_blank">边塞</a>
+<a href="/mingjus/default.aspx?tstr=%E5%9C%B0%E5%90%8D" target="_blank">地名</a>
+<a href="/mingjus/default.aspx?tstr=%E6%8A%92%E6%83%85" target="_blank">抒情</a>
+<a href="/mingjus/default.aspx?tstr=%E7%88%B1%E5%9B%BD" target="_blank">爱国</a>
+<a href="/mingjus/default.aspx?tstr=%E7%A6%BB%E5%88%AB" target="_blank">离别</a>
+<a href="/mingjus/default.aspx?tstr=%E9%80%81%E5%88%AB" target="_blank">送别</a>
+<a href="/mingjus/default.aspx?tstr=%E6%80%9D%E4%B9%A1" target="_blank">思乡</a>
+<a href="/mingjus/default.aspx?tstr=%E6%80%9D%E5%BF%B5" target="_blank">思念</a>
+<a href="/mingjus/default.aspx?tstr=%E7%88%B1%E6%83%85" target="_blank">爱情</a>
+<a href="/mingjus/default.aspx?tstr=%E5%8A%B1%E5%BF%97" target="_blank">励志</a>
+<a href="/mingjus/default.aspx?tstr=%E5%93%B2%E7%90%86" target="_blank">哲理</a>
+<a href="/mingjus/default.aspx?tstr=%E9%97%BA%E6%80%A8" target="_blank">闺怨</a>
+<a href="/mingjus/default.aspx?tstr=%E6%82%BC%E4%BA%A1" target="_blank">悼亡</a>
+<a href="/mingjus/default.aspx?tstr=%E5%86%99%E4%BA%BA" target="_blank">写人</a>
+<a href="/mingjus/default.aspx?tstr=%E8%80%81%E5%B8%88" target="_blank">老师</a>
+<a href="/mingjus/default.aspx?tstr=%E6%AF%8D%E4%BA%B2" target="_blank">母亲</a>
+<a href="/mingjus/default.aspx?tstr=%E5%8F%8B%E6%83%85" target="_blank">友情</a>
+<a href="/mingjus/default.aspx?tstr=%E6%88%98%E4%BA%89" target="_blank">战争</a>
+<a href="/mingjus/default.aspx?tstr=%E8%AF%BB%E4%B9%A6" target="_blank">读书</a>
+<a href="/mingjus/default.aspx?tstr=%E6%83%9C%E6%97%B6" target="_blank">惜时</a>
+<a href="/mingjus/default.aspx?tstr=%E5%A9%89%E7%BA%A6" target="_blank">婉约</a>
+<a href="/mingjus/default.aspx?tstr=%E8%B1%AA%E6%94%BE" target="_blank">豪放</a>
+<a href="/mingjus/default.aspx?tstr=%E8%AF%97%E7%BB%8F" target="_blank">诗经</a>
+<a href="/mingjus/default.aspx?tstr=%E6%B0%91%E8%B0%A3" target="_blank">民谣</a>
+<a href="/mingjus/default.aspx?tstr=%E8%AE%BA%E8%AF%AD" target="_blank">论语</a>
+<a href="/mingjus/default.aspx?tstr=%E5%8F%B2%E8%AE%B0" target="_blank">史记</a>
+<a href="/mingjus/default.aspx?tstr=%E8%80%81%E5%AD%90" target="_blank">老子</a>
+<a href="/mingjus/default.aspx?tstr=%E5%BA%84%E5%AD%90" target="_blank">庄子</a>
+<a href="/mingjus/default.aspx?tstr=%E5%AD%9F%E5%AD%90" target="_blank">孟子</a>
+<a href="/mingjus/default.aspx?tstr=%E4%B8%AD%E5%BA%B8" target="_blank">中庸</a>
+<a href="/mingjus/default.aspx?tstr=%E8%8D%80%E5%AD%90" target="_blank">荀子</a>
+<a href="/mingjus/default.aspx?tstr=%E5%B0%9A%E4%B9%A6" target="_blank">尚书</a>
+<a href="/mingjus/default.aspx?tstr=%E6%B1%89%E4%B9%A6" target="_blank">汉书</a>
+<a href="/mingjus/default.aspx?tstr=%E8%8A%82%E6%97%A5" target="_blank">节日</a>
+<a href="/mingjus/default.aspx?tstr=%E6%98%A5%E8%8A%82" target="_blank">春节</a>
+<a href="/mingjus/default.aspx?tstr=%E5%85%83%E5%AE%B5%E8%8A%82" target="_blank">元宵节</a>
+<a href="/mingjus/default.aspx?tstr=%E5%AF%92%E9%A3%9F%E8%8A%82" target="_blank">寒食节</a>
+<a href="/mingjus/default.aspx?tstr=%E6%B8%85%E6%98%8E%E8%8A%82" target="_blank">清明节</a>
+<a href="/mingjus/default.aspx?tstr=%E7%AB%AF%E5%8D%88%E8%8A%82" target="_blank">端午节</a>
+<a href="/mingjus/default.aspx?tstr=%E4%B8%83%E5%A4%95%E8%8A%82" target="_blank">七夕节</a>
+<a href="/mingjus/default.aspx?tstr=%E4%B8%AD%E7%A7%8B%E8%8A%82" target="_blank">中秋节</a>
+<a href="/mingjus/default.aspx?tstr=%E9%87%8D%E9%98%B3%E8%8A%82" target="_blank">重阳节</a>
+<a href="/mingjus/default.aspx?tstr=%E9%AC%BC%E8%B0%B7%E5%AD%90" target="_blank">鬼谷子</a>
+<a href="/mingjus/default.aspx?tstr=%E8%8F%9C%E6%A0%B9%E8%B0%AD" target="_blank">菜根谭</a>
+<a href="/mingjus/default.aspx?tstr=%E9%9F%A9%E9%9D%9E%E5%AD%90" target="_blank">韩非子</a>
+<a href="/mingjus/default.aspx?tstr=%E7%BA%A2%E6%A5%BC%E6%A2%A6" target="_blank">红楼梦</a>
+<a href="/mingjus/default.aspx?tstr=%E6%B7%AE%E5%8D%97%E5%AD%90" target="_blank">淮南子</a>
+<a href="/mingjus/default.aspx?tstr=%E5%90%8D%E8%B4%A4%E9%9B%86" target="_blank">名贤集</a>
+<a href="/mingjus/default.aspx?tstr=%E5%BF%A7%E5%9B%BD%E5%BF%A7%E6%B0%91" target="_blank">忧国忧民</a>
+<a href="/mingjus/default.aspx?tstr=%E5%92%8F%E5%8F%B2%E6%80%80%E5%8F%A4" target="_blank">咏史怀古</a>
+<a href="/mingjus/default.aspx?tstr=%E4%B8%89%E5%8D%81%E5%85%AD%E8%AE%A1" target="_blank">三十六计</a>
+<a href="/mingjus/default.aspx?tstr=%E8%B5%84%E6%B2%BB%E9%80%9A%E9%89%B4" target="_blank">资治通鉴</a>
+<a href="/mingjus/default.aspx?tstr=%E5%A2%9E%E5%B9%BF%E8%B4%A4%E6%96%87" target="_blank">增广贤文</a>
+<a href="/mingjus/default.aspx?tstr=%E4%BA%86%E5%87%A1%E5%9B%9B%E8%AE%AD" target="_blank">了凡四训</a>
+<a href="/mingjus/default.aspx?tstr=%E6%96%87%E5%BF%83%E9%9B%95%E9%BE%99" target="_blank">文心雕龙</a>
+<a href="/mingjus/default.aspx?tstr=%E5%9B%B4%E7%82%89%E5%A4%9C%E8%AF%9D" target="_blank">围炉夜话</a>
+<a href="/mingjus/">更多<img alt="" src="/img/main/more.png" style="vertical-align:-2px;width:14px;height:14px;margin-left:4px;" /></a>
+</div>
+</div>
+<div class="sons">
+<div class="title">
+<img alt="" src="/img/main/book.png" style="width:16px;height:16px;" />
+古籍
+</div>
+<div style="width:300px;height:1px;background:#DAD9D1;border-radius:0;margin-top:16px;margin-left:0;"></div>
+<div class="cont" style="margin-top:10px;">
+<a href="/guwen/book_1bd76a1c3d01.aspx" target="_blank">论语</a>
+<a href="/guwen/book_7723bfd24ca1.aspx" target="_blank">史记</a>
+<a href="/guwen/book_adb08001c74f.aspx" target="_blank">易传</a>
+<a href="/guwen/book_9b11ea1dfd91.aspx" target="_blank">孟子</a>
+<a href="/guwen/book_5138229e537e.aspx" target="_blank">左传</a>
+<a href="/guwen/book_758ff5e03b31.aspx" target="_blank">大学</a>
+<a href="/guwen/book_5d65674dd97e.aspx" target="_blank">中庸</a>
+<a href="/guwen/book_e4ecba4b9fc4.aspx" target="_blank">尚书</a>
+<a href="/guwen/book_09514c5b00f8.aspx" target="_blank">礼记</a>
+<a href="/guwen/book_9f000cb5cebc.aspx" target="_blank">周礼</a>
+<a href="/guwen/book_f726eab9800a.aspx" target="_blank">仪礼</a>
+<a href="/guwen/book_f38f3b211c76.aspx" target="_blank">庄子</a>
+<a href="/guwen/book_db8fe8b5a11f.aspx" target="_blank">老子</a>
+<a href="/guwen/book_1a02b10fe543.aspx" target="_blank">墨子</a>
+<a href="/guwen/book_e8bf28de6a4b.aspx" target="_blank">荀子</a>
+<a href="/guwen/book_69c502d5c006.aspx" target="_blank">列子</a>
+<a href="/guwen/book_4660f958c5cf.aspx" target="_blank">管子</a>
+<a href="/guwen/book_3f426dfee2f8.aspx" target="_blank">吴子</a>
+<a href="/guwen/book_77cf7aed4ca5.aspx" target="_blank">素书</a>
+<a href="/guwen/book_d0e63da87d55.aspx" target="_blank">孝经</a>
+<a href="/guwen/book_f85cbdb83bfd.aspx" target="_blank">将苑</a>
+<a href="/guwen/book_1a363b21b83a.aspx" target="_blank">六韬</a>
+<a href="/guwen/book_74e96e4ead90.aspx" target="_blank">冰鉴</a>
+<a href="/guwen/book_75da9969dfbc.aspx" target="_blank">论衡</a>
+<a href="/guwen/book_16865711ef5f.aspx" target="_blank">智囊</a>
+<a href="/guwen/book_c6a0e66fd254.aspx" target="_blank">汉书</a>
+<a href="/guwen/">更多<img alt="" src="/img/main/more.png" style="vertical-align:-2px;width:14px;height:14px;margin-left:4px;" /></a>
+</div>
+</div>
+<div class="sons">
+<div class="title">
+<img alt="" src="/img/main/author.png" style="width:16px;height:16px;" />
+作者
+</div>
+<div style="width:300px;height:1px;background:#DAD9D1;border-radius:0;margin-top:16px;margin-left:0;"></div>
+<div class="cont" style="margin-top:10px;">
+<a href="/authorv_b90660e3e492.aspx" target="_blank">李白</a>
+<a href="/authorv_85097dd0c645.aspx" target="_blank">白居易</a>
+<a href="/authorv_515ea88d1858.aspx" target="_blank">杜甫</a>
+<a href="/authorv_3b99a16ff2dd.aspx" target="_blank">苏轼</a>
+<a href="/authorv_a7900666497f.aspx" target="_blank">辛弃疾</a>
+<a href="/authorv_9cb3b7c0e4a0.aspx" target="_blank">李清照</a>
+<a href="/authorv_e3c4e8cf2646.aspx" target="_blank">刘禹锡</a>
+<a href="/authorv_52fceee85532.aspx" target="_blank">王维</a>
+<a href="/authorv_bc94c92721b8.aspx" target="_blank">李商隐</a>
+<a href="/authorv_01611cc80faf.aspx" target="_blank">纳兰性德</a>
+<a href="/authorv_727e9dff8850.aspx" target="_blank">杜牧</a>
+<a href="/authorv_efd5da0ed1a1.aspx" target="_blank">陆游</a>
+<a href="/authorv_07d17f8539d7.aspx" target="_blank">陶渊明</a>
+<a href="/authorv_3811e4e1f460.aspx" target="_blank">孟浩然</a>
+<a href="/authorv_201a0677dee4.aspx" target="_blank">元稹</a>
+<a href="/authorv_05635286bf64.aspx" target="_blank">李煜</a>
+<a href="/authorv_0ba13a22799e.aspx" target="_blank">柳宗元</a>
+<a href="/authorv_0969d1da1ac1.aspx" target="_blank">岑参</a>
+<a href="/authorv_1abe13750637.aspx" target="_blank">韩愈</a>
+<a href="/authorv_6485481407d1.aspx" target="_blank">王安石</a>
+<a href="/authorv_7ab3b8200774.aspx" target="_blank">欧阳修</a>
+<a href="/authorv_236f882d5f10.aspx" target="_blank">齐己</a>
+<a href="/authorv_568070f3fde8.aspx" target="_blank">贾岛</a>
+<a href="/authorv_00ea9cc9fdbf.aspx" target="_blank">韦应物</a>
+<a href="/authorv_f4d9b1ed94dc.aspx" target="_blank">曹操</a>
+<a href="/authorv_c367ccd8cd08.aspx" target="_blank">温庭筠</a>
+<a href="/authorv_682bdf0fd34e.aspx" target="_blank">柳永</a>
+<a href="/authorv_b3e23d54ee99.aspx" target="_blank">刘长卿</a>
+<a href="/authorv_74d46d599f15.aspx" target="_blank">李贺</a>
+<a href="/authorv_6c695909f577.aspx" target="_blank">曹植</a>
+<a href="/authorv_d9343fa5dac7.aspx" target="_blank">王昌龄</a>
+<a href="/authorv_05460f6423b0.aspx" target="_blank">张籍</a>
+<a href="/authorv_2f7f3273612a.aspx" target="_blank">孟郊</a>
+<a href="/authorv_179f3ae96ec4.aspx" target="_blank">皎然</a>
+<a href="/authorv_a6acb3e3e0dd.aspx" target="_blank">贯休</a>
+<a href="/authorv_ff17134b62ff.aspx" target="_blank">许浑</a>
+<a href="/authorv_3de7172b3782.aspx" target="_blank">罗隐</a>
+<a href="/authorv_677ad0bb97e7.aspx" target="_blank">杨万里</a>
+<a href="/authorv_46b894036ae3.aspx" target="_blank">陆龟蒙</a>
+<a href="/authorv_2d4282baeca8.aspx" target="_blank">张祜</a>
+<a href="/authorv_ae8538b4e917.aspx" target="_blank">王建</a>
+<a href="/authorv_7ce628a673ef.aspx" target="_blank">韦庄</a>
+<a href="/authorv_e82a672a1ca9.aspx" target="_blank">诸葛亮</a>
+<a href="/authorv_c2c3edb9c1b1.aspx" target="_blank">范仲淹</a>
+<a href="/authorv_e6b970da08cd.aspx" target="_blank">王勃</a>
+<a href="/authorv_61eacce8c314.aspx" target="_blank">姚合</a>
+<a href="/authorv_20e68621f077.aspx" target="_blank">晏殊</a>
+<a href="/authorv_9c69482f885f.aspx" target="_blank">屈原</a>
+<a href="/authorv_782b7ec7e8ae.aspx" target="_blank">卢纶</a>
+<a href="/authorv_3fade50333c4.aspx" target="_blank">杜荀鹤</a>
+<a href="/authorv_bc5bd15a8c34.aspx" target="_blank">岳飞</a>
+<a href="/authorv_40ce21be572d.aspx" target="_blank">周邦彦</a>
+<a href="/authorv_1e6d9d77697a.aspx" target="_blank">晏几道</a>
+<a href="/authorv_5219605011ab.aspx" target="_blank">钱起</a>
+<a href="/authorv_ce61301b9cf7.aspx" target="_blank">韩偓</a>
+<a href="/authorv_ed13dc2f731c.aspx" target="_blank">皮日休</a>
+<a href="/authorv_d4825d86f017.aspx" target="_blank">秦观</a>
+<a href="/authorv_f57e6789865a.aspx" target="_blank">吴文英</a>
+<a href="/authorv_ae228ff17e71.aspx" target="_blank">朱熹</a>
+<a href="/authorv_b44661291893.aspx" target="_blank">高适</a>
+<a href="/authorv_76758677c136.aspx" target="_blank">方干</a>
+<a href="/authorv_d0f71489043c.aspx" target="_blank">马致远</a>
+<a href="/authorv_f5e3721e014f.aspx" target="_blank">李峤</a>
+<a href="/authorv_3001715a9955.aspx" target="_blank">赵嘏</a>
+<a href="/authorv_90bafbe61cf7.aspx" target="_blank">权德舆</a>
+<a href="/authorv_e9907dd08d8b.aspx" target="_blank">皇甫冉</a>
+<a href="/authorv_1585930d4e76.aspx" target="_blank">左丘明</a>
+<a href="/authorv_5452bed2115f.aspx" target="_blank">刘辰翁</a>
+<a href="/authorv_5ca283e748ca.aspx" target="_blank">郑谷</a>
+<a href="/authorv_252e1b6ee61f.aspx" target="_blank">黄庭坚</a>
+<a href="/authorv_389bc382deaf.aspx" target="_blank">贺铸</a>
+<a href="/authorv_61b1f8244d24.aspx" target="_blank">赵长卿</a>
+<a href="/authorv_0f2fe2d36f61.aspx" target="_blank">张九龄</a>
+<a href="/authorv_ffbc39f27901.aspx" target="_blank">卓文君</a>
+<a href="/authorv_af3666b92472.aspx" target="_blank">戴叔伦</a>
+<a href="/authorv_f01178aaa8c0.aspx" target="_blank">司马迁</a>
+<a href="/authorv_b9737a950f1f.aspx" target="_blank">周敦颐</a>
+<a href="/authorv_7ef6502f1e96.aspx" target="_blank">文天祥</a>
+<a href="/authorv_e47835478657.aspx" target="_blank">张说</a>
+<a href="/authorv_c6454212c8da.aspx" target="_blank">张炎</a>
+<a href="/authorv_a4c70d8d6e0e.aspx" target="_blank">郑燮</a>
+<a href="/authorv_45c7b7ffa770.aspx" target="_blank">程垓</a>
+<a href="/authorv_d82bfa645313.aspx" target="_blank">朱敦儒</a>
+<a href="/authorv_a4d0598c1f4c.aspx" target="_blank">吴融</a>
+<a href="/authorv_273c4b7b5807.aspx" target="_blank">白朴</a>
+<a href="/authorv_44ca268d5c43.aspx" target="_blank">刘克庄</a>
+<a href="/authorv_82dc795fbcac.aspx" target="_blank">李端</a>
+<a href="/authorv_a4f5884125b1.aspx" target="_blank">司空图</a>
+<a href="/authorv_d2c43a8ea55a.aspx" target="_blank">顾况</a>
+<a href="/authorv_ee60971ad9b4.aspx" target="_blank">张乔</a>
+<a href="/authorv_0955ca350ffe.aspx" target="_blank">马戴</a>
+<a href="/authorv_06c9f58eb897.aspx" target="_blank">吴潜</a>
+<a href="/authorv_83fa70cf5a10.aspx" target="_blank">张孝祥</a>
+<a href="/authorv_b8ce6bb93501.aspx" target="_blank">韩翃</a>
+<a href="/authorv_4b13c1698a34.aspx" target="_blank">郦道元</a>
+<a href="/authorv_14fd383123cc.aspx" target="_blank">陈著</a>
+<a href="/authorv_0410a34d2e7c.aspx" target="_blank">宋之问</a>
+<a href="/authorv_79e0e9d1f260.aspx" target="_blank">贺知章</a>
+<a href="/authors/">更多<img alt="" src="/img/main/more.png" style="vertical-align:-2px;width:14px;height:14px;margin-left:4px;" /></a>
+</div>
+</div>
+<div class="juzioncont" style="height:116px;background:#F0EFE2;display:flex;white-space:nowrap;">
+<img style="margin-left:20px;margin-top:18px;width:80px;height:80px;" src="https://oss.guwendao.net/siteimg/app/erweimaGwd.png" alt="APP二维码" />
+<div style="margin-left:23px;margin-top:18px;gap:12px;">
+<div style="width:126px;height:24px;font-size:18px;color:#0F0F0F;font-weight:700;">扫码下载APP</div>
+<div style="width:70px;height:18px;font-size:14px;color:#0F0F0F;padding-top:5px">诗词陪伴每一刻</div>
+<div style="width:117px;height:13px;font-size:10px;color:#666666;padding-top:5px">支持安卓、IOS、鸿蒙系统</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="container" id="container">
+<div class="audio-player-container" id="audioplayercontainer">
+<div class="audio-player-controls">
+<button id="prevButton"><img src="/img/play/prevButton.png" alt="上一首" /></button>
+<button id="playPauseButton"><img src="/img/play/playPauseButton.png" alt="播放" /></button>
+<button id="nextButton"><img src="/img/play/nextButton.png" alt="下一首" /></button>
+<div class="progress-container">
+<div class="time-info">
+<div class="time-infoleft">
+<span class="timenamestr" id="nameStr"></span>
+<span class="time-langsong" id="author"></span>
+</div>
+<div class="time-inforhgit">
+<span class="time-start" id="currentTime">0:00</span> /
+<span class="time-end" id="duration">0:00</span>
+<span class="time-langsong" id="langsongspan">(朗诵：<span id="langsongauthor"></span>)</span>
+</div>
+</div>
+<div class="progressBackground" id="progressBackground"></div>
+<div class="progress" id="progress"></div>
+<div class="progressBall" id="progressBall"></div>
+</div>
+<div class="close-button" id="closeButton"><img src="/img/play/close.png" alt="关闭" /></div>
+<button id="downloadButton"><img src="/img/play/download.png" alt="下载" /></button>
+<button id="xunhuanButton"><img src="/img/play/listplay.png" id="currentModeIcon" alt="循环" /></button>
+<button id="beisuButton"><img src="/img/play/beisu.png" alt="倍速" /></button>
+<div class="listButton">
+<span class="payaaa">
+<button id="listButton">
+<img src="/img/play/list.png" alt="播放列表按钮" />
+</button>
+<span id="palynum">0</span>
+</span>
+<div class="playlist-container" id="playlistcontainer">
+<div class="playlist-header">
+播放列表 <span class="right-icons">
+<img src="/img/play/clear.png" class="icon-space" id="clear" alt="清空" />
+<span class="vertical-divider" style="margin-left:10px;margin-right:10px;"></span>
+<img src="/img/play/playclose.png" class="icon-space" id="playclose" alt="关闭列表" />
+</span>
+</div>
+<div class="playlist-wrapper" id="playlistWrapper">
+<ul class="playlist" id="playlist"></ul>
+</div>
+</div>
+</div>
+<div class="volume-control">
+<span id="volume"><img src="/img/play/volume.png" alt="音量" /></span>
+<input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5" />
+</div>
+<audio id="audioPlayer" preload="none" style="display: none;">您的浏览器不支持 audio 元素。</audio>
+<div class="speed-controls" id="speedControls">
+<ul class="speed-options" id="speedOptions">
+<li data-value="0.25" class="list-item">0.25x</li>
+<li data-value="0.5" class="list-item">0.5x</li>
+<li data-value="0.75" class="list-item">0.75x</li>
+<li data-value="1" class="list-item selected">1.0x</li>
+<li data-value="1.25" class="list-item">1.25x</li>
+<li data-value="1.5" class="list-item">1.5x</li>
+<li data-value="2" class="list-item">2.0x</li>
+</ul>
+</div>
+<div class="play-mode" id="playModeControls">
+<ul class="play-options" id="playModeOptions">
+<li data-value="listLoop" class="list-item selected"><img src="/img/play/listplay.png" class="icon" alt="" />列表循环</li>
+<li data-value="random" class="list-item"><img src="/img/play/random.png" class="icon" alt="" />随机播放</li>
+<li data-value="singleLoop" class="list-item"><img src="/img/play/singpaly.png" class="icon" alt="" />单曲循环</li>
+<li data-value="single" class="list-item"><img src="/img/play/sing.png" class="icon" alt="" />单曲播放</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="gushiwen.cn" class="main4" style="display:none;">
+<div style="float:left; margin-top:5px; margin-left:105px; color:#676767;">
+© 2026 <a href="/">古诗文网</a> | <a href="/mianze.aspx" target="_blank" rel="nofollow">免责声明</a> | <a href="/jiucuo.aspx?u=反馈" target="_blank" rel="nofollow">反馈</a> | <a href="/jiucuo.aspx?u=纠错" target="_blank" rel="nofollow">纠错</a> | <a href="/jiucuo.aspx?u=" target="_blank" rel="nofollow">申请收录</a> | 邮件：guwendao@laiyo.com | <a href="http://beian.miit.gov.cn/" target="_blank">渝ICP备15011639号-3</a> | <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=50010602501990" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="https://oss.guwendao.net/siteimg/ghs.png" style="float:left;" alt="备" width="19" height="19" />渝公网安备 50010602501990号</a>
+</div>
+</div>
+<div id="guwendao.net" class="main4">
+<div style="float:left; margin-top:5px; color:#676767;">
+© 2026 <a href="/">古文岛</a> | <a href="/mianze.aspx" target="_blank" rel="nofollow">免责声明</a> | <a href="/jiucuo.aspx?u=反馈" target="_blank" rel="nofollow">反馈</a> | <a href="/jiucuo.aspx?u=纠错" target="_blank" rel="nofollow">纠错</a> | <a href="/jiucuo.aspx?u=" target="_blank" rel="nofollow">申请收录</a> | 邮件：guwendao@laiyo.com | <a href="http://beian.miit.gov.cn/" target="_blank">渝ICP备2021007435号-1</a> | <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=50019002504964" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="https://oss.guwendao.net/siteimg/ghs.png" style="float:left;" alt="备" width="19" height="19" />渝公网安备50019002504964号</a> | <a href="img/典识古出版物经营许可证展示.jpg" target="_blank">新出发两江字第260147号</a> | <a href="img/典识古营业执照展示.jpg" target="_blank">营业执照</a>
+</div>
+</div>
+<div id="juzang.com" class="main4" style="display:none;">
+<div style="float:left; margin-top:5px; color:#676767;">
+© 2026 <a href="/">古文岛</a> | <a href="/mianze.aspx" target="_blank" rel="nofollow">免责声明</a> | <a href="/jiucuo.aspx?u=反馈" target="_blank" rel="nofollow">反馈</a> | <a href="/jiucuo.aspx?u=纠错" target="_blank" rel="nofollow">纠错</a> | <a href="/jiucuo.aspx?u=" target="_blank" rel="nofollow">申请收录</a> | 邮件：guwendao@laiyo.com | <a href="http://beian.miit.gov.cn/" target="_blank">渝ICP备2021007435号-2</a> | <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=50019002504964" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="https://oss.guwendao.net/siteimg/ghs.png" style="float:left;" alt="备" width="19" height="19" />渝公网安备50019002504964号</a> | <a href="img/典识古出版物经营许可证展示.jpg" target="_blank">新出发两江字第260147号</a> | <a href="img/典识古营业执照展示.jpg" target="_blank">营业执照</a>
+</div>
+</div>
+<script type="text/javascript">if (document.domain.indexOf('gushiwen.cn') >=0) {document.getElementById('guwendao.net').style.display ="none";document.getElementById('gushiwen.cn').style.display ="block";}
+else if (document.domain.indexOf('juzang.com') >=0) {document.write('1');document.getElementById('guwendao.net').style.display ="none";document.getElementById('juzang.com').style.display ="block";}
+</script>
+<script type="text/javascript">(function () {function getCookie(name) {var parts =document.cookie ?document.cookie.split(";") :[];for (var i =0;i < parts.length;i++) {var item =parts[i].trim();if (item.indexOf(name + "=") ===0) {return decodeURIComponent(item.substring(name.length + 1));}
+}
+return null;}
+document.addEventListener("DOMContentLoaded",function () {var userIcon =document.getElementById("userIcon");var userText =document.getElementById("userText");var userLink =document.getElementById("userLink");if (!userIcon ||!userText ||!userLink) {return;}
+var iconBox =userIcon.parentElement;var loginUser =getCookie("gsw2017user");if (!loginUser) {userIcon.src ="/img/wode/unlogin.png";userIcon.alt ="未登录";userText.innerText ="登录";if (iconBox) {iconBox.style.border ="1px solid #5D6146";iconBox.style.background ="#FBFAF6";}
+} else {userIcon.src ="/img/wode/touxiang.png";userIcon.alt ="我的";userText.innerText ="我的";if (iconBox) {iconBox.style.border ="1px solid transparent";iconBox.style.background ="#C5C8CD";}
+}
+userLink.style.visibility ="visible";});})();</script>
+<script src="/js/play.js?time=260921" type="text/javascript"></script>
+<script src="/js/layui.js?time=260206" type="text/javascript"></script>
+<script src="/js/skin.js?time=261008" type="text/javascript"></script>
+<script src="/js/listenerPlay.js?time=261026" type="text/javascript"></script>
+</body>
+</html>

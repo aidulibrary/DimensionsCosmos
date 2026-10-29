@@ -1,0 +1,17 @@
+{
+ "work_id": 43,
+ "title": "唐诗三百首",
+ "entries": [
+  {
+   "grade": "B",
+   "weight": 0.8,
+   "source_name": "古诗文网·唐诗三百首",
+   "url": "https://www.guwendao.net/gushi/tangshi.aspx",
+   "fields": {
+    "base_text": "蘅塘退士编《唐诗三百首》，318 首（组诗按首拆分），据古诗文网唐诗三百首频道整理"
+   },
+   "quote": "蘅塘退士编《唐诗三百首》，318 首（组诗按首拆分），据古诗文网唐诗三百首频道整理",
+   "grabbed_at": "2026-10-29T12:00:00+00:00"
+  }
+ ]
+}

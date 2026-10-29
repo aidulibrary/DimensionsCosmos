@@ -1,0 +1,89 @@
+{
+  "work_id": 2,
+  "title": "孟子",
+  "entries": [
+    {
+      "grade": "A1",
+      "weight": 1.0,
+      "source_name": "国家出版发行信息公共服务平台",
+      "url": "https://book.cppinfo.cn/Encyclopedias/home/Index/3395673",
+      "fields": {
+        "isbn": "9787101135770",
+        "publisher": "中华书局",
+        "year": "2018-11",
+        "editor": "杨伯峻",
+        "edition": "译注"
+      },
+      "quote": "孟子译注(简体精装本) 孟子译注 孟子译注(简体精装本) 书名: 孟子译注(简体精装本) 著者: 杨伯峻译注 译者: 杨伯峻 出版社: 中华书局有限公司 出版时间: 2018年11月 ISBN: 9787101135770 读者范围: 本科及以上",
+      "grabbed_at": "2026-10-29T07:58:24+00:00"
+    },
+    {
+      "grade": "A1",
+      "weight": 1.0,
+      "source_name": "国家出版发行信息公共服务平台",
+      "url": "https://book.cppinfo.cn/Encyclopedias/home/index?id=4632344",
+      "fields": {
+        "isbn": "9787101164312",
+        "publisher": "中华书局",
+        "year": "2023-12",
+        "editor": "杨伯峻",
+        "edition": "译注"
+      },
+      "quote": "孟子译注 孟子译注 孟子译注 书名: 孟子译注 著者: 杨伯峻译注 出版社: 中华书局 出版时间: 2023年12月 ISBN: 9787101164312 读者范围: 大众",
+      "grabbed_at": "2026-10-29T07:58:24+00:00"
+    },
+    {
+      "grade": "A2",
+      "weight": 0.9,
+      "source_name": "中国出版集团",
+      "url": "http://book.cnpubg.com/?app=book",
+      "fields": {
+        "isbn": "9787101063585",
+        "publisher": "中华书局",
+        "year": "2008"
+      },
+      "quote": "孟子译注 孟子译注 孟子译注 中国出版集团 图书详细内容 孟子译注 出版日期:2008.12 出版社:中华书局 页数:272 ISBN: 978-7-101-06358-5",
+      "grabbed_at": "2026-10-29T07:58:24+00:00"
+    },
+    {
+      "grade": "B",
+      "weight": 0.8,
+      "source_name": "陕西省图书馆",
+      "url": "https://www.sxlib.org.cn/zt/gxg/gxsy/gcgxsm/201409/t20140915_472725.html",
+      "fields": {
+        "isbn": "9787101085587",
+        "publisher": "中华书局",
+        "year": "2012"
+      },
+      "quote": "孟子译注 杨伯峻译注 孟子译注 杨伯峻译注 孟子译注 杨伯峻译注 ISBN 978-7-101-08558-7 出版信息 北京: 中华书局, 2012 383页",
+      "grabbed_at": "2026-10-29T07:58:24+00:00"
+    },
+    {
+      "grade": "B",
+      "weight": 0.8,
+      "source_name": "深圳图书馆",
+      "url": "https://www.szlib.org.cn/opac/searchDetail",
+      "fields": {
+        "isbn": "9787101085587",
+        "publisher": "中华书局",
+        "year": "2012"
+      },
+      "quote": "孟子译注 孟子译注 孟子译注 作 者 : (战国)孟子原著 杨伯峻译注 ISBN : 978-7-101-08558-7 出版信息 : 北京:中华书局,2012",
+      "grabbed_at": "2026-10-29T07:58:24+00:00"
+    },
+    {
+      "grade": "D",
+      "weight": 0.35,
+      "source_name": "百度百科",
+      "url": "https://baike.baidu.com/item/%E5%AD%9F%E5%AD%90%E8%AF%91%E6%B3%A8/63439976",
+      "fields": {
+        "isbn": "9787101137637",
+        "publisher": "中华书局",
+        "year": "2019-02"
+      },
+      "quote": "孟子译注 孟子译注 孟子译注 百度百科 出版时间 2019年2月1日 出版社 中华书局 ISBN 9787101137637 杨伯峻译注",
+      "grabbed_at": "2026-10-29T07:58:24+00:00"
+    }
+  ],
+  "rejected_noise": 0
+}

@@ -1,0 +1,17 @@
+{
+ "work_id": 28,
+ "title": "孙子兵法",
+ "entries": [
+  {
+   "grade": "B",
+   "weight": 0.8,
+   "source_name": "殆知阁本地库·孙子兵法白文",
+   "url": "file:///D:/DimensionsCosmos/data/sources/daizhige/孙子兵法.md",
+   "fields": {
+    "base_text": "白文本十三篇（计篇至用间），据殆知阁收录《孙子兵法》白文"
+   },
+   "quote": "白文本十三篇（计篇至用间），据殆知阁收录《孙子兵法》白文",
+   "grabbed_at": "2026-10-29T12:00:00+00:00"
+  }
+ ]
+}
