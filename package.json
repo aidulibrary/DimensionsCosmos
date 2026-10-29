@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "gen": "node --experimental-sqlite scripts/gen-data.mjs",
-    "prebuild": "node --experimental-sqlite scripts/gen-data.mjs",
-    "predev": "node --experimental-sqlite scripts/gen-data.mjs",
+    "prebuild": "node scripts/gen.mjs",
+    "predev": "node scripts/gen.mjs",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
