@@ -1,0 +1,20 @@
+{
+  "version": "2026-10-30",
+  "note": "书级校勘清单索引：work_id -> 待考清单页。前端阅读页据此渲染校勘入口。",
+  "works": {
+    "17": {
+      "title": "资治通鉴",
+      "label": "校勘待考",
+      "pending": 49,
+      "volumes": 37,
+      "grades": {
+        "A": 25,
+        "B": 23,
+        "C": 1
+      },
+      "url": "/collation/tj-review/",
+     "data": "collation/tj-review/data.json",
+      "summary": "正文尚存 49 处源本残阙，分布在 37 卷；三源均无可靠取证，暂保留缺字标记，待人工或他本校勘。"
+    }
+  }
+}
