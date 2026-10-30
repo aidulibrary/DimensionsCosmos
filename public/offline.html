@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>暂时离线 · 维点图书馆</title>
+<meta name="theme-color" content="#f7f2e8">
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --paper: #f7f2e8;
+    --ink: #2b2926;
+    --ink-soft: #6b655c;
+    --cinnabar: #9e2b25;
+    --line: #ddd2bd;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 8vh 6vw calc(8vh + env(safe-area-inset-bottom));
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+    line-height: 1.75;
+    text-align: center;
+  }
+  .seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    border-radius: 14px;
+    background: #003049;
+    color: #f7f2e8;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    box-shadow: 0 8px 24px rgba(43, 41, 38, 0.16);
+  }
+  h1 {
+    margin: 28px 0 10px;
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  p {
+    margin: 0 0 8px;
+    max-width: 30em;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+  .hint {
+    margin-top: 26px;
+    padding: 16px 20px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #efe7d6;
+    font-size: 14px;
+    color: var(--ink);
+    text-align: left;
+    max-width: 32em;
+  }
+  .hint b { color: var(--cinnabar); }
+  .actions {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  a.btn {
+    display: inline-block;
+    padding: 11px 26px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 15px;
+    border: 1px solid var(--cinnabar);
+    background: var(--cinnabar);
+    color: #fefcf7;
+  }
+  a.btn.ghost {
+    background: transparent;
+    color: var(--cinnabar);
+  }
+  footer {
+    margin-top: 40px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+  <div class="seal">维点</div>
+  <h1>此刻没有网络</h1>
+  <p>这一页还没有下载到本地，所以暂时打不开。</p>
+
+  <div class="hint">
+    <b>已经读过的书不受影响。</b><br>
+    翻过的章节会自动存在设备上，断网也能继续读。回到书库，从读过的部分接着看即可。
+  </div>
+
+  <div class="actions">
+    <a class="btn" href="/books/">回到书库</a>
+    <a class="btn ghost" href="/">返回首页</a>
+  </div>
+
+  <footer>维点图书馆 · DimensionsCosmos Library</footer>
+</body>
+</html>

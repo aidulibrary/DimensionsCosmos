@@ -1,0 +1,35 @@
+# Cloudflare Pages 响应头配置（放在 public/_headers，构建后位于 dist/_headers）
+
+# Service Worker 必须可被浏览器随时校验更新，绝不能长缓存
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+  Service-Worker-Allowed: /
+
+# PWA 清单：显式声明 MIME，避免被推断为 text/plain 导致不可安装
+/manifest.webmanifest
+  Content-Type: application/manifest+json; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+/manifest.json
+  Content-Type: application/manifest+json; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+# 字体（若以后自托管到 /fonts/）
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+# 图标与静态资源：内容不变，可长期缓存
+/icons/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 古籍数据：体积大、变更少，允许浏览器与 CDN 缓存一天，之后后台静默更新
+/data/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# HTML 页面：始终校验，保证读到最新版本
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
