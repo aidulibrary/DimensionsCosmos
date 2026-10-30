@@ -1,0 +1,275 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const base = Astro.site?.pathname ?? '/';
+const EFFECTIVE_DATE = '2026-10-30';
+const CONTACT_EMAIL = 'wuguz@outlook.com';
+---
+
+<BaseLayout
+  title="隐私政策 · 维点图书馆"
+  description="维点图书馆（DimensionsCosmos）隐私政策：我们不设账号、不做广告追踪，阅读数据只留在你的设备上。Privacy Policy for DimensionsCosmos Library."
+>
+  <section class="legal">
+    <div class="legal-head">
+      <h1>隐私政策<span class="en-sub">Privacy Policy</span></h1>
+      <p class="meta">生效日期 / Effective date：{EFFECTIVE_DATE}</p>
+      <div class="lang-switch">
+        <a href="#zh">中文版</a>
+        <span>·</span>
+        <a href="#en">English Version</a>
+      </div>
+    </div>
+
+    <!-- ============ 中文版 ============ -->
+    <article id="zh" class="legal-body">
+      <h2>中文版</h2>
+
+      <p class="lead">
+        维点图书馆（DimensionsCosmos Library，以下简称「本站」）是一个用于阅读经典文本、并以多种方法论对文本进行解读的静态网站与应用。
+        我们尽量把隐私做到最简：<strong>本站不设注册登录，不建立用户画像，不出售任何个人数据。</strong>
+        本政策说明本站会接触哪些信息、这些信息存放在哪里，以及你可以如何清除它们。
+      </p>
+
+      <h3>一、我们是谁</h3>
+      <p>
+        本站由个人开发者独立运营，站点域名为 <code>dimensionscosmos.pages.dev</code>（正式域名启用后将同步更新本页）。
+        任何与隐私相关的问题，可发送邮件至 <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>。
+      </p>
+
+      <h3>二、我们不收集什么</h3>
+      <ul>
+        <li>本站<strong>没有账号系统</strong>，不需要姓名、手机号、邮箱或任何身份信息即可阅读全部免费内容。</li>
+        <li>本站<strong>不接入广告 SDK、不做跨站追踪、不做行为画像</strong>，也不使用 Cookie 进行个性化推荐。</li>
+        <li>本站<strong>不读取</strong>你的通讯录、位置、相机、麦克风、相册或设备上的其他文件。</li>
+      </ul>
+
+      <h3>三、存放在你设备上的数据（本地存储）</h3>
+      <p>为了让已购买的内容可以离线反复阅读，本站会在你的浏览器或应用沙盒内写入少量本地数据。这些数据<strong>不会上传到我们的服务器</strong>：</p>
+      <ul>
+        <li><strong>解锁凭证</strong>：键名 <code>dc_unlocks</code>，保存你已购买的「书籍 × 方法」组合对应的解锁码。解锁校验完全在你的设备上完成。</li>
+        <li><strong>离线缓存</strong>：本站作为可安装应用（PWA）运行时，Service Worker 会把页面、样式、图标与书籍文本缓存到本地，用于断网阅读。</li>
+      </ul>
+      <p class="tip">
+        <strong>如何清除：</strong>在浏览器「设置 → 网站数据 / 存储」中找到本站并清除站点数据，或在应用内卸载本站即可。
+        清除后，已购买的解锁码将从该设备移除；如需恢复，请保留购买时收到的解锁码并重新输入。
+      </p>
+
+      <h3>四、第三方服务</h3>
+      <p>本站自身不设数据库、不记录阅读行为。以下第三方在处理过程中可能接触到有限的技术信息：</p>
+      <ul>
+        <li>
+          <strong>托管与分发（Cloudflare Pages）</strong>：本站静态文件由 Cloudflare 托管。与所有网站一样，其边缘节点会接收访问请求，
+          可能记录 IP 地址、请求时间、User-Agent 等技术日志，用于分发与安全防护。相关处理适用 Cloudflare 自身的隐私政策。
+        </li>
+        <li>
+          <strong>字体（Google Fonts）</strong>：页面引用 Google Fonts 提供的在线字体，加载时你的浏览器会向 <code>fonts.googleapis.com</code> 发起请求，
+          该请求会暴露 IP 地址。若你希望完全避免这一外部请求，可在浏览器中启用字体拦截，或使用离线模式（已缓存的字体不受影响）。
+        </li>
+        <li>
+          <strong>支付（第三方收款平台）</strong>：付费解锁通过第三方收款平台完成（当前为面包多，国际渠道为 Gumroad）。
+          支付过程中的姓名、支付账号、账单信息<strong>由收款平台直接处理，本站不接触、不存储任何银行卡号或支付凭据</strong>。
+          收款平台的隐私政策适用于该环节。
+        </li>
+      </ul>
+
+      <h3>五、我们不会做的事</h3>
+      <ul>
+        <li>不会出售、出租或交易你的任何信息。</li>
+        <li>不会向你发送营销邮件或推送（本站没有消息推送权限）。</li>
+        <li>不会基于你的阅读记录做用户画像或定向推荐。</li>
+      </ul>
+
+      <h3>六、未成年人</h3>
+      <p>
+        本站内容面向一般读者，不针对儿童设计，也不会有意收集儿童的个人信息。
+        由于本站不设账号、不收集身份信息，正常使用不会产生儿童个人数据。若家长或监护人认为存在相关问题，请联系我们处理。
+      </p>
+
+      <h3>七、你的权利</h3>
+      <p>
+        由于本站不保存你的个人信息，你无需申请导出或删除数据——<strong>清除设备上的站点数据即可彻底移除本站留下的全部痕迹</strong>。
+        如你对本站的数据处理方式仍有疑问、异议或投诉，可随时通过上方邮箱联系，我们会在合理期限内答复。
+      </p>
+
+      <h3>八、内容来源与 AI 生成说明</h3>
+      <p>
+        本站收录的原文主要来自中文维基文库等开放来源（遵循 CC BY-SA 4.0 等相应许可），版权归原作者与整理者所有。
+        站内的解读内容部分由 AI 模型辅助生成，并经流程整理；AI 生成内容可能存在偏差，仅供阅读参考，不构成专业建议。
+      </p>
+
+      <h3>九、政策更新</h3>
+      <p>
+        若本站新增功能（如账号、评论、统计）导致数据处理方式发生变化，我们会在本页更新政策并修改上方的生效日期。
+        重大变更会在站内显著位置提示。建议你在使用前不定期查阅本页。
+      </p>
+
+      <h3>十、联系我们</h3>
+      <p>
+        隐私相关咨询：<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a><br />
+        项目源码与问题反馈：<a href="https://github.com/aidulibrary/DimensionsCosmos" target="_blank" rel="noopener">github.com/aidulibrary/DimensionsCosmos</a>
+      </p>
+    </article>
+
+    <div class="divider"></div>
+
+    <!-- ============ English Version ============ -->
+    <article id="en" class="legal-body" lang="en">
+      <h2>English Version</h2>
+
+      <p class="lead">
+        DimensionsCosmos Library (the "Site") is a static website and installable app for reading classic texts with multiple interpretive methods.
+        We keep privacy as simple as possible: <strong>there are no accounts, no user profiling, and no sale of personal data.</strong>
+        This policy explains what information the Site touches, where it is stored, and how you can remove it.
+      </p>
+
+      <h3>1. Who we are</h3>
+      <p>
+        The Site is independently operated by an individual developer and is currently served at <code>dimensionscosmos.pages.dev</code>.
+        For any privacy question, contact <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+      </p>
+
+      <h3>2. What we do not collect</h3>
+      <ul>
+        <li>There is <strong>no account system</strong>. No name, phone number, email address, or identity information is required to read free content.</li>
+        <li>We use <strong>no advertising SDKs, no cross-site tracking, and no behavioural profiling</strong>, and we do not use cookies for personalised recommendations.</li>
+        <li>We do <strong>not</strong> access your contacts, location, camera, microphone, photo library, or other files on your device.</li>
+      </ul>
+
+      <h3>3. Data stored on your device (local storage)</h3>
+      <p>
+        So that purchased content remains readable offline, the Site writes a small amount of data into your browser or app sandbox.
+        This data is <strong>never uploaded to our servers</strong>:
+      </p>
+      <ul>
+        <li><strong>Unlock credentials</strong> — key <code>dc_unlocks</code>, storing the unlock codes for the "book × method" combinations you have purchased. Verification happens entirely on your device.</li>
+        <li><strong>Offline cache</strong> — when the Site runs as an installed app (PWA), a Service Worker caches pages, styles, icons, and book texts locally for offline reading.</li>
+      </ul>
+      <p class="tip">
+        <strong>How to remove it:</strong> clear site data for this Site in your browser settings, or uninstall the app.
+        After clearing, purchased unlock codes are removed from that device; keep the codes you received at purchase so you can re-enter them.
+      </p>
+
+      <h3>4. Third-party services</h3>
+      <p>The Site runs no database and does not log your reading activity. The following third parties may process limited technical information:</p>
+      <ul>
+        <li>
+          <strong>Hosting and delivery (Cloudflare Pages)</strong> — static files are hosted by Cloudflare. As with any website, its edge network receives requests
+          and may log IP address, request time, and User-Agent for delivery and security purposes. Cloudflare's own privacy policy applies.
+        </li>
+        <li>
+          <strong>Fonts (Google Fonts)</strong> — pages load web fonts from Google Fonts, so your browser makes a request to <code>fonts.googleapis.com</code>,
+          which exposes your IP address. If you prefer to avoid this external request, you may block web fonts in your browser; offline mode is unaffected for already-cached fonts.
+        </li>
+        <li>
+          <strong>Payments (third-party checkout platforms)</strong> — paid unlocks are processed by third-party platforms (Mbd.pub for domestic payments, Gumroad for international).
+          Names, payment accounts, and billing details are handled <strong>directly by those platforms; we never receive or store card numbers or payment credentials</strong>.
+          Their privacy policies apply to that step.
+        </li>
+      </ul>
+
+      <h3>5. What we will never do</h3>
+      <ul>
+        <li>We do not sell, rent, or trade any of your information.</li>
+        <li>We do not send marketing emails or push notifications (the app requests no notification permission).</li>
+        <li>We do not build profiles or targeted recommendations from your reading history.</li>
+      </ul>
+
+      <h3>6. Children</h3>
+      <p>
+        The Site is intended for a general audience, is not directed to children, and does not knowingly collect personal information from children.
+        Because there are no accounts and no identity collection, ordinary use does not generate children's personal data.
+        Parents or guardians with concerns may contact us.
+      </p>
+
+      <h3>7. Your rights</h3>
+      <p>
+        Because we store no personal information about you, there is nothing to export or delete on our side —
+        <strong>clearing site data on your device removes everything the Site has left behind</strong>.
+        If you still have questions, objections, or complaints about our data practices, contact us at the address above and we will respond within a reasonable period.
+      </p>
+
+      <h3>8. Content sources and AI-generated material</h3>
+      <p>
+        Source texts are drawn mainly from open repositories such as Chinese Wikisource (under licenses including CC BY-SA 4.0); copyright remains with their authors and compilers.
+        Some interpretive commentary is produced with the assistance of AI models and then processed through our pipeline.
+        AI-generated material may contain inaccuracies and is provided for reading reference only, not as professional advice.
+      </p>
+
+      <h3>9. Changes to this policy</h3>
+      <p>
+        If new features (such as accounts, comments, or analytics) change how data is handled, we will update this page and revise the effective date above.
+        Material changes will be announced prominently on the Site. Please review this page from time to time.
+      </p>
+
+      <h3>10. Contact</h3>
+      <p>
+        Privacy enquiries: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a><br />
+        Source code and issue tracker: <a href="https://github.com/aidulibrary/DimensionsCosmos" target="_blank" rel="noopener">github.com/aidulibrary/DimensionsCosmos</a>
+      </p>
+    </article>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal { max-width: 820px; margin: 0 auto; padding: 56px 24px 90px; }
+  .legal-head { text-align: center; margin-bottom: 42px; }
+  .legal-head h1 {
+    font-size: 32px; letter-spacing: 4px; font-weight: 700;
+  }
+  .en-sub {
+    display: block; font-size: 14px; letter-spacing: 3px;
+    color: var(--ink-soft); font-weight: 400; margin-top: 8px;
+  }
+  .meta { font-size: 13px; color: var(--ink-soft); margin-top: 12px; }
+  .lang-switch { margin-top: 16px; font-size: 13.5px; letter-spacing: 1px; }
+  .lang-switch a { color: var(--cinnabar); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .lang-switch a:hover { border-bottom-color: var(--cinnabar); }
+  .lang-switch span { color: var(--line); margin: 0 10px; }
+
+  .legal-body {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); padding: 40px 44px;
+    box-shadow: var(--shadow-sm);
+  }
+  .legal-body h2 {
+    font-size: 20px; letter-spacing: 3px; padding-bottom: 14px;
+    border-bottom: 2px solid var(--cinnabar);
+    display: inline-block; margin-bottom: 22px;
+  }
+  .legal-body h3 {
+    font-size: 16px; letter-spacing: 1.5px; margin: 26px 0 10px;
+    padding-left: 12px; border-left: 3px solid var(--gold);
+  }
+  .legal-body p { font-size: 14.5px; color: var(--ink); margin-bottom: 10px; }
+  .legal-body .lead { color: var(--ink-soft); }
+  .legal-body ul { list-style: none; margin: 6px 0 12px; }
+  .legal-body li {
+    font-size: 14.5px; color: var(--ink-soft); line-height: 1.85;
+    padding-left: 18px; position: relative; margin-bottom: 6px;
+  }
+  .legal-body li::before {
+    content: ""; position: absolute; left: 2px; top: 12px;
+    width: 5px; height: 5px; border-radius: 50%; background: var(--gold);
+  }
+  .legal-body code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 13px; background: var(--paper-deep);
+    padding: 1px 6px; border-radius: 4px; color: var(--cinnabar-deep);
+  }
+  .legal-body a { color: var(--cinnabar); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .legal-body a:hover { border-bottom-color: var(--cinnabar); }
+  .legal-body strong { color: var(--ink); }
+  .tip {
+    background: var(--paper); border-left: 3px solid var(--cinnabar);
+    border-radius: 0 6px 6px 0; padding: 14px 16px; margin: 14px 0;
+    font-size: 13.5px !important; color: var(--ink-soft) !important;
+  }
+  .divider { height: 1px; background: var(--line); margin: 46px 0; }
+
+  @media (max-width: 640px) {
+    .legal { padding: 36px 16px 70px; }
+    .legal-body { padding: 26px 20px; }
+    .legal-head h1 { font-size: 24px; letter-spacing: 2px; }
+  }
+</style>
