@@ -343,7 +343,7 @@ PWA 元信息对应值：
 
 ```json
 {
-  "background_color": "#FCFCFC",
+  "background_color": "#f7f2e8",
   "theme_color": "#003048"
 }
 ```
