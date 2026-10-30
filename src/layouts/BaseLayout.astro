@@ -4,25 +4,88 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  /** 站点内页/错误页设为 true，避免被搜索引擎收录 */
+  noindex?: boolean;
 }
 
 const {
   title = '维点图书馆 · DimensionsCosmos Library',
   description = '伟大心智的阅读操作系统：用苏格拉底的方法读庄子，用费曼的方法读相对论，用朱熹的方法读古兰经。',
+  noindex = false,
 } = Astro.props;
-const base = Astro.site?.pathname ?? '/';
+
+// 保证尾斜杠，`${base}books` 才能拼成 `/books`
+const rawBase = import.meta.env.BASE_URL || '/';
+const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
 ---
 
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>{title}</title>
   <meta name="description" content={description}>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+  {noindex && <meta name="robots" content="noindex, follow">}
+
+  <!-- ══ PWA 基础 ══ -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#003048">
+  <meta name="color-scheme" content="light">
+  <meta name="application-name" content="维点图书馆">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- iOS 全屏与添加到主屏 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="维点图书馆">
+
+  <!-- 图标 -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png">
+
+  <!-- ══ 社交分享 ══ -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="维点图书馆">
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:image" content="/icons/icon-512.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!--
+    字体说明：原 Google Fonts 外链已移除。
+    原因：googleapis 在国内不可达，且是渲染阻塞资源，会让首屏白等十几秒；
+    装成 App 后离线更完全取不到。
+    global.css 的字体栈为 "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif，
+    系统自带宋体自动接住，中文排版观感一致。
+    将来若要恢复 Web 字体，请把子集化后的 woff2 自托管到 /fonts/ 并用 @font-face 引入。
+  -->
+
+  <style is:inline>
+    /* 已安装为 App（独立窗口）时的安全区适配：避开刘海与底部手势条 */
+    @supports (padding: env(safe-area-inset-bottom)) {
+      body {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+      nav {
+        padding-top: calc(14px + env(safe-area-inset-top));
+      }
+      footer {
+        padding-bottom: calc(24px + env(safe-area-inset-bottom));
+      }
+    }
+
+    /* 独立窗口：禁止整页回弹，避免阅读时误触 */
+    @media (display-mode: standalone) {
+      html {
+        -webkit-text-size-adjust: 100%;
+        overscroll-behavior-y: contain;
+      }
+    }
+  </style>
 </head>
 <body>
   <nav>
@@ -45,5 +108,16 @@ const base = Astro.site?.pathname ?? '/';
     <p style="margin-top:4px">原文 © 中文维基文库（CC BY-SA 4.0）及其他开放来源 · AI 解读内容由免费 API 降级链生成</p>
     <p style="margin-top:4px">浇灌自由生长的文明 · 预览版 v0.5 · <a href="https://github.com/aidulibrary/DimensionsCosmos">GitHub</a></p>
   </footer>
+
+  <script is:inline>
+    // Service Worker 注册：等页面加载完再注册，不抢首屏带宽
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function (err) {
+          console.warn('[PWA] Service Worker 注册失败：', err);
+        });
+      });
+    }
+  </script>
 </body>
 </html>

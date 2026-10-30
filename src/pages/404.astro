@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="此页未入藏 · 维点图书馆"
+  description="你要找的页面不存在，或者这部书还没有入库。"
+  noindex={true}
+>
+  <section class="nf">
+    <div class="nf-code">404</div>
+    <h1>此页未入藏</h1>
+    <p>你要找的页面不存在，或者这部书还没有进入书库。</p>
+    <div class="nf-actions">
+      <a class="nf-btn" href="/books/">回书库</a>
+      <a class="nf-btn ghost" href="/">返回首页</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    min-height: 62vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6vh 6vw;
+  }
+  .nf-code {
+    font-size: clamp(64px, 16vw, 118px);
+    line-height: 1;
+    font-weight: 900;
+    color: var(--line);
+    letter-spacing: 4px;
+    user-select: none;
+  }
+  .nf h1 {
+    margin: 8px 0 12px;
+    font-size: clamp(20px, 4vw, 26px);
+    letter-spacing: 1px;
+  }
+  .nf p {
+    margin: 0;
+    max-width: 28em;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+  .nf-actions {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .nf-btn {
+    padding: 10px 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--cinnabar);
+    background: var(--cinnabar);
+    color: var(--white);
+    text-decoration: none;
+    font-size: 15px;
+  }
+  .nf-btn.ghost {
+    background: transparent;
+    color: var(--cinnabar);
+  }
+</style>

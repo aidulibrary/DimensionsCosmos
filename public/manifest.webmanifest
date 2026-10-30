@@ -1,0 +1,53 @@
+{
+  "id": "/",
+  "name": "维点图书馆 · 用大师的方法读一切书",
+  "short_name": "维点图书馆",
+  "description": "经史子集 50 部经典，10 种大师视角的 AI 导读。朱熹带你涵泳，费曼帮你白话，苏格拉底追着你问。",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "start_url": "/books/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f7f2e8",
+  "theme_color": "#003048",
+  "categories": ["books", "education", "reference"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "书库",
+      "short_name": "书库",
+      "description": "浏览经史子集 50 部经典",
+      "url": "/books/",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "阅读方法",
+      "short_name": "方法",
+      "description": "查看 10 种大师视角",
+      "url": "/methods/",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
