@@ -133,6 +133,19 @@ const cleanLine = (s: string) =>
     .replace(/\[(註|注|编辑|編輯|来源|來源)\]/g, '')
     .replace(/\u200b/g, '')
     .trim();
+
+// 缺字通用呈现：把正文中的 □ 包成浅色方框，全篇可见（不止待考跳转目标）
+const richLine = (s: string) =>
+  cleanLine(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/□/g, '<span class="mk-box">□</span>');
+
+// 首章可见块序：过滤空块并保留序号，与客户端 render 的块序保持一致，供深链 #ch-<id>:b<块序>:k<序号> 定位
+const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
+  (b) => cleanLine(b?.x ?? '').length > 0,
+);
 ---
 
 <BaseLayout
@@ -243,15 +256,15 @@ const cleanLine = (s: string) =>
                   ⚠ {firstContent.qualityNote || '该篇底本不完整，内容可能缺失。'}
                 </p>
               )}
-              {firstContent.blocks.map((b) =>
+              {firstBlocks.map((b: any, vi: number) =>
                 b.t === 'h' ? (
-                  <h3 class:list={['bk-h', `lv${b.l ?? 2}`]}>{cleanLine(b.x)}</h3>
+                  <h3 data-bi={vi} class:list={['bk-h', `lv${b.l ?? 2}`]} set:html={richLine(b.x)} />
                 ) : b.t === 'q' ? (
-                  <blockquote class="bk-q">{cleanLine(b.x)}</blockquote>
+                  <blockquote data-bi={vi} class="bk-q" set:html={richLine(b.x)} />
                 ) : b.t === 'v' ? (
-                  <p class="bk-v">{cleanLine(b.x)}</p>
+                  <p data-bi={vi} class="bk-v" set:html={richLine(b.x)} />
                 ) : (
-                  <p class="bk-p">{cleanLine(b.x)}</p>
+                  <p data-bi={vi} class="bk-p" set:html={richLine(b.x)} />
                 ),
               )}
             </>
@@ -294,6 +307,21 @@ const cleanLine = (s: string) =>
     s.replace(/\[\d+\]/g, '').replace(/\[(註|注|编辑|編輯|来源|來源)\]/g, '').replace(/\u200b/g, '').trim();
 
   const idxOf = (id: number) => toc.findIndex((c) => c.id === id);
+
+  // 缺字通用呈现：文本中每个 □ 包一层 .mk-box，便于全篇浅色可见 + 精确定位
+  function paintNeed(text: string, el: HTMLElement) {
+    let i = 0;
+    let idx = -1;
+    while ((idx = text.indexOf('□', i)) >= 0) {
+      if (idx > i) el.appendChild(document.createTextNode(text.slice(i, idx)));
+      const s = document.createElement('span');
+      s.className = 'mk-box';
+      s.textContent = '□';
+      el.appendChild(s);
+      i = idx + 1;
+    }
+    if (i < text.length) el.appendChild(document.createTextNode(text.slice(i)));
+  }
   let currentIndex = D.first ? idxOf(D.first) : 0;
   if (currentIndex < 0) currentIndex = 0;
 
@@ -311,15 +339,83 @@ const cleanLine = (s: string) =>
       reader.appendChild(note);
     }
 
+    let vi = 0;
     for (const b of ch.blocks || []) {
       const tag = b.t === 'h' ? 'h3' : b.t === 'q' ? 'blockquote' : 'p';
       const el = document.createElement(tag);
       el.className =
         b.t === 'h' ? `bk-h lv${b.l ?? 2}` : b.t === 'q' ? 'bk-q' : b.t === 'v' ? 'bk-v' : 'bk-p';
-      el.textContent = clean(String(b.x || ''));
-      if (el.textContent) reader.appendChild(el);
+      const txt = clean(String(b.x || ''));
+      if (!txt) continue;
+      el.dataset.bi = String(vi++);
+      paintNeed(txt, el);
+      reader.appendChild(el);
     }
   }
+
+  // ---- 缺字定位（深链 #ch-<章id>:b<可见块序>:k<块内第几个□>）----
+  const HASH_RE = /^#ch-(\d+)(?::b(\d+):k(\d+))?$/;
+  function parseHash() {
+    const m = location.hash.match(HASH_RE);
+    if (!m) return null;
+    return {
+      id: Number(m[1]),
+      bi: m[2] !== undefined ? Number(m[2]) : null,
+      kth: m[3] !== undefined ? Number(m[3]) : null,
+    };
+  }
+
+  let needTipEl: HTMLElement | null = null;
+  function hideNeedTip() {
+    if (needTipEl) needTipEl.remove();
+    needTipEl = null;
+  }
+
+  function showNeedTip(kth: number) {
+    hideNeedTip();
+    const C: any = (D as any).collation;
+    const ord = Number(toc[currentIndex]?.ord || 0);
+    const vol = ord > 1e6 ? Math.round(ord / 1e9) : 0;
+    const hit = vol && C?.vols ? C.vols[String(vol)] : null;
+    const tip = document.createElement('div');
+    tip.className = 'need-tip';
+    const msg = document.createElement('span');
+    msg.textContent = hit
+      ? `已定位：第 ${kth + 1} 处缺字 · 本卷共 ${hit.n} 处待考`
+      : `已定位：第 ${kth + 1} 处缺字`;
+    tip.appendChild(msg);
+    if (C?.href) {
+      const a = document.createElement('a');
+      // 带上清单行锚点，回跳后该行会高亮（tr:target）
+      const back = String(location.search).match(/[?&]need=([^&]+)/);
+      a.href = C.href + (back ? '#' + back[1] : '');
+      a.textContent = '查看待考清单 →';
+      tip.appendChild(a);
+    }
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.textContent = '×';
+    x.setAttribute('aria-label', '关闭提示');
+    x.addEventListener('click', hideNeedTip);
+    tip.appendChild(x);
+    document.body.appendChild(tip);
+    needTipEl = tip;
+  }
+
+  function focusNeed(bi: number, kth: number) {
+    document
+      .querySelectorAll('.mk-hit, .need-block')
+      .forEach((e) => e.classList.remove('mk-hit', 'need-block'));
+    const el = reader.querySelector(`[data-bi="${bi}"]`) as HTMLElement | null;
+    if (!el) return false;
+    el.classList.add('need-block');
+    const boxes = el.querySelectorAll('.mk-box');
+    const target = (boxes[kth] || boxes[0]) as HTMLElement | undefined;
+    if (target) target.classList.add('mk-hit');
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    return true;
+  }
+
 
   // 章标题旁挂校勘徽标：仅当该书存在对应卷的待考条目
   function decorate(id: number) {
@@ -366,7 +462,7 @@ const cleanLine = (s: string) =>
 
   const cache = new Map<number, any>();
 
-  async function go(id: number, push = true) {
+  async function go(id: number, push = true, spot: { bi: number; kth: number } | null = null) {
     const i = idxOf(id);
     if (i < 0) return;
     currentIndex = i;
@@ -375,7 +471,13 @@ const cleanLine = (s: string) =>
     curChars.textContent = '';
     setActive(id);
     updateNav();
-    if (push) history.replaceState(null, '', `#ch-${id}`);
+    if (push)
+      history.replaceState(
+        null,
+        '',
+        location.pathname + location.search + (spot ? `#ch-${id}:b${spot.bi}:k${spot.kth}` : `#ch-${id}`),
+      );
+    if (!spot) hideNeedTip();
 
     if (cache.has(id)) {
       render(cache.get(id));
@@ -394,8 +496,13 @@ const cleanLine = (s: string) =>
         reader.classList.remove('loading');
       }
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!spot) window.scrollTo({ top: 0, behavior: 'smooth' });
     decorate(id);
+    if (spot) {
+      setTimeout(() => {
+        if (focusNeed(spot.bi, spot.kth)) showNeedTip(spot.kth);
+      }, 90);
+    }
     try {
       localStorage.setItem('dc:last:' + D.slug, String(id));
       localStorage.setItem('dc:toc-scroll:' + D.slug, String((document.querySelector('.toc') as HTMLElement)?.scrollTop || 0));
@@ -444,28 +551,139 @@ const cleanLine = (s: string) =>
     applyFont(font);
   });
 
-  // 初始：hash 优先，其次上次阅读位置
-  const fromHash = Number((location.hash.match(/^#ch-(\d+)$/) || [])[1] || 0);
-  let target = fromHash;
+  // 初始：hash 优先（支持 #ch-<id>:b<块序>:k<序号> 深链），其次上次阅读位置
+  const H0 = parseHash();
+  const S0 = H0 && H0.bi !== null ? { bi: H0.bi, kth: H0.kth ?? 0 } : null;
+  let target = H0?.id || 0;
   if (!target) {
     try {
       target = Number(localStorage.getItem('dc:last:' + D.slug)) || 0;
     } catch { /* ignore */ }
   }
-  if (target && target !== D.first) go(target, false);
+  if (target && (target !== D.first || S0)) go(target, false, S0);
   else {
     setActive(D.first || 0);
     updateNav();
     if (D.first) decorate(D.first);
+    if (S0) {
+      setTimeout(() => {
+        if (focusNeed(S0.bi, S0.kth)) showNeedTip(S0.kth);
+      }, 120);
+    }
   }
 
   window.addEventListener('hashchange', () => {
-    const id = Number((location.hash.match(/^#ch-(\d+)$/) || [])[1] || 0);
-    if (id && id !== toc[currentIndex]?.id) go(id, false);
+    const h = parseHash();
+    if (!h?.id) return;
+    const spot = h.bi !== null ? { bi: h.bi, kth: h.kth ?? 0 } : null;
+    if (h.id !== toc[currentIndex]?.id || spot) go(h.id, false, spot);
   });
 </script>
 
 <style is:global>
+  /* 运行时注入的缺字/校徽/提示条节点不带 data-astro-cid 属性，必须用全局样式 */
+  .article .ch-title {
+    font-size: 26px;
+    letter-spacing: 5px;
+    text-align: center;
+    margin: 0 0 30px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    font-weight: 900;
+  }
+
+  /* 缺字通用呈现：全篇 □ 浅色方框，可读但不刺眼 */
+  .article .mk-box {
+    color: #a9997f;
+    padding: 0 1px;
+  }
+  /* 跳转命中：整段浅色底，先定位到"段" */
+  .article .need-block {
+    background: linear-gradient(90deg, rgba(255, 243, 210, 0.65), rgba(255, 251, 240, 0.25));
+    border-radius: 4px;
+    box-shadow: -9px 0 0 rgba(255, 243, 210, 0.65), 9px 0 0 rgba(255, 243, 210, 0.65);
+  }
+  /* 命中的单个缺字：强高亮 + 两次脉冲，确保"可见" */
+  .article .mk-hit {
+    color: #7a4a06;
+    background: #ffe3a3;
+    border-radius: 3px;
+    box-shadow: 0 0 0 2px #ffe3a3;
+    animation: needPulse 1.5s ease-out 2;
+  }
+  @keyframes needPulse {
+    0% { box-shadow: 0 0 0 0 rgba(212, 160, 42, 0.75); }
+    70% { box-shadow: 0 0 0 9px rgba(212, 160, 42, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(212, 160, 42, 0); }
+  }
+  .need-tip {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: rgba(59, 48, 34, 0.94);
+    color: #f5ecda;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  }
+  .need-tip a {
+    color: #ffd479;
+    text-decoration: none;
+  }
+  .need-tip a:hover {
+    text-decoration: underline;
+  }
+  .need-tip button {
+    background: none;
+    border: none;
+    color: #b6a891;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+  }
+  .need-tip button:hover {
+    color: #fff;
+  }
+
+  .article .ch-collation {
+    display: table;
+    margin: -18px auto 24px;
+    font-family: system-ui, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #8a6d1f;
+    background: #fdf8e8;
+    border: 1px solid #e8d9ad;
+    border-radius: 20px;
+    padding: 3px 14px;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: all 0.15s ease;
+  }
+  .article .ch-collation:hover {
+    color: var(--cinnabar, #9b2c2c);
+    border-color: var(--cinnabar, #9b2c2c);
+    background: #fff;
+  }
+
+  .article .ch-note {
+    background: #fdf6e3;
+    border-left: 3px solid var(--gold);
+    padding: 8px 14px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #6b5a2a;
+    margin: 0 0 24px;
+    font-family: system-ui, sans-serif;
+  }
   :root {
     --reader-font: 19px;
   }
@@ -783,47 +1001,7 @@ const cleanLine = (s: string) =>
     opacity: 0.35;
   }
 
-  .ch-title {
-    font-size: 26px;
-    letter-spacing: 5px;
-    text-align: center;
-    margin: 0 0 30px;
-    padding-bottom: 18px;
-    border-bottom: 1px solid var(--line);
-    font-weight: 900;
-  }
-
-  .ch-collation {
-    display: table;
-    margin: -18px auto 24px;
-    font-family: system-ui, sans-serif;
-    font-size: 12.5px;
-    line-height: 1.6;
-    color: #8a6d1f;
-    background: #fdf8e8;
-    border: 1px solid #e8d9ad;
-    border-radius: 20px;
-    padding: 3px 14px;
-    text-decoration: none;
-    letter-spacing: 0.5px;
-    transition: all 0.15s ease;
-  }
-  .ch-collation:hover {
-    color: var(--cinnabar, #9b2c2c);
-    border-color: var(--cinnabar, #9b2c2c);
-    background: #fff;
-  }
-
-  .ch-note {
-    background: #fdf6e3;
-    border-left: 3px solid var(--gold);
-    padding: 8px 14px;
-    font-size: 13.5px;
-    line-height: 1.7;
-    color: #6b5a2a;
-    margin: 0 0 24px;
-    font-family: system-ui, sans-serif;
-  }
+  /* 缺字/校勘相关样式已移至下方 is:global 块（JS 注入节点无作用域属性） */
 
   .article :global(.bk-p) {
     text-indent: 2em;
@@ -913,7 +1091,7 @@ const cleanLine = (s: string) =>
       position: static;
       background: none;
     }
-    .ch-title {
+    :global(.article .ch-title) {
       font-size: 21px;
       letter-spacing: 3px;
     }
