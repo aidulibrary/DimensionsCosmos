@@ -71,6 +71,47 @@ const buSet = [...new Set((indexData.works ?? []).map((w) => w.bu).filter(Boolea
       </div>
     )}
   </section>
+
+  <script>
+    // 静态站客户端过滤：让 ?bu= / ?q= 真正生效
+    (function () {
+      const sp = new URLSearchParams(location.search);
+      const bu = sp.get('bu') || '';
+      const qRaw = sp.get('q') || '';
+      const q = qRaw.toLowerCase();
+      if (!bu && !q) return;
+
+      const cards = Array.from(document.querySelectorAll('.book-grid .book-card'));
+      let shown = 0;
+      cards.forEach((c) => {
+        const okBu = !bu || (c.dataset.bu || '') === bu;
+        const okQ = !q || (c.innerText || '').toLowerCase().includes(q);
+        const on = okBu && okQ;
+        c.style.display = on ? '' : 'none';
+        if (on) shown += 1;
+      });
+
+      document.querySelectorAll('.filter-chip').forEach((a) => {
+        const href = a.getAttribute('href') || '';
+        const abu = new URLSearchParams((href.split('?')[1] || '')).get('bu') || '';
+        a.classList.toggle('active', abu === bu);
+      });
+
+      const rc = document.querySelector('.result-count');
+      if (rc) rc.textContent = shown + ' 部书' + (qRaw ? '匹配「' + qRaw + '」' : '') + (bu ? '· ' + bu : '');
+
+      const grid = document.querySelector('.book-grid');
+      let empty = document.querySelector('.empty');
+      if (!empty && grid) {
+        empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.innerHTML = '<p>没有找到匹配的书。</p><p>换个分类或关键词再试。</p>';
+        grid.after(empty);
+      }
+      if (empty) empty.style.display = shown ? 'none' : '';
+    })();
+  </script>
+
 </BaseLayout>
 
 <style>
