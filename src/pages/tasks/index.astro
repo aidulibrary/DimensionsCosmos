@@ -1,0 +1,610 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// ── 读取真实待考清单（构建时静态注入）────────────────────────────
+const dataPath = path.join(process.cwd(), 'public/collation/tj-review/data.json');
+const raw = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+const tasks = raw.map((d) => {
+  const noSource = !d.src || /缺/.test(d.src);
+  const gap = noSource ? 1 : 0.4;
+  const diff = clamp(
+    1 + 1.2 * gap + 0.6 * (d.suggest ? 0 : 1) + 0.4 * ((d.ctx || '').includes('□') ? 0 : 1),
+    1,
+    5
+  );
+  const estMin = Math.round(diff) * 25; // 单处估时：按难度 25 / 50 / 75 / 100 / 125 分钟
+  return {
+    ...d,
+    difficulty: Math.round(diff),
+    estMin,
+    type: d.grade === 'A' ? 'T4' : d.grade === 'B' ? 'T4' : 'T5',
+    typeName: d.grade === 'A' ? '他源比勘' : d.grade === 'B' ? '他源比勘' : '理校定夺',
+    srcShort: noSource ? '三源均无可靠取证' : String(d.src).slice(0, 40),
+  };
+});
+
+const stats = {
+  total: tasks.length,
+  A: tasks.filter((t) => t.grade === 'A').length,
+  B: tasks.filter((t) => t.grade === 'B').length,
+  C: tasks.filter((t) => t.grade === 'C').length,
+  vols: new Set(tasks.map((t) => t.vol)).size,
+  estMin: tasks.reduce((s, t) => s + t.estMin, 0),
+};
+
+// 按卷聚合：用于卷次密度分布（哪一卷吃紧，一目了然）
+const volMap = new Map();
+tasks.forEach((t) => volMap.set(t.vol, (volMap.get(t.vol) || 0) + 1));
+const volList = [...volMap.entries()]
+  .sort((a, b) => a[0] - b[0])
+  .map(([vol, n]) => ({ vol, n }));
+const volMax = Math.max(...volList.map((v) => v.n));
+
+// 存量与后续批次（聚合卡）
+const batches = [
+  { id: 'bh', title: '后汉书 · 缺字攻坚', count: 40, unit: '处', grade: 'A/B', state: '待拆解', note: '与通鉴同源方法论，已有定位锚点' },
+  { id: 'other', title: '其他 15 部 · 存量缺字', count: 382, unit: '处', grade: 'B/C', state: '待批量生成', note: '需先完成书影与底本对齐' },
+  { id: 'version', title: '版本档案 · reference 升 verified', count: 17, unit: '部', grade: 'T7', state: '可自动核定', note: 'EGV 三层模型：CIP/国图/出版社信源评分' },
+];
+
+const esc = (s = '') =>
+  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const highlight = (ctx = '') =>
+  esc(ctx).replace(/□/g, '<em class="gap">□</em>');
+---
+
+<BaseLayout title="古籍任务中心 · 维点图书馆" description="把每一处存疑文本变成可认领、可复核、可回填正文的校勘单元——古籍校勘的协作台。" hideCommercial={true}>
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">COLLATION TASK CENTER · 校勘任务中心</p>
+      <h1>让每一处「□」都有人负责</h1>
+      <p class="lede">
+        任务单元 = 一处存疑文本 + 证据包 + 验收标准 + 可回溯结论。<br />
+        判据由人给出，质量由协议复算。遵循 GB/T 31076.1、国图《古籍数字化和知识标引规范手册（2024）》、TEI P5 校勘编码与陈垣校勘四法。
+      </p>
+      <div class="kpis">
+        <div class="kpi"><b>{stats.total}</b><span>待认领任务</span><small>资治通鉴 · {stats.vols} 卷</small></div>
+        <div class="kpi"><b>{stats.A + stats.B}</b><span>有取证路径</span><small>A {stats.A} 需他源比勘 / B {stats.B} 同型可比</small></div>
+        <div class="kpi"><b>422</b><span>存量缺口</span><small>后汉书 40 + 其他 382</small></div>
+        <div class="kpi accent"><b>{Math.round(stats.estMin / 60)} h</b><span>本轮总工作量</span><small>按难度估时 · 平均 {Math.round(stats.estMin / stats.total)} 分钟 / 处</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 吸顶工具条 -->
+  <div class="toolbar" id="toolbar">
+    <div class="tb-inner">
+      <div class="seg" id="seg-grade">
+        <button class="on" data-grade="all">全部</button>
+        <button data-grade="A">A 级 {stats.A}</button>
+        <button data-grade="B">B 级 {stats.B}</button>
+        <button data-grade="C">C 级 {stats.C}</button>
+      </div>
+      <div class="seg" id="seg-state">
+        <button class="on" data-state="all">全部状态</button>
+        <button data-state="open">可认领</button>
+        <button data-state="mine">我的任务</button>
+      </div>
+      <input id="q" type="search" placeholder="搜索卷次 / 上下文 / 建议字" autocomplete="off" />
+      <span class="tb-count"><b id="visible-count">{stats.total}</b> 条</span>
+    </div>
+  </div>
+
+  <section class="wrap">
+    <div class="sec-head">
+      <h2>任务池</h2>
+      <p>每条任务均可直达原文对应字位，验收后自动生成 TEI <code>&lt;app&gt;</code> 校勘记片段</p>
+      <div class="rule"></div>
+    </div>
+
+    <div class="task-list" id="task-list">
+      {tasks.map((t) => (
+        <article
+          class="task"
+          data-no={t.no}
+          data-vol={t.vol}
+          data-grade={t.grade}
+          data-state="open"
+          data-search={`${t.vol} ${t.ctx} ${t.suggest || ''} ${t.chap}`}
+          data-task={JSON.stringify({
+            no: t.no, vol: t.vol, grade: t.grade, gradeTxt: t.gradeTxt,
+            type: t.type, typeName: t.typeName, difficulty: t.difficulty, estMin: t.estMin,
+            ctx: t.ctx, href: t.href, chap: t.chap, chId: t.chId, blk: t.blk, kth: t.kth,
+            src: t.src, srcCand: t.srcCand, vote: t.vote, voteCand: t.voteCand,
+            suggest: t.suggest, wiki: t.wiki
+          })}
+        >
+          <div class="t-head">
+            <span class={`badge g-${t.grade}`}>{t.grade} 级</span>
+            <span class="t-id">#{String(t.no).padStart(2, '0')} · 卷 {String(t.vol).padStart(3, '0')}</span>
+            <span class="t-type">{t.type} {t.typeName}</span>
+            <span class="t-diff" title={`难度 D${t.difficulty}`}>
+              {Array.from({ length: 5 }, (_, i) => (
+                <i class={i < t.difficulty ? 'on' : ''}></i>
+              ))}
+            </span>
+            <span class="t-bounty">约 {t.estMin} 分钟</span>
+          </div>
+          <p class="t-ctx" set:html={highlight(t.ctx)}></p>
+          <div class="t-ev">
+            <span><i>源</i>{t.srcShort}</span>
+            {t.vote && <span><i>票</i>{t.vote}</span>}
+            {t.suggest && <span><i>拟</i>{t.suggest}</span>}
+          </div>
+          <div class="t-foot">
+            <a class="link" href={t.href}>对照原文 →</a>
+            <button class="btn-claim" data-no={t.no}>认领 / 提交</button>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <p class="empty" id="empty" hidden>没有匹配的任务，换个关键词或等级试试。</p>
+
+    <div class="sec-head mt">
+      <h2>卷次分布</h2>
+      <p>49 处待考落在 {stats.vols} 卷，色深表示吃紧程度；点选卷次只看该卷</p>
+      <div class="rule"></div>
+    </div>
+    <div class="vol-strip" id="vol-strip">
+      {volList.map((v) => (
+        <button
+          class="vol-cell"
+          data-vol={v.vol}
+          style={`--a:${(0.08 + 0.6 * (v.n / volMax)).toFixed(2)}`}
+          title={`卷 ${v.vol} · ${v.n} 处待考`}
+        >
+          <b>{String(v.vol).padStart(3, '0')}</b>
+          <span>{v.n}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="sec-head mt">
+      <h2>后续批次</h2>
+      <p>存量任务由缺字扫描与 EGV 版本核定自动生成，人工只审例外</p>
+      <div class="rule"></div>
+    </div>
+    <div class="batch-grid">
+      {batches.map((b) => (
+        <div class="batch">
+          <div class="b-top"><span class="badge ghost">{b.state}</span><span class="b-grade">{b.grade}</span></div>
+          <h3>{b.title}</h3>
+          <p class="b-count"><b>{b.count}</b> {b.unit}</p>
+          <p class="b-note">{b.note}</p>
+          <button class="btn-ghost" disabled>待排期</button>
+        </div>
+      ))}
+    </div>
+
+    <div class="sec-head mt">
+      <h2>四道验收闸</h2>
+      <p>质量不是靠人盯，是靠协议与可复算指标</p>
+      <div class="rule"></div>
+    </div>
+    <div class="gates">
+      <div><span>01</span><h4>机器预检</h4><p>格式、来源可解析、字符合法性（含 IDS）、重复指纹</p></div>
+      <div><span>02</span><h4>双盲复核</h4><p>两名独立复核者，互不可见，强制分离提交与审核</p></div>
+      <div><span>03</span><h4>一致性度量</h4><p>Krippendorff's α ≥ 0.80 采信，&lt; 0.60 回炉复训</p></div>
+      <div><span>04</span><h4>抽样审计</h4><p>结案随机回抽 10%（A 级 30%），错误率 ≤ 2%</p></div>
+    </div>
+  </section>
+
+  <!-- 抽屉：任务详情 -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="dr-head">
+      <div>
+        <span class={`badge g-A`} id="dr-grade">A 级</span>
+        <h3 id="dr-title">任务详情</h3>
+      </div>
+      <button class="dr-close" id="dr-close" aria-label="关闭">×</button>
+    </div>
+    <div class="dr-body">
+      <p class="dr-ctx" id="dr-ctx"></p>
+      <dl class="dr-meta" id="dr-meta"></dl>
+
+      <h4 class="dr-h">证据包</h4>
+      <div class="ev-table" id="dr-ev"></div>
+
+      <h4 class="dr-h">结案验收 Checklist</h4>
+      <ul class="check">
+        <li>判定指向单一字符或标准 IDS 描述</li>
+        <li>至少一个可解析来源（书名+卷次+原文 / 可访问 URI）</li>
+        <li>来源与底本独立，非同一电子文本循环引用</li>
+        <li>遵守「底本不改、异文出校记」</li>
+        <li>证据强度与等级匹配：无 A1 锚不得评 A</li>
+      </ul>
+
+      <form id="submit-form" class="form">
+        <label>判定字（或 IDS 描述）<input id="f-char" required maxlength="24" placeholder="如：龻 或 ⿰亻龻" /></label>
+        <label>判据说明（≥ 50 字）<textarea id="f-why" required minlength="50" rows="4" placeholder="说明取证过程、版本依据、为何排除其他候选"></textarea></label>
+        <label>来源（书名 / 卷次 / 原文，或 URI）<input id="f-src" required placeholder="如：后汉书·光武帝纪上 / 中华书局点校本 / 第 xx 页" /></label>
+        <p class="err" id="f-err" hidden></p>
+        <div class="form-foot">
+          <a class="link" id="dr-link" href="#">先对照原文 →</a>
+          <button type="submit" class="btn-solid">提交，进入双盲复核</button>
+        </div>
+      </form>
+      <p class="done" id="dr-done" hidden>已提交。任务状态：待双盲复核（72 小时内出结果）。</p>
+    </div>
+  </aside>
+  <div class="mask" id="mask" hidden></div>
+
+  <div class="toast" id="toast"></div>
+</BaseLayout>
+
+<style>
+  .hero {
+    background: linear-gradient(180deg, #003048 0%, #063b52 100%);
+    color: #f4efe4;
+    padding: 64px 6vw 56px;
+    border-bottom: 3px solid var(--gold);
+  }
+  .hero-inner { max-width: 1060px; margin: 0 auto; }
+  .eyebrow { font-size: 12px; letter-spacing: 3px; color: var(--gold); }
+  .hero h1 { font-size: 40px; letter-spacing: 2px; margin: 14px 0 12px; }
+  .lede { color: #cfd9de; font-size: 15px; max-width: 720px; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 34px; }
+  .kpi {
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 10px; padding: 18px 20px;
+  }
+  .kpi b { display: block; font-size: 32px; color: #fff; line-height: 1.2; }
+  .kpi span { font-size: 13px; letter-spacing: 1px; color: #e8dfcc; }
+  .kpi small { display: block; margin-top: 6px; font-size: 12px; color: #93a8b2; }
+  .kpi.accent { border-color: rgba(184, 147, 74, .6); background: rgba(184, 147, 74, .12); }
+  .kpi.accent b { color: var(--gold); }
+
+  .toolbar {
+    position: sticky; top: var(--nav-h); z-index: 8;
+    background: rgba(247, 242, 232, .96);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .tb-inner {
+    max-width: 1060px; margin: 0 auto; padding: 12px 6vw;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: #fff; }
+  .seg button {
+    border: 0; background: transparent; padding: 7px 14px; font: inherit;
+    font-size: 13px; color: var(--ink-soft); cursor: pointer;
+  }
+  .seg button.on { background: var(--cinnabar); color: #fff; }
+  #q {
+    flex: 1; min-width: 180px; padding: 8px 14px; font: inherit; font-size: 13px;
+    border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink);
+  }
+  .tb-count { font-size: 13px; color: var(--ink-soft); }
+  .tb-count b { color: var(--cinnabar); font-size: 16px; }
+
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 44px 6vw 10px; }
+  .sec-head { text-align: center; margin-bottom: 26px; }
+  .sec-head h2 { font-size: 24px; letter-spacing: 4px; }
+  .sec-head p { color: var(--ink-soft); font-size: 14px; margin-top: 6px; }
+  .sec-head .rule { width: 52px; height: 3px; background: var(--cinnabar); margin: 14px auto 0; border-radius: 2px; }
+  .sec-head.mt { margin-top: 56px; }
+
+  .vol-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; }
+  .vol-cell {
+    border: 1px solid var(--line); border-radius: 6px; padding: 7px 4px 6px;
+    background: rgba(168, 59, 44, var(--a, .12)); font: inherit; line-height: 1.25;
+    cursor: pointer; transition: transform .15s, box-shadow .15s;
+  }
+  .vol-cell:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .vol-cell.on { outline: 2px solid var(--cinnabar); outline-offset: 1px; }
+  .vol-cell b { display: block; font-size: 11px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+  .vol-cell span { display: block; font-size: 15px; font-weight: 700; color: var(--cinnabar); font-variant-numeric: tabular-nums; }
+  code { background: var(--paper-deep); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+
+  .task-list { display: grid; gap: 12px; }
+  .task {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px; transition: box-shadow .18s, border-color .18s;
+  }
+  .task:hover { box-shadow: var(--shadow-md); border-color: #cbbda1; }
+  .task[data-state="claimed"] { border-color: var(--gold); background: #fffdf7; }
+  .t-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; }
+  .badge {
+    font-size: 11px; letter-spacing: 1px; padding: 2px 9px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--ink-soft); white-space: nowrap;
+  }
+  .badge.g-A { border-color: var(--cinnabar); color: var(--cinnabar); background: #fdf2f0; }
+  .badge.g-B { border-color: var(--gold); color: #8a6a24; background: #fdf8ec; }
+  .badge.g-C { border-color: #b9b3a6; color: #6b655c; background: #f6f4ef; }
+  .badge.ghost { background: transparent; }
+  .t-id { color: var(--ink-soft); letter-spacing: 1px; }
+  .t-type { color: #33566a; }
+  .t-diff { display: inline-flex; gap: 2px; margin-left: 2px; }
+  .t-diff i { width: 12px; height: 4px; border-radius: 2px; background: #e2d9c7; }
+  .t-diff i.on { background: var(--cinnabar); }
+  .t-bounty { margin-left: auto; color: var(--gold); font-weight: 700; letter-spacing: 1px; }
+  .t-ctx { margin: 10px 0 8px; font-size: 16px; line-height: 1.9; letter-spacing: .5px; color: #33302b; }
+  .gap { font-style: normal; color: var(--cinnabar); font-weight: 700; background: #fbe9e6; border-radius: 3px; padding: 0 2px; }
+  .t-ev { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-soft); }
+  .t-ev i { font-style: normal; color: var(--gold); margin-right: 4px; }
+  .t-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+  .link { color: var(--cinnabar); text-decoration: none; font-size: 13px; }
+  .link:hover { text-decoration: underline; }
+  .btn-claim {
+    font: inherit; font-size: 13px; padding: 6px 18px; border-radius: 999px;
+    border: 1px solid var(--cinnabar); background: #fff; color: var(--cinnabar); cursor: pointer;
+  }
+  .btn-claim:hover { background: var(--cinnabar); color: #fff; }
+  .task[data-state="claimed"] .btn-claim { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .empty { text-align: center; color: var(--ink-soft); padding: 40px 0; }
+
+  .batch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .batch { background: var(--white); border: 1px dashed var(--line); border-radius: 10px; padding: 20px; }
+  .b-top { display: flex; justify-content: space-between; align-items: center; }
+  .b-grade { font-size: 12px; color: var(--ink-soft); letter-spacing: 1px; }
+  .batch h3 { font-size: 16px; margin: 12px 0 6px; letter-spacing: 1px; }
+  .b-count { font-size: 13px; color: var(--ink-soft); }
+  .b-count b { font-size: 26px; color: var(--cinnabar); }
+  .b-note { font-size: 12px; color: var(--ink-soft); margin: 8px 0 14px; min-height: 36px; }
+  .btn-ghost {
+    font: inherit; font-size: 13px; padding: 6px 16px; border-radius: 999px;
+    border: 1px solid var(--line); background: transparent; color: #a9a294; cursor: not-allowed;
+  }
+
+  .gates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .gates > div { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+  .gates span { font-size: 12px; letter-spacing: 2px; color: var(--gold); }
+  .gates h4 { font-size: 15px; margin: 8px 0 6px; letter-spacing: 1px; }
+  .gates p { font-size: 12px; color: var(--ink-soft); line-height: 1.8; }
+
+  .drawer {
+    position: fixed; top: 0; right: 0; z-index: 30;
+    width: min(560px, 94vw); height: 100vh; overflow-y: auto;
+    background: var(--paper); border-left: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(102%); transition: transform .26s ease;
+    padding: 22px 26px 60px;
+  }
+  .drawer.open { transform: translateX(0); }
+  .dr-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .dr-head h3 { font-size: 18px; margin-top: 8px; letter-spacing: 1px; }
+  .dr-close { border: 0; background: transparent; font-size: 26px; line-height: 1; color: var(--ink-soft); cursor: pointer; }
+  .dr-ctx { margin: 18px 0 14px; font-size: 16px; line-height: 2; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .dr-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; font-size: 13px; }
+  .dr-meta div { display: flex; justify-content: space-between; border-bottom: 1px dotted var(--line); padding-bottom: 4px; }
+  .dr-meta dt { color: var(--ink-soft); }
+  .dr-meta dd { color: var(--ink); }
+  .dr-h { font-size: 14px; letter-spacing: 2px; margin: 22px 0 10px; color: #33566a; }
+  .ev-table { font-size: 12px; }
+  .ev-row { display: grid; grid-template-columns: 78px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px dotted var(--line); }
+  .ev-row b { color: var(--cinnabar); font-weight: 400; }
+  .check { list-style: none; font-size: 12px; color: var(--ink-soft); }
+  .check li::before { content: "☐ "; color: var(--gold); }
+  .form { display: grid; gap: 12px; margin-top: 6px; }
+  .form label { font-size: 12px; color: var(--ink-soft); display: grid; gap: 6px; }
+  .form input, .form textarea {
+    font: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--line);
+    border-radius: 8px; background: #fff; color: var(--ink); resize: vertical;
+  }
+  .form-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .btn-solid {
+    display: inline-block; font: inherit; font-size: 13px; padding: 9px 20px; border-radius: 999px;
+    background: var(--cinnabar); color: #fff; border: 1px solid var(--cinnabar); text-decoration: none; cursor: pointer;
+  }
+  .btn-solid:hover { background: var(--cinnabar-deep); }
+  .err { color: var(--cinnabar); font-size: 12px; }
+  .done { font-size: 13px; color: var(--success); background: #f1f7f1; border: 1px solid #cfe3d0; border-radius: 8px; padding: 12px; }
+  .mask { position: fixed; inset: 0; background: rgba(30, 26, 20, .35); z-index: 20; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translate(-50%, 20px);
+    background: #2b2926; color: #fff; font-size: 13px; padding: 10px 20px; border-radius: 999px;
+    opacity: 0; pointer-events: none; transition: all .25s; z-index: 40;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 900px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .batch-grid, .gates { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .hero h1 { font-size: 28px; }
+    .batch-grid, .gates { grid-template-columns: 1fr; }
+    .t-bounty { margin-left: 0; }
+    .dr-meta { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var tasks = Array.prototype.slice.call(document.querySelectorAll('.task'));
+    var grade = 'all', state = 'all', q = '', volFilter = '';
+    var visibleEl = document.getElementById('visible-count');
+    var emptyEl = document.getElementById('empty');
+
+    function render() {
+      var n = 0;
+      tasks.forEach(function (el) {
+        var okG = grade === 'all' || el.dataset.grade === grade;
+        var okS = state === 'all'
+          || (state === 'open' && el.dataset.state === 'open')
+          || (state === 'mine' && el.dataset.state === 'claimed');
+        var okQ = !q || (el.dataset.search || '').toLowerCase().indexOf(q) > -1;
+        var okV = !volFilter || el.dataset.vol === volFilter;
+        var show = okG && okS && okQ && okV;
+        el.hidden = !show;
+        if (show) n++;
+      });
+      visibleEl.textContent = n;
+      emptyEl.hidden = n > 0;
+    }
+
+    document.getElementById('seg-grade').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      this.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on'); grade = b.dataset.grade; render();
+    });
+    document.getElementById('seg-state').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      this.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on'); state = b.dataset.state; render();
+    });
+    document.getElementById('q').addEventListener('input', function (e) {
+      q = e.target.value.trim().toLowerCase(); render();
+    });
+
+    // ── 卷次分布：点选只看该卷，再点一次取消 ──
+    document.getElementById('vol-strip').addEventListener('click', function (e) {
+      var cell = e.target.closest('.vol-cell'); if (!cell) return;
+      var v = cell.dataset.vol;
+      volFilter = volFilter === v ? '' : v;
+      this.querySelectorAll('.vol-cell').forEach(function (x) {
+        x.classList.toggle('on', x.dataset.vol === volFilter);
+      });
+      render();
+      if (volFilter) {
+        document.getElementById('task-list').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+
+    // ── 抽屉 ──
+    var drawer = document.getElementById('drawer');
+    var mask = document.getElementById('mask');
+    var current = null;
+    var store = JSON.parse(localStorage.getItem('dc_tasks_v1') || '{}');
+
+    function open(el) {
+      current = el;
+      var t = el.__task;
+      document.getElementById('dr-grade').textContent = t.grade + ' 级';
+      document.getElementById('dr-grade').className = 'badge g-' + t.grade;
+      document.getElementById('dr-title').textContent = '卷 ' + t.vol + ' · #' + String(t.no).padStart(2, '0');
+      document.getElementById('dr-ctx').innerHTML = t.ctxHtml;
+      document.getElementById('dr-link').href = t.href;
+
+      var meta = [
+        ['任务类型', t.type + ' ' + t.typeName],
+        ['难度', 'D' + t.difficulty + ' / 5'],
+        ['预计工时', '约 ' + t.estMin + ' 分钟'],
+        ['定级依据', t.gradeTxt],
+        ['章节', t.chap],
+        ['字位', 'ch' + t.chId + ' · b' + t.blk + ' · k' + t.kth]
+      ];
+      document.getElementById('dr-meta').innerHTML = meta.map(function (m) {
+        return '<div><dt>' + m[0] + '</dt><dd>' + m[1] + '</dd></div>';
+      }).join('');
+
+      var ev = [
+        ['来源', t.src || '—'],
+        ['候选', t.srcCand || '—'],
+        ['站内投票', t.vote || '—'],
+        ['投票候选', t.voteCand || '—'],
+        ['系统建议', t.suggest || '无（证据不足，保留 □）'],
+        ['参照', t.wiki ? '<a class="link" href="' + t.wiki + '" target="_blank" rel="noopener">维基文库卷页 →</a>' : '—']
+      ];
+      document.getElementById('dr-ev').innerHTML = ev.map(function (r) {
+        return '<div class="ev-row"><b>' + r[0] + '</b><span>' + r[1] + '</span></div>';
+      }).join('');
+
+      var saved = store[t.no];
+      var form = document.getElementById('submit-form');
+      var done = document.getElementById('dr-done');
+      if (saved) {
+        form.hidden = true; done.hidden = false;
+        done.textContent = '已提交（' + saved.at + '）。任务状态：待双盲复核。';
+      } else {
+        form.hidden = false; done.hidden = true;
+        form.reset();
+        document.getElementById('f-char').value = t.suggest || '';
+      }
+
+      drawer.classList.add('open');
+      drawer.setAttribute('aria-hidden', 'false');
+      mask.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function close() {
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden', 'true');
+      mask.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('dr-close').addEventListener('click', close);
+    mask.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(function () { t.classList.remove('show'); }, 2200);
+    }
+
+    document.getElementById('task-list').addEventListener('click', function (e) {
+      var btn = e.target.closest('.btn-claim');
+      var card = e.target.closest('.task');
+      if (btn) { open(card); return; }
+      if (card) { open(card); }
+    });
+
+    document.getElementById('submit-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var char = document.getElementById('f-char').value.trim();
+      var why = document.getElementById('f-why').value.trim();
+      var src = document.getElementById('f-src').value.trim();
+      var err = document.getElementById('f-err');
+      function showErr(msg) {
+        err.textContent = msg;
+        err.hidden = false;
+        err.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+      if (!char) { showErr('请填写判定字或 IDS 描述。'); return; }
+      if (why.length < 50) { showErr('判据说明需不少于 50 字（当前 ' + why.length + ' 字）。'); return; }
+      if (!src) { showErr('请填写可核查的来源。'); return; }
+      err.hidden = true;
+
+      var no = current.dataset.no;
+      store[no] = { char: char, why: why, src: src, at: new Date().toLocaleString('zh-CN') };
+      localStorage.setItem('dc_tasks_v1', JSON.stringify(store));
+      current.dataset.state = 'claimed';
+      current.querySelector('.btn-claim').textContent = '已认领 · 待复核';
+
+      document.getElementById('submit-form').hidden = true;
+      var done = document.getElementById('dr-done');
+      done.hidden = false;
+      done.textContent = '已提交（' + store[no].at + '）。任务状态：待双盲复核，机器预检已通过。';
+      done.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      toast('已提交，进入双盲复核队列');
+      render();
+    });
+
+    // 恢复本地已认领状态
+    tasks.forEach(function (el) {
+      if (store[el.dataset.no]) {
+        el.dataset.state = 'claimed';
+        el.querySelector('.btn-claim').textContent = '已认领 · 待复核';
+      }
+    });
+
+    // 从 DOM 读取任务数据（构建时已注入）
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function hl(ctx) {
+      return esc(ctx).replace(/□/g, '<em class="gap">□</em>');
+    }
+    tasks.forEach(function (el) {
+      var t = {};
+      try { t = JSON.parse(el.dataset.task || '{}'); } catch (e) { t = {}; }
+      t.ctxHtml = hl(t.ctx);
+      el.__task = t;
+    });
+
+    render();
+  })();
+</script>

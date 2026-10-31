@@ -6,12 +6,15 @@ interface Props {
   description?: string;
   /** 站点内页/错误页设为 true，避免被搜索引擎收录 */
   noindex?: boolean;
+  /** 纯功能页设为 true，隐藏导航中的定价/解锁等商业入口 */
+  hideCommercial?: boolean;
 }
 
 const {
   title = '维点图书馆 · DimensionsCosmos Library',
   description = '伟大心智的阅读操作系统：用苏格拉底的方法读庄子，用费曼的方法读相对论，用朱熹的方法读古兰经。',
   noindex = false,
+  hideCommercial = false,
 } = Astro.props;
 
 // 保证尾斜杠，`${base}books` 才能拼成 `/books`
@@ -100,9 +103,10 @@ const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
     </a>
     <div class="nav-links">
       <a href={`${base}books`}>书库</a>
+      <a href={`${base}tasks`}>任务中心</a>
       <a href={`${base}methods`}>方法</a>
-      <a href={`${base}pricing`}>定价</a>
-      <a class="nav-cta" href={`${base}pricing`}>解锁全部</a>
+      {!hideCommercial && <a href={`${base}pricing`}>定价</a>}
+      {!hideCommercial && <a class="nav-cta" href={`${base}pricing`}>解锁全部</a>}
     </div>
   </nav>
   <main>
