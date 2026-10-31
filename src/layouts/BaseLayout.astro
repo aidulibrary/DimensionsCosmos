@@ -66,6 +66,23 @@ try {
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#003048">
   <meta name="color-scheme" content="light">
+
+  <!--
+    商店模式探测（应用商店 / MSIX 包装 / 已安装的独立窗口）：
+    命中后给 <html> 打上 store-mode 类，配合 global.css 隐藏一切站外付费语境，
+    仅保留免费阅读内容，以满足 Microsoft Store 对数字内容结算的合规要求。
+    普通浏览器访问（display-mode 为 browser）不受影响，网页端展示照常。
+  -->
+  <script is:inline>
+    (function () {
+      try {
+        var mq = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+        var ios = window.navigator.standalone === true;
+        var forced = /(^|[?&])store=1(&|$)/.test(window.location.search);
+        if (mq || ios || forced) document.documentElement.classList.add('store-mode');
+      } catch (e) { /* 探测失败一律按网页模式处理，不隐藏任何内容 */ }
+    })();
+  </script>
   <meta name="application-name" content="维点图书馆">
   <meta name="format-detection" content="telephone=no">
 
@@ -136,8 +153,8 @@ try {
       <a href={`${base}books`}>书库</a>
       <a href={`${base}tasks`}>任务中心</a>
       <a href={`${base}methods`}>方法</a>
-      {!hideCommercial && <a href={`${base}pricing`}>定价</a>}
-      {!hideCommercial && <a class="nav-cta" href={`${base}pricing`}>解锁全部</a>}
+      {!hideCommercial && <a href={`${base}pricing`} data-store-hide>定价</a>}
+      {!hideCommercial && <a class="nav-cta" href={`${base}pricing`} data-store-hide>解锁全部</a>}
     </div>
   </nav>
   <main>

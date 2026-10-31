@@ -812,3 +812,14 @@ footer b {
     grid-template-columns: 1fr;
   }
 }
+
+/* ══ 商店模式（应用商店 / MSIX 包装 / 已安装独立窗口）══
+   命中 html.store-mode 时，隐藏一切站外付费语境（定价 CTA、单价表、
+   方法包、付款说明等），只保留免费阅读内容，避免与商店数字内容结算政策冲突。
+   类由 BaseLayout 的探测脚本注入；普通浏览器访问不受影响。 */
+html.store-mode [data-store-hide] {
+  display: none !important;
+}
+html:not(.store-mode) .store-only {
+  display: none !important;
+}

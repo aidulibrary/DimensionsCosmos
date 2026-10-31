@@ -52,7 +52,8 @@ const priceRange = paidMethods.length
   <section>
     <div class="sec-head">
       <h2>简单定价</h2>
-      <p>全文阅读永久免费；AI 深度导读按篇购买，不囤课、不年费</p>
+      <p data-store-hide>全文阅读永久免费；AI 深度导读按篇购买，不囤课、不年费</p>
+      <p class="store-only">全文阅读永久免费；AI 导读现阶段同样免费开放，无购买项、无内购</p>
       <div class="rule"></div>
     </div>
 
@@ -91,7 +92,7 @@ const priceRange = paidMethods.length
         <ul>
           <li>按方法深度解读一本书</li>
           <li>结构化拆解与阅读路径</li>
-          <li>一次性购买、永久访问</li>
+          <li data-store-hide>一次性购买、永久访问</li>
           <li>{PAY_ENABLED ? '7 天内不满意可退' : '正式收费前不产生任何费用'}</li>
         </ul>
         {PAY_ENABLED
@@ -103,7 +104,7 @@ const priceRange = paidMethods.length
           : <a href="#shelf" class="card-btn solid">查看可读清单</a>}
       </div>
 
-      <div class="price-card">
+      <div class="price-card" data-store-hide>
         <div class="card-badge">筹备中</div>
         <h3>方法包</h3>
         <div class="amount">¥49<span>/年</span></div>
@@ -146,7 +147,7 @@ const priceRange = paidMethods.length
     </div>
 
     <!-- 付费方法单价表 -->
-    <div class="price-table-wrap">
+    <div class="price-table-wrap" data-store-hide>
       <h3>付费方法单价</h3>
       <table class="price-table">
         <thead>
@@ -168,7 +169,7 @@ const priceRange = paidMethods.length
 
     <!-- 信任区 -->
     <div class="trust">
-      <div>
+      <div data-store-hide>
         <h4>如何付款</h4>
         <p>
           {PAY_ENABLED
@@ -193,6 +194,10 @@ const priceRange = paidMethods.length
   .sec-head { text-align: center; margin-bottom: 40px; }
   .sec-head h2 { font-size: 30px; letter-spacing: 6px; }
   .sec-head p { color: var(--ink-soft); margin-top: 8px; }
+  /* 商店模式下才出现的免费措辞（网页模式不渲染） */
+  .store-only { display: none; }
+  html.store-mode .store-only { display: block; }
+
   .sec-head .rule { width: 56px; height: 3px; background: var(--cinnabar); margin: 16px auto 0; border-radius: 2px; }
 
   .supply-bar {
