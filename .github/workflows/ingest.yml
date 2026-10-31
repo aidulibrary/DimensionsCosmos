@@ -13,6 +13,7 @@ on:
 permissions:
   contents: write
   deployments: write
+  issues: write
 
 jobs:
   fetch-and-ai:
@@ -62,11 +63,57 @@ jobs:
           git commit -m "ci: weekly ingest + AI + build $(date +%F)" || echo "no changes"
           git push
 
-      # 阶段 6: 部署到 Cloudflare Pages（仅 push 触发时）
-      - name: deploy to Cloudflare Pages
-        if: ${{ success() && github.event_name == 'push' }}
+      # 阶段 6: 部署 —— 已停用（保留配置备查，不删除）
+      # 原因：Cloudflare Pages 已通过 Git 集成在每次 push 时自动构建并部署，
+      #       本步骤属重复通道，与 Git 集成争抢同一生产环境（后完成者覆盖先完成者），
+      #       且因 project-name / CF_API_TOKEN 长期失败，持续产生误导性红叉。
+      # 如需恢复：删除下面 if: false，并先把 --project-name 改为 Cloudflare 实际项目名
+      #       同时确认 secrets.CF_API_TOKEN / CF_ACCOUNT_ID 有效。
+      - name: deploy to Cloudflare Pages (disabled)
+        if: false
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           command: pages deploy dist/ --project-name=dimensions-cosmos
+
+      # 阶段 7: 失败告警 —— 任何步骤失败时创建/追加一个 issue
+      # 目的：把"构建失败"从只有偶然点开 Actions 才能发现，变成仓库里可见的信号
+      - name: notify failure via issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = 'CI 失败：ingest-deploy';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `工作流 \`${context.workflow}\` 在 \`${context.ref}\` 执行失败。`,
+              '',
+              `- 提交：\`${context.sha.slice(0, 7)}\``,
+              `- 运行记录：${runUrl}`,
+              '',
+              '常见原因：抓取源异常导致 \`generate frontend data\` 失败、Astro 构建报错、或数据提交推送冲突。',
+              '处理后可关闭本 issue。',
+            ].join('\n');
+
+            const open = await github.rest.issues.listForRepo({
+              ...context.repo,
+              state: 'open',
+              per_page: 50,
+            });
+            const existing = open.data.find((i) => i.title.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: existing.number,
+                body,
+              });
+              core.info(`已追加评论到 issue #${existing.number}`);
+            } else {
+              const created = await github.rest.issues.create({
+                ...context.repo,
+                title: `${marker}（${new Date().toISOString().slice(0, 10)}）`,
+                body,
+              });
+              core.info(`已创建 issue #${created.data.number}`);
+            }

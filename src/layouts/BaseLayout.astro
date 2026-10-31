@@ -1,5 +1,8 @@
 ---
 import '../styles/global.css';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 interface Props {
   title?: string;
@@ -20,6 +23,34 @@ const {
 // 保证尾斜杠，`${base}books` 才能拼成 `/books`
 const rawBase = import.meta.env.BASE_URL || '/';
 const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+
+// 数据新鲜度：构建时读取 public/data/index.json 的 generatedAt，页脚展示。
+// 用途：CI 的数据提交若失败，Cloudflare 会拿旧数据构建出"成功但内容陈旧"的站点，
+// 页脚日期可让这种静默陈旧一眼可见。读取失败时静默降级，不影响构建。
+let dataUpdated = '';
+try {
+  // 构建期 cwd 为项目根；另用模块路径兜底，避免不同构建器下 cwd 不一致
+  const candidates = [
+    path.join(process.cwd(), 'public', 'data', 'index.json'),
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../public/data/index.json'),
+  ];
+  const file = candidates.find((p) => fs.existsSync(p));
+  const idx = file ? JSON.parse(fs.readFileSync(file, 'utf8')) : null;
+  const d = new Date(idx?.generatedAt);
+  if (!Number.isNaN(d.getTime())) {
+    dataUpdated = new Intl.DateTimeFormat('zh-CN', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(d);
+  }
+} catch (_) {
+  /* 数据文件缺失或格式异常时静默降级 */
+}
 ---
 
 <!DOCTYPE html>
@@ -116,6 +147,7 @@ const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
     <p><b>维点图书馆</b> DimensionsCosmos Library · 伟大心智的阅读操作系统</p>
     <p style="margin-top:4px">原文 © 中文维基文库（CC BY-SA 4.0）及其他开放来源 · AI 解读内容由免费 API 降级链生成</p>
     <p style="margin-top:4px">浇灌自由生长的文明 · 预览版 v0.5 · <a href="https://github.com/aidulibrary/DimensionsCosmos">GitHub</a> · <a href={base + 'privacy'}>隐私政策 Privacy</a></p>
+    {dataUpdated && <p style="margin-top:4px;opacity:.72">数据更新 {dataUpdated}（UTC+8）</p>}
   </footer>
 
   <script is:inline>
