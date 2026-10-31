@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const COLORS = [
+  {
+    name: '星穹蓝',
+    en: 'Star-vault Blue',
+    hex: '#003048',
+    rgb: '0, 48, 72',
+    space: '天穹 / 宇宙',
+    note: '英文名 Dimensions Cosmos 的直译，也是应用底色与正文墨色。',
+    light: true,
+  },
+  {
+    name: '生态绿',
+    en: 'Eco Green',
+    hex: '#84A890',
+    rgb: '132, 168, 144',
+    space: '田野 / 千湖',
+    note: '水与生长的那一层，来自项目所在的田野与水系。',
+    light: false,
+  },
+  {
+    name: '原木土',
+    en: 'Raw-earth Brown',
+    hex: '#9C6C48',
+    rgb: '156, 108, 72',
+    space: '原木 / 夯土',
+    note: '书式民宿与乡村院落的材质记忆。',
+    light: false,
+  },
+  {
+    name: '一点红',
+    en: 'A Single Red',
+    hex: '#E41824',
+    rgb: '228, 24, 36',
+    space: '印章 / 点睛',
+    note: '全稿唯一的暖色，只落在「点」字上。面积永不超过 5%。',
+    light: false,
+  },
+];
+
+const LAYERS = [
+  { id: 'L0', name: '主标识', comp: '书形轮廓图形，比例 0.77', use: '一切场合的锚点' },
+  { id: 'L1', name: '应用图标', comp: 'L0 + 星穹蓝底板 + 安全区留白', use: '桌面、应用商店、favicon（永不带字）' },
+  { id: 'L2', name: '中文组合', comp: 'L0 +「维点图书馆」', use: '网站头部、书封、实体招牌' },
+  { id: 'L3', name: '英文组合', comp: 'L0 + Dimensions Cosmos Library', use: '页脚、印刷品（画布宽须 ≥ 240px）' },
+  { id: 'L4', name: '缩写标记', comp: 'DCL 三字母', use: '极窄位：合作方墙、水印' },
+];
+---
+
+<BaseLayout
+  title="标识与色彩 · 维点图书馆"
+  description="维点图书馆（DimensionsCosmos）标识释义与标准色系：书脊、页边纹与一本还没写完的书；四色分别对应天穹、田野、院落与印章。"
+>
+  <section class="brand">
+    <header class="brand-head">
+      <h1>标识与色彩<span class="en-sub">Identity &amp; Palette</span></h1>
+      <p class="lead">
+        一本书的侧影：左边是书脊，顶部是书口，中间是层叠的页边纹，右侧敞开——那是一本还没写完的书。
+      </p>
+    </header>
+
+    <div class="mark">
+      <img src="/icons/icon-512.png" alt="维点图书馆标识" width="200" height="200" />
+      <p class="mark-cap">主标识 · Master Mark</p>
+    </div>
+
+    <h2>结构释义</h2>
+    <ul class="reads">
+      <li><strong>书脊与书口</strong>——左侧竖脊接顶部横梁，是一本书最稳定的两条边。</li>
+      <li><strong>页边纹</strong>——框内八条长短错落的横线，是书页层叠的页边。</li>
+      <li><strong>翻页起点</strong>——左下角内凹的弧线，手指翻开第一页的位置。</li>
+      <li><strong>右侧敞开</strong>——不闭合，表示还没写完，也把位置留给后来的人。</li>
+    </ul>
+    <p class="note">
+      图形同时可读作地天泰卦：坤上乾下，地在天上，为通泰之象。书本符号全球零解释成本，卦象承载「书中包罗万象、意蕴天地宇宙」。
+    </p>
+
+    <h2>四色，四重空间</h2>
+    <p class="note">四色不是配色偏好。每一色对应一处真实存在的空间，品牌延展时不需要再编故事。</p>
+    <div class="swatches">
+      {COLORS.map((c) => (
+        <div class="swatch">
+          <div class="chip" style={`background:${c.hex};`}>
+            <span class={c.light ? 'chip-hex on-dark' : 'chip-hex'}>{c.hex}</span>
+          </div>
+          <div class="swatch-body">
+            <h3>{c.name}<span class="en">{c.en}</span></h3>
+            <p class="space">{c.space}</p>
+            <p class="note-sm">{c.note}</p>
+            <p class="rgb">RGB {c.rgb}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <h2>配比</h2>
+    <div class="ratio">
+      <span class="r1" style="width:60%">60</span>
+      <span class="r2" style="width:25%">25</span>
+      <span class="r3" style="width:10%">10</span>
+      <span class="r4" style="width:5%"></span>
+    </div>
+    <p class="note">
+      星穹蓝 60 : 生态绿 25 : 原木土 10 : 一点红 5。唯一红线——<strong>一点红面积永不超过 5%</strong>，超过就从「点睛」退化为「廉价」。
+    </p>
+
+    <h2>分层使用</h2>
+    <table class="layers">
+      <thead>
+        <tr><th>层</th><th>名称</th><th>构成</th><th>使用场景</th></tr>
+      </thead>
+      <tbody>
+        {LAYERS.map((l) => (
+          <tr>
+            <td class="id">{l.id}</td>
+            <td>{l.name}</td>
+            <td>{l.comp}</td>
+            <td>{l.use}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <p class="note">
+      三条铁律：主标识是唯一图形来源，不得为某个场景另画一个「感觉差不多的」；应用图标不带字，系统已在图标下方显示应用名；缩写是替补，空间够就回退到中文或英文组合。
+    </p>
+
+    <p class="back"><a href="/">← 返回书库</a></p>
+  </section>
+</BaseLayout>
+
+<style>
+  .brand { max-width: 880px; margin: 0 auto; padding: 56px 24px 90px; }
+  .brand-head { text-align: center; margin-bottom: 36px; }
+  .brand-head h1 { font-size: 32px; letter-spacing: 4px; font-weight: 700; }
+  .en-sub {
+    display: block; font-size: 13px; letter-spacing: 3px;
+    color: var(--ink-soft); font-weight: 400; margin-top: 8px;
+  }
+  .lead {
+    max-width: 560px; margin: 18px auto 0; font-size: 15px;
+    line-height: 1.9; color: var(--ink-soft);
+  }
+  .brand h2 {
+    font-size: 19px; letter-spacing: 3px; margin: 48px 0 18px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  .brand h3 { font-size: 15px; letter-spacing: 1px; color: var(--ink); }
+  .mark { text-align: center; margin: 8px 0 0; }
+  .mark img {
+    border-radius: 26px; box-shadow: var(--shadow-sm);
+    border: 1px solid var(--line);
+  }
+  .mark-cap {
+    margin-top: 12px; font-size: 12px; letter-spacing: 2px; color: var(--ink-soft);
+  }
+  .reads { list-style: none; }
+  .reads li {
+    position: relative; padding-left: 18px; margin-bottom: 10px;
+    font-size: 14.5px; line-height: 1.85; color: var(--ink-soft);
+  }
+  .reads li::before {
+    content: ""; position: absolute; left: 2px; top: 11px;
+    width: 5px; height: 5px; border-radius: 50%; background: var(--gold);
+  }
+  .reads strong { color: var(--ink); }
+  .note { font-size: 13.5px; line-height: 1.9; color: var(--ink-soft); margin-top: 12px; }
+  .note-sm { font-size: 13px; line-height: 1.75; color: var(--ink-soft); }
+  .swatches { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .swatch {
+    display: flex; gap: 14px; padding: 14px;
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+  }
+  .chip {
+    position: relative; flex: 0 0 76px; height: 76px; border-radius: 10px;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;
+  }
+  .chip-hex { font-size: 9.5px; letter-spacing: 0.5px; color: #ffffff; opacity: 0.82; }
+  .chip-hex.on-dark { color: #FCFCFC; }
+  .swatch-body h3 { margin-bottom: 3px; }
+  .swatch-body h3 .en {
+    display: block; font-size: 10.5px; letter-spacing: 1px;
+    color: var(--ink-soft); font-weight: 400; margin-top: 2px;
+  }
+  .space { font-size: 12px; letter-spacing: 1px; color: var(--cinnabar); margin-bottom: 5px; }
+  .rgb { font-size: 10.5px; font-family: ui-monospace, Consolas, monospace; color: var(--ink-soft); margin-top: 4px; }
+  .ratio { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin-top: 6px; }
+  .ratio span {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #fff;
+  }
+  .r1 { background: #003048; }
+  .r2 { background: #84A890; }
+  .r3 { background: #9C6C48; }
+  .r4 { background: #E41824; }
+  .layers { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .layers th {
+    text-align: left; padding: 9px 10px; font-weight: 600;
+    color: var(--ink); border-bottom: 2px solid var(--gold);
+    letter-spacing: 1px; font-size: 13px;
+  }
+  .layers td {
+    padding: 9px 10px; color: var(--ink-soft);
+    border-bottom: 1px solid var(--line); line-height: 1.7;
+  }
+  .layers .id { font-family: ui-monospace, Consolas, monospace; color: var(--cinnabar); }
+  .back { margin-top: 52px; text-align: center; font-size: 13.5px; }
+  .back a { color: var(--cinnabar); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .back a:hover { border-bottom-color: var(--cinnabar); }
+
+  @media (max-width: 680px) {
+    .brand { padding: 36px 16px 70px; }
+    .brand-head h1 { font-size: 24px; letter-spacing: 2px; }
+    .swatches { grid-template-columns: 1fr; }
+    .layers { font-size: 12.5px; }
+  }
+</style>
