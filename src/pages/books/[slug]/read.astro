@@ -90,12 +90,54 @@ try {
 const collationHref = collation ? (collation.url.startsWith('http') ? collation.url : `${base}${collation.url.replace(/^\//, '')}`) : '';
 
 // 卷级索引：vol -> 该卷待考条目数 + 首个条目锚点（用于章标题旁跳转）
-type CollationItem = { vol?: number; anchor?: string };
+type CollationItem = {
+  no?: number;
+  vol?: number;
+  vol3?: string;
+  anchor?: string;
+  ctx?: string;
+  cxk?: number;
+  suggest?: string;
+  grade?: string;
+  gradeTxt?: string;
+  chId?: number;
+  blk?: number;
+  kth?: number;
+};
 const collationVols: Record<string, { n: number; anchor: string }> = {};
+// 校勘面板数据：随页注入，供右侧第三列直接渲染
+let collationRows: Array<{
+  no: number;
+  vol: number;
+  vol3: string;
+  chId: number;
+  blk: number;
+  kth: number;
+  ctx: string;
+  cxk: number;
+  sug: string;
+  g: string;
+  gt: string;
+}> = [];
 if (collation?.data) {
   try {
     const rawData = readFileSync(join(process.cwd(), 'public', collation.data), 'utf-8');
     const items = JSON.parse(rawData) as CollationItem[];
+    collationRows = items
+      .filter((it) => typeof it.chId === 'number' && typeof it.blk === 'number')
+      .map((it) => ({
+        no: Number(it.no ?? 0),
+        vol: Number(it.vol ?? 0),
+        vol3: String(it.vol3 ?? ''),
+        chId: Number(it.chId),
+        blk: Number(it.blk),
+        kth: Number(it.kth ?? 0),
+        ctx: String(it.ctx ?? ''),
+        cxk: Number(it.cxk ?? 0),
+        sug: String(it.suggest ?? ''),
+        g: String(it.grade ?? ''),
+        gt: String(it.gradeTxt ?? ''),
+      }));
     for (const it of items) {
       if (typeof it.vol !== 'number' || !it.anchor) continue;
       const key = String(it.vol);
@@ -122,7 +164,7 @@ const passData = {
   toc: tocLite,
   first: firstChapter?.id ?? null,
   collation: collation
-    ? { href: collationHref, label: collation.label ?? '校勘', vols: collationVols }
+    ? { href: collationHref, label: collation.label ?? '校勘', vols: collationVols, rows: collationRows }
     : null,
 };
 
@@ -169,7 +211,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
       </div>
     )}
 
-    <div class="reader-grid">
+    <div class:list={['reader-grid', { 'has-cnav': !!collation }]}>
       <!-- 目录 -->
       <aside class="toc">
         <div class="toc-head">
@@ -237,6 +279,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
           </div>
         </div>
 
+        {collation && <div class="need-status" id="needStatus" hidden></div>}
+
         {collation && (
           <aside class="collation-bar" id="collationBar">
             <span class="cb-tag">校勘</span>
@@ -283,13 +327,45 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
           原文底本：中文维基文库（CC BY-SA 4.0）。已过清洗管线去除维基标记、注脚与模板残留。
         </p>
       </main>
+
+      {collation && (
+        <aside class="cnav" id="cnav" aria-label="校勘待考">
+          <div class="cnav-resizer" id="cnavResizer" title="拖动调整校勘栏宽度"></div>
+          <div class="cnav-head">
+            <div class="cnav-tabs">
+              <button type="button" class="cnav-tab active" data-scope="ch">本章</button>
+              <button type="button" class="cnav-tab" data-scope="vol">本卷</button>
+            </div>
+            <button type="button" class="cnav-min" id="cnavMin" title="收起校勘栏">»</button>
+          </div>
+          <div class="cnav-meta" id="cnavMeta"></div>
+          <ol class="cnav-list" id="cnavList"></ol>
+          <div class="cnav-foot">
+            <a href={collationHref}>完整待考清单 →</a>
+          </div>
+        </aside>
+      )}
     </div>
+
+    {collation && (
+      <button type="button" class="cnav-open" id="cnavOpen" hidden>« 校勘待考</button>
+    )}
   </div>
 
   <script type="application/json" id="reader-data" set:html={JSON.stringify(passData)} />
 </BaseLayout>
 
 <script>
+  // 站点顶栏高度 → CSS 变量，供目录/校勘栏/工具条 sticky 计算
+  const siteNav = document.querySelector('body > nav') as HTMLElement | null;
+  if (siteNav) {
+    const applyNavH = () => {
+      document.documentElement.style.setProperty('--nav-h', Math.round(siteNav.getBoundingClientRect().height) + 'px');
+    };
+    applyNavH();
+    window.addEventListener('resize', applyNavH, { passive: true });
+  }
+
   const dataEl = document.getElementById('reader-data');
   const D = dataEl ? JSON.parse(dataEl.textContent || '{}') : { toc: [], base: '/' };
   const toc: { id: number; title: string; ord: number | null; g: string | null; q: string; n: string | null }[] = D.toc || [];
@@ -365,41 +441,48 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     };
   }
 
-  let needTipEl: HTMLElement | null = null;
+  const needStatusEl = document.getElementById('needStatus') as HTMLElement | null;
+  let needStatusTimer: number | null = null;
+
   function hideNeedTip() {
-    if (needTipEl) needTipEl.remove();
-    needTipEl = null;
+    if (!needStatusEl) return;
+    if (needStatusTimer) {
+      clearTimeout(needStatusTimer);
+      needStatusTimer = null;
+    }
+    needStatusEl.hidden = true;
+    needStatusEl.replaceChildren();
   }
 
   function showNeedTip(kth: number) {
-    hideNeedTip();
+    if (!needStatusEl) return;
     const C: any = (D as any).collation;
     const ord = Number(toc[currentIndex]?.ord || 0);
     const vol = ord > 1e6 ? Math.round(ord / 1e9) : 0;
     const hit = vol && C?.vols ? C.vols[String(vol)] : null;
-    const tip = document.createElement('div');
-    tip.className = 'need-tip';
     const msg = document.createElement('span');
     msg.textContent = hit
-      ? `已定位：第 ${kth + 1} 处缺字 · 本卷共 ${hit.n} 处待考`
-      : `已定位：第 ${kth + 1} 处缺字`;
-    tip.appendChild(msg);
+      ? `已定位第 ${kth + 1} 处缺字 · 本卷共 ${hit.n} 处待考`
+      : `已定位第 ${kth + 1} 处缺字`;
+    const frag: Node[] = [msg];
     if (C?.href) {
       const a = document.createElement('a');
       // 带上清单行锚点，回跳后该行会高亮（tr:target）
       const back = String(location.search).match(/[?&]need=([^&]+)/);
       a.href = C.href + (back ? '#' + back[1] : '');
       a.textContent = '查看待考清单 →';
-      tip.appendChild(a);
+      frag.push(a);
     }
     const x = document.createElement('button');
     x.type = 'button';
     x.textContent = '×';
     x.setAttribute('aria-label', '关闭提示');
     x.addEventListener('click', hideNeedTip);
-    tip.appendChild(x);
-    document.body.appendChild(tip);
-    needTipEl = tip;
+    frag.push(x);
+    needStatusEl.replaceChildren(...frag);
+    needStatusEl.hidden = false;
+    if (needStatusTimer) clearTimeout(needStatusTimer);
+    needStatusTimer = window.setTimeout(hideNeedTip, 9000);
   }
 
   function focusNeed(bi: number, kth: number) {
@@ -436,6 +519,203 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     a.title = '本卷正文有源本残阙，点击查看待考清单';
     h1.insertAdjacentElement('afterend', a);
   }
+
+  // ---- 右侧第三列：校勘待考面板（同页分列，可拖拽列宽） ----
+  const CNAV: any = (D as any).collation;
+  const cnavEl = document.getElementById('cnav');
+  const cnavListEl = document.getElementById('cnavList');
+  const cnavMetaEl = document.getElementById('cnavMeta');
+  const cnavGrid = document.querySelector('.reader-grid') as HTMLElement | null;
+  let cnavScope: 'ch' | 'vol' = 'ch';
+
+  const escHtml = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // 上下文里的目标缺字强标，其余缺字弱化
+  function needCtx(ctx: string, cxk: number) {
+    let i = -1;
+    return escHtml(ctx).replace(/□/g, () => {
+      i++;
+      return i === cxk ? '<em class="ci-hit">□</em>' : '<span class="ci-box">□</span>';
+    });
+  }
+
+  function setCnavScope(next: 'ch' | 'vol') {
+    cnavScope = next;
+    document.querySelectorAll('.cnav-tab').forEach((b) => {
+      b.classList.toggle('active', (b as HTMLElement).dataset.scope === next);
+    });
+  }
+
+  function renderCnav() {
+    if (!CNAV || !cnavListEl) return;
+    const cur = toc[currentIndex];
+    if (!cur) return;
+    const ord = Number(cur.ord || 0);
+    const vol = ord > 1e6 ? Math.round(ord / 1e9) : 0;
+    const all: any[] = CNAV.rows || [];
+    const inVol = all.filter((r) => r.vol === vol);
+    const inCh = all.filter((r) => r.chId === cur.id);
+    // 本卷条目与本章完全一致时，「本卷」页签无意义，直接隐藏
+    const volTab = document.querySelector('.cnav-tab[data-scope="vol"]') as HTMLElement | null;
+    const sameSet = inVol.length === inCh.length;
+    if (volTab) volTab.style.display = sameSet ? 'none' : '';
+    if (sameSet && cnavScope === 'vol') setCnavScope('ch');
+    // 本章无条目时自动落到本卷，避免空面板
+    if (cnavScope === 'ch' && !inCh.length && inVol.length) setCnavScope('vol');
+    else if (cnavScope === 'vol' && !inVol.length && inCh.length) setCnavScope('ch');
+
+    const list = cnavScope === 'ch' ? inCh : inVol;
+    if (cnavMetaEl) {
+      const volTxt = vol ? `卷 ${String(vol).padStart(3, '0')}` : '';
+      cnavMetaEl.textContent = `${volTxt}　本章 ${inCh.length} 处 · 本卷 ${inVol.length} 处`;
+    }
+    cnavListEl.innerHTML = '';
+    if (!list.length) {
+      const li = document.createElement('li');
+      li.className = 'cnav-empty';
+      li.textContent = cnavScope === 'ch' ? '本篇无待考条目' : '本卷无待考条目';
+      cnavListEl.appendChild(li);
+      return;
+    }
+    for (const r of list) {
+      const li = document.createElement('li');
+      li.className = 'cnav-item' + (r.chId === cur.id ? ' cur' : '');
+      li.dataset.ch = String(r.chId);
+      li.dataset.bi = String(r.blk);
+      li.dataset.kth = String(r.kth);
+
+      const noEl = document.createElement('span');
+      noEl.className = 'ci-no';
+      noEl.textContent = '#' + r.no + (cnavScope === 'vol' && r.chId !== cur.id ? ' ·' + r.vol3 : '');
+
+      const ctxEl = document.createElement('span');
+      ctxEl.className = 'ci-ctx';
+      ctxEl.innerHTML = needCtx(r.ctx || '', Number(r.cxk || 0));
+
+      const tagEl = document.createElement('span');
+      tagEl.className = 'ci-tag g' + (r.g || 'A');
+      tagEl.textContent = r.sug ? '建议 ' + r.sug : '待考';
+
+      li.appendChild(noEl);
+      li.appendChild(ctxEl);
+      li.appendChild(tagEl);
+      li.title = '跳到原文该处';
+      li.addEventListener('click', () => jumpNeed(r));
+      cnavListEl.appendChild(li);
+    }
+    markCnavActive();
+  }
+
+  function markCnavActive() {
+    if (!cnavListEl) return;
+    const cur = toc[currentIndex];
+    const H = parseHash();
+    const bi = H?.bi;
+    const kth = H?.kth ?? 0;
+    let hit: HTMLElement | null = null;
+    cnavListEl.querySelectorAll('.cnav-item').forEach((el) => {
+      const e = el as HTMLElement;
+      const on =
+        bi !== null &&
+        Number(e.dataset.ch) === cur?.id &&
+        Number(e.dataset.bi) === bi &&
+        Number(e.dataset.kth) === kth;
+      e.classList.toggle('active', on);
+      if (on) hit = e;
+    });
+    if (hit) hit.scrollIntoView({ block: 'nearest' });
+  }
+
+  function jumpNeed(r: any) {
+    const cur = toc[currentIndex];
+    if (cur && r.chId === cur.id && document.querySelector(`#reader [data-bi="${r.blk}"]`)) {
+      if (focusNeed(r.blk, r.kth)) {
+        history.replaceState(
+          null,
+          '',
+          location.pathname + location.search + `#ch-${r.chId}:b${r.blk}:k${r.kth}`,
+        );
+        markCnavActive();
+        showNeedTip(r.kth);
+      }
+      return;
+    }
+    location.hash = `#ch-${r.chId}:b${r.blk}:k${r.kth}`;
+  }
+
+  document.querySelectorAll('.cnav-tab').forEach((b) => {
+    b.addEventListener('click', () => {
+      setCnavScope(((b as HTMLElement).dataset.scope as 'ch' | 'vol') || 'ch');
+      renderCnav();
+    });
+  });
+
+  // 拖拽调宽
+  const CNAV_MIN = 240;
+  const CNAV_MAX = 620;
+  function applyCnavWidth(w: number) {
+    if (cnavGrid) cnavGrid.style.setProperty('--cnav-w', Math.round(w) + 'px');
+  }
+  try {
+    const w0 = Number(localStorage.getItem('dc:cnav-w'));
+    if (w0) applyCnavWidth(Math.min(CNAV_MAX, Math.max(CNAV_MIN, w0)));
+  } catch { /* ignore */ }
+
+  const cnavResizer = document.getElementById('cnavResizer');
+  if (cnavResizer && cnavGrid) {
+    cnavResizer.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startW = cnavEl ? cnavEl.getBoundingClientRect().width : 340;
+      document.body.classList.add('cnav-resizing');
+      const onMove = (ev: PointerEvent) => {
+        const w = startW - (ev.clientX - startX);
+        applyCnavWidth(Math.min(CNAV_MAX, Math.max(CNAV_MIN, w)));
+      };
+      const onUp = () => {
+        document.body.classList.remove('cnav-resizing');
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        try {
+          localStorage.setItem(
+            'dc:cnav-w',
+            String(Math.round(cnavEl ? cnavEl.getBoundingClientRect().width : 340)),
+          );
+        } catch { /* ignore */ }
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    });
+  }
+
+  // 收起 / 展开
+  function setCnavCollapsed(v: boolean) {
+    if (!cnavGrid) return;
+    cnavGrid.classList.toggle('cnav-collapsed', v);
+    const openBtn = document.getElementById('cnavOpen');
+    if (openBtn) openBtn.hidden = !v;
+    syncCollationBar();
+    try {
+      localStorage.setItem('dc:cnav-collapsed', v ? '1' : '0');
+    } catch { /* ignore */ }
+  }
+  document.getElementById('cnavMin')?.addEventListener('click', () => setCnavCollapsed(true));
+  document.getElementById('cnavOpen')?.addEventListener('click', () => setCnavCollapsed(false));
+  try {
+    if (localStorage.getItem('dc:cnav-collapsed') === '1') setCnavCollapsed(true);
+  } catch { /* ignore */ }
+
+  // 宽屏且校勘栏展开时，正文顶部的校勘横幅与其信息重复，隐藏之
+  const collationBarEl = document.getElementById('collationBar');
+  function syncCollationBar() {
+    if (!collationBarEl) return;
+    const wide = window.matchMedia('(min-width: 1181px)').matches;
+    const collapsed = !!cnavGrid?.classList.contains('cnav-collapsed');
+    collationBarEl.hidden = !!(cnavEl && wide && !collapsed);
+  }
+  syncCollationBar();
+  window.addEventListener('resize', syncCollationBar, { passive: true });
 
   function setActive(id: number) {
     document.querySelectorAll('.toc-link').forEach((a) => {
@@ -498,9 +778,11 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     }
     if (!spot) window.scrollTo({ top: 0, behavior: 'smooth' });
     decorate(id);
+    renderCnav();
     if (spot) {
       setTimeout(() => {
         if (focusNeed(spot.bi, spot.kth)) showNeedTip(spot.kth);
+        markCnavActive();
       }, 90);
     }
     try {
@@ -568,8 +850,10 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     if (S0) {
       setTimeout(() => {
         if (focusNeed(S0.bi, S0.kth)) showNeedTip(S0.kth);
+        markCnavActive();
       }, 120);
     }
+    renderCnav();
   }
 
   window.addEventListener('hashchange', () => {
@@ -586,8 +870,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     font-size: 26px;
     letter-spacing: 5px;
     text-align: center;
-    margin: 0 0 30px;
-    padding-bottom: 18px;
+    margin: 0 0 22px;
+    padding-bottom: 14px;
     border-bottom: 1px solid var(--line);
     font-weight: 900;
   }
@@ -616,41 +900,61 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     70% { box-shadow: 0 0 0 9px rgba(212, 160, 42, 0); }
     100% { box-shadow: 0 0 0 0 rgba(212, 160, 42, 0); }
   }
-  .need-tip {
-    position: fixed;
-    left: 50%;
-    bottom: 22px;
-    transform: translateX(-50%);
-    z-index: 80;
+  /* 定位提示：贴在正文顶部的一行状态条，不再悬浮在屏幕底部抢视线 */
+  .need-status {
+    position: sticky;
+    top: calc(var(--nav-h, 64px) + 8px);
+    z-index: 8;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 9px 16px;
-    border-radius: 999px;
-    background: rgba(59, 48, 34, 0.94);
-    color: #f5ecda;
-    font-family: system-ui, sans-serif;
-    font-size: 13px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+    gap: 10px;
+    margin: 0 0 14px;
+    box-shadow: 0 2px 10px rgba(16, 24, 40, .06);
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #fffaf0;
+    border: 1px solid #efe2c6;
+    color: #6b5a3a;
+    font-family: system-ui, -apple-system, 'SF Pro Text', 'PingFang SC', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.5;
+    animation: statusIn 0.22s ease-out both;
   }
-  .need-tip a {
-    color: #ffd479;
+  @keyframes statusIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .need-status[hidden] {
+    display: none;
+  }
+  .need-status a {
+    margin-left: auto;
+    color: #9b2c2c;
+    font-weight: 600;
     text-decoration: none;
+    white-space: nowrap;
   }
-  .need-tip a:hover {
+  .need-status a:hover {
     text-decoration: underline;
   }
-  .need-tip button {
+  .need-status button {
+    flex: none;
     background: none;
     border: none;
     color: #b6a891;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1;
     cursor: pointer;
     padding: 0 2px;
   }
-  .need-tip button:hover {
-    color: #fff;
+  .need-status button:hover {
+    color: #6b5a3a;
   }
 
   .article .ch-collation {
@@ -684,6 +988,310 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     margin: 0 0 24px;
     font-family: system-ui, sans-serif;
   }
+  /* ---------- 第三列：校勘待考面板（同页分列，可拖拽列宽） ---------- */
+  .reader-grid.reader-grid.has-cnav {
+    grid-template-columns: clamp(190px, 13.5vw, 248px) minmax(0, 1fr) var(--cnav-w, 380px);
+    gap: clamp(16px, 1.7vw, 30px);
+  }
+  .reader-grid.reader-grid.has-cnav.cnav-collapsed {
+    grid-template-columns: clamp(190px, 13.5vw, 248px) minmax(0, 1fr);
+  }
+  .reader-grid.reader-grid.has-cnav.cnav-collapsed .cnav {
+    display: none;
+  }
+  .cnav {
+    position: sticky;
+    top: calc(var(--nav-h, 72px) + 12px);
+    height: calc(100vh - var(--nav-h, 72px) - 28px);
+    display: flex;
+    flex-direction: column;
+    background: #fffdf9;
+    border: 1px solid rgba(43, 41, 38, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(43, 41, 38, 0.05), 0 10px 28px rgba(43, 41, 38, 0.06);
+    overflow: visible;
+    font-family: system-ui, -apple-system, 'SF Pro Text', 'PingFang SC', sans-serif;
+  }
+  .cnav-resizer {
+    position: absolute;
+    left: -6px;
+    top: 24px;
+    bottom: 24px;
+    width: 12px;
+    cursor: col-resize;
+    z-index: 3;
+  }
+  .cnav-resizer::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 40px;
+    border-radius: 2px;
+    background: rgba(43, 41, 38, 0.12);
+    transition: background 0.15s;
+  }
+  .cnav-resizer:hover::after {
+    background: #c9a961;
+  }
+  body.cnav-resizing {
+    cursor: col-resize;
+    user-select: none;
+  }
+  .cnav-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 10px 10px 12px;
+    border-bottom: 1px solid rgba(43, 41, 38, 0.07);
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(180deg, #fdfaf3, #fffdf9);
+    flex: none;
+  }
+  .cnav-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: #ecebe6;
+    border-radius: 9px;
+  }
+  .cnav-tab {
+    border: none;
+    background: transparent;
+    color: #5f5a52;
+    font-size: 12.5px;
+    padding: 5px 13px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .cnav-tab.active {
+    background: #fff;
+    color: #2b2926;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  }
+  .cnav-min {
+    border: 1px solid rgba(43, 41, 38, 0.1);
+    background: #fff;
+    color: #8a7a5f;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    cursor: pointer;
+    line-height: 1;
+    flex: none;
+    transition: background 0.16s ease, color 0.16s ease;
+  }
+  .cnav-min:hover {
+    color: #9b2c2c;
+    border-color: rgba(155, 44, 44, 0.25);
+  }
+  .cnav-meta {
+    padding: 7px 12px 8px;
+    font-size: 11.5px;
+    color: #94897a;
+    border-bottom: 1px solid rgba(43, 41, 38, 0.06);
+    letter-spacing: 0.2px;
+    flex: none;
+  }
+  .cnav-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .cnav-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  .cnav-list::-webkit-scrollbar-thumb {
+    background: rgba(43, 41, 38, 0.16);
+    border-radius: 3px;
+  }
+  .cnav-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 8px;
+    padding: 9px 11px;
+    border-radius: 12px;
+    border: 1px solid rgba(43, 41, 38, 0.06);
+    background: #fff;
+    cursor: pointer;
+    transition: background 0.16s ease, border-color 0.16s ease;
+  }
+  .cnav-item + .cnav-item {
+    margin-top: 6px;
+  }
+  .cnav-item:hover {
+    background: #fffdf4;
+    border-color: rgba(184, 147, 74, 0.35);
+  }
+  .cnav-item.active {
+    background: #fff8e8;
+    border-color: #e6cd92;
+    box-shadow: inset 3px 0 0 #d4a02a;
+  }
+  .cnav-item .ci-no {
+    font-size: 11.5px;
+    color: #a08e6d;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .cnav-item .ci-ctx {
+    grid-column: 1 / -1;
+    font-size: 14px;
+    line-height: 1.72;
+    color: #33291c;
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .cnav-item .ci-box {
+    color: #b8a78c;
+  }
+  .cnav-item .ci-hit {
+    font-style: normal;
+    color: #7a4a06;
+    background: #ffe3a3;
+    border-radius: 3px;
+    padding: 0 2px;
+    font-weight: 600;
+  }
+  .cnav-item .ci-tag {
+    grid-column: 2;
+    justify-self: end;
+    font-size: 11.5px;
+    color: #8a6d1f;
+    background: #fdf8e8;
+    border: 1px solid #e8d9ad;
+    border-radius: 999px;
+    padding: 1px 8px;
+    white-space: nowrap;
+  }
+  .cnav-item .ci-tag.gB {
+    color: #9b2c2c;
+    background: #fff5f5;
+    border-color: #e8d2d2;
+  }
+  .cnav-item .ci-tag.gC {
+    color: #2f6b46;
+    background: #f2faf5;
+    border-color: #cfe6d8;
+  }
+  .cnav-empty {
+    padding: 26px 12px;
+    text-align: center;
+    color: #a08e6d;
+    font-size: 13px;
+    list-style: none;
+  }
+  .cnav-foot {
+    flex: none;
+    border-top: 1px solid rgba(43, 41, 38, 0.08);
+    border-radius: 0 0 16px 16px;
+    padding: 10px 12px;
+    text-align: center;
+    font-size: 12.5px;
+    background: rgba(255, 253, 249, 0.92);
+    backdrop-filter: blur(8px);
+  }
+  .cnav-foot a {
+    color: #9b2c2c;
+    text-decoration: none;
+  }
+  .cnav-foot a:hover {
+    text-decoration: underline;
+  }
+  .cnav-open {
+    position: fixed;
+    right: 20px;
+    bottom: 26px;
+    z-index: 70;
+    border: 1px solid rgba(43, 41, 38, 0.1);
+    background: rgba(255, 253, 249, 0.94);
+    backdrop-filter: blur(10px);
+    color: #8a6d1f;
+    font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
+    font-size: 12.5px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(43, 41, 38, 0.12);
+  }
+  .cnav-open:hover {
+    color: #9b2c2c;
+  }
+  @media (max-width: 1440px) {
+    .reader-grid.reader-grid.has-cnav {
+      grid-template-columns: clamp(190px, 13vw, 236px) minmax(0, 1fr) var(--cnav-w, 330px);
+    }
+  }
+  @media (max-width: 1180px) {
+    .reader-grid.reader-grid.has-cnav {
+      grid-template-columns: clamp(190px, 21vw, 240px) minmax(0, 1fr);
+    }
+    .reader-grid.reader-grid.has-cnav .cnav {
+      grid-column: 1 / -1;
+      position: static;
+      height: auto;
+      max-height: 460px;
+      margin-top: 8px;
+    }
+    .cnav-resizer {
+      display: none;
+    }
+    .cnav-list {
+      max-height: 340px;
+    }
+  }
+
+  /* 手机 / 窄窗：目录与校勘栏退居正文上下，单列铺满 */
+  @media (max-width: 860px) {
+    .reader-shell {
+      padding: 0 14px 72px;
+    }
+    .reader-grid,
+    .reader-grid.reader-grid.has-cnav {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+    }
+    .toc {
+      position: static;
+      height: auto;
+      max-height: 260px;
+      padding: 12px 12px 8px;
+    }
+    .toc-head h2 {
+      font-size: 15px;
+    }
+    .content {
+      min-width: 0;
+    }
+    .reader-grid.reader-grid.has-cnav .cnav {
+      grid-column: auto;
+      max-height: none;
+      height: auto;
+      margin-top: 4px;
+    }
+    .cnav-list {
+      max-height: 60vh;
+    }
+    .article {
+      max-width: none;
+      margin: 0;
+    }
+    .article :global(p) {
+      margin-bottom: 0.9em;
+    }
+  }
+
   :root {
     --reader-font: 19px;
   }
@@ -691,9 +1299,9 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
 
 <style>
   .reader-shell {
-    max-width: 1240px;
+    max-width: 1720px;
     margin: 0 auto;
-    padding: 0 4vw 80px;
+    padding: 0 clamp(18px, 2.2vw, 44px) 96px;
   }
 
   .progress-wrap {
@@ -740,22 +1348,23 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
 
   .reader-grid {
     display: grid;
-    grid-template-columns: 268px minmax(0, 1fr);
-    gap: 40px;
+    grid-template-columns: clamp(196px, 14vw, 252px) minmax(0, 1fr);
+    gap: clamp(18px, 2vw, 34px);
     align-items: start;
   }
 
   /* ---------- 目录 ---------- */
   .toc {
     position: sticky;
-    top: 18px;
-    max-height: calc(100vh - 40px);
+    top: calc(var(--nav-h, 72px) + 12px);
+    height: calc(100vh - var(--nav-h, 72px) - 28px);
     overflow-y: auto;
     background: var(--white);
     border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 18px 6px 18px 16px;
-    box-shadow: var(--shadow-sm);
+    border-radius: 16px;
+    padding: 16px 6px 16px 14px;
+    box-shadow: 0 1px 2px rgba(43, 41, 38, 0.05), 0 8px 24px rgba(43, 41, 38, 0.04);
+    font-family: system-ui, -apple-system, 'SF Pro Text', 'PingFang SC', sans-serif;
   }
   .toc::-webkit-scrollbar {
     width: 6px;
@@ -869,11 +1478,12 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     gap: 12px;
     padding: 10px 0 14px;
     border-bottom: 1px solid var(--line);
-    margin-bottom: 26px;
+    margin-bottom: 18px;
     position: sticky;
-    top: 0;
+    top: var(--nav-h, 72px);
     background: linear-gradient(180deg, var(--paper) 78%, rgba(247, 242, 232, 0.7));
     z-index: 20;
+    font-family: system-ui, -apple-system, 'SF Pro Text', 'PingFang SC', sans-serif;
   }
   .tb-left {
     min-width: 0;
@@ -953,30 +1563,34 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 8px;
-    background: #fdf8e8;
-    border: 1px solid #e8d9ad;
-    border-left: 3px solid var(--gold, #c8a44a);
-    border-radius: 6px;
-    padding: 9px 14px;
-    margin: 0 0 26px;
-    font-family: system-ui, sans-serif;
-    font-size: 13px;
-    line-height: 1.6;
-    color: #6b5a2a;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--line);
+    border-radius: 0;
+    padding: 0 0 10px;
+    margin: 0 0 20px;
+    font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #8a7a5f;
+  }
+  .collation-bar[hidden] {
+    display: none;
   }
   .collation-bar .cb-tag {
     flex: none;
-    font-size: 11.5px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 600;
     letter-spacing: 1px;
-    color: #fff;
-    background: #b08d3f;
-    border-radius: 3px;
+    color: #8a6d1f;
+    background: #f4ecda;
+    border-radius: 4px;
     padding: 1px 6px;
   }
   .collation-bar .cb-text {
-    flex: 1 1 220px;
+    flex: 1 1 240px;
+    min-width: 0;
   }
   .collation-bar .cb-link {
     flex: none;
@@ -992,10 +1606,12 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   .article {
     font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
     font-size: var(--reader-font);
-    line-height: 2.05;
+    line-height: 1.9;
     color: var(--ink);
     letter-spacing: 0.015em;
     transition: opacity 0.18s ease;
+    max-width: 52em;
+    margin: 0 auto;
   }
   .article.loading {
     opacity: 0.35;
@@ -1005,12 +1621,12 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
 
   .article :global(.bk-p) {
     text-indent: 2em;
-    margin: 0 0 0.75em;
+    margin: 0 0 0.55em;
   }
   .article :global(.bk-h) {
     font-weight: 700;
     letter-spacing: 3px;
-    margin: 1.8em 0 0.8em;
+    margin: 1.4em 0 0.6em;
     text-align: center;
   }
   .article :global(.bk-h.lv2) {
@@ -1021,7 +1637,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     color: var(--ink-soft);
   }
   .article :global(.bk-q) {
-    margin: 0.8em 0 1.1em;
+    margin: 0.6em 0 0.85em;
     padding: 0.4em 0 0.4em 1.2em;
     border-left: 3px solid var(--line);
     color: var(--ink-soft);
@@ -1043,7 +1659,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    margin-top: 48px;
+    margin-top: 34px;
     padding-top: 24px;
     border-top: 1px solid var(--line);
   }

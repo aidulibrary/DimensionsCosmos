@@ -64,6 +64,11 @@ const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
   -->
 
   <style is:inline>
+    /* 站点顶栏高度：供各页 sticky 元素（目录、校勘栏、工具条）对齐 */
+    :root {
+      --nav-h: 82px;
+    }
+
     /* 已安装为 App（独立窗口）时的安全区适配：避开刘海与底部手势条 */
     @supports (padding: env(safe-area-inset-bottom)) {
       body {
@@ -108,6 +113,20 @@ const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
     <p style="margin-top:4px">原文 © 中文维基文库（CC BY-SA 4.0）及其他开放来源 · AI 解读内容由免费 API 降级链生成</p>
     <p style="margin-top:4px">浇灌自由生长的文明 · 预览版 v0.5 · <a href="https://github.com/aidulibrary/DimensionsCosmos">GitHub</a> · <a href={base + 'privacy'}>隐私政策 Privacy</a></p>
   </footer>
+
+  <script is:inline>
+    // 顶栏实际高度写入 --nav-h，供 sticky 定位（含安全区/换行自适应）
+    (function () {
+      var nav = document.querySelector('body > nav');
+      if (!nav) return;
+      function apply() {
+        document.documentElement.style.setProperty('--nav-h', Math.round(nav.getBoundingClientRect().height) + 'px');
+      }
+      apply();
+      window.addEventListener('resize', apply, { passive: true });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(apply);
+    })();
+  </script>
 
   <script is:inline>
     // Service Worker 注册：等页面加载完再注册，不抢首屏带宽

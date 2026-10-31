@@ -1,0 +1,378 @@
+---
+// 校勘待考清单页 /collation/tj-review/
+// 设计要点（iOS 风格，与阅读页共用站点顶栏）：
+//   1) 全站统一 BaseLayout 顶栏，可与《资治通鉴》原文互相跳转
+//   2) 顶部汇总条 + 分段控件（等级筛选）+ 搜索，均吸顶
+//   3) 每行整行可点，跳阅读页缺字深链；行内高亮 □ 与建议字
+//   4) 支持 ?need=<anchor> 或 #<anchor> 回跳高亮（阅读页 ↔ 清单页闭环）
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+const base = Astro.site?.pathname ?? '/';
+
+type Row = {
+  no: number;
+  vol: number;
+  vol3: string;
+  anchor: string;
+  ctx: string;
+  src: string;
+  srcCand: string;
+  vote: string;
+  voteCand: string;
+  wiki: string;
+  grade: string;
+  gradeTxt: string;
+  suggest: string;
+  pos: number;
+  chap: string;
+  chId: number;
+  blk: number;
+  kth: number;
+  href: string;
+  mark: string;
+  cxk: number;
+};
+
+let rows: Row[] = [];
+try {
+  const raw = readFileSync(join(process.cwd(), 'public', 'collation', 'tj-review', 'data.json'), 'utf-8');
+  rows = JSON.parse(raw) as Row[];
+} catch {
+  rows = [];
+}
+
+const counts: Record<string, number> = { A: 0, B: 0, C: 0 };
+for (const r of rows) if (counts[r.grade] !== undefined) counts[r.grade] += 1;
+const volCount = new Set(rows.map((r) => r.vol)).size;
+const readHref = `${base}books/17-资治通鉴/read/`;
+
+const ctxParts = (ctx: string) => ctx.split('□');
+---
+
+<BaseLayout title="资治通鉴 · 校勘待考清单" description="《资治通鉴》正文缺字待考清单，逐条附源本、他校、站内检索线索，可一键跳回原文缺字位置。">
+  <main class="cr">
+    <header class="cr-head">
+      <a class="cr-back" href={readHref}>← 返回原文</a>
+      <h1>校勘待考清单</h1>
+      <p class="cr-sub">
+        共 <b>{rows.length}</b> 处缺字，分布 <b>{volCount}</b> 卷；A 级 {counts.A} · B 级 {counts.B} · C 级 {counts.C}
+      </p>
+    </header>
+
+    <div class="cr-tools" id="crTools">
+      <div class="cr-seg" role="tablist" aria-label="按等级筛选">
+        <button type="button" role="tab" class="on" data-g="all">全部 {rows.length}</button>
+        <button type="button" role="tab" data-g="A">A {counts.A}</button>
+        <button type="button" role="tab" data-g="B">B {counts.B}</button>
+        <button type="button" role="tab" data-g="C">C {counts.C}</button>
+      </div>
+      <input class="cr-search" id="crSearch" type="search" placeholder="搜索卷次 / 缺字上下文 / 建议字" />
+    </div>
+
+    <ol class="cr-list" id="crList">
+      {rows.map((r) => (
+        <li class="cr-row" id={r.anchor} data-g={r.grade} data-anchor={r.anchor}>
+          <a class="cr-hit" href={r.href} aria-label={`跳到原文 卷${r.vol} 第 ${r.no} 处`}>
+            <div class="cr-meta">
+              <span class="cr-no">#{r.no}</span>
+              <span class="cr-vol">卷 {r.vol3 || r.vol}</span>
+              <span class={`cr-grade g-${r.grade}`}>{r.grade}</span>
+            </div>
+            <div class="cr-body">
+              <p class="cr-ctx">
+                {ctxParts(r.ctx).map((seg, i) => (
+                  <>{i > 0 && <em class="cr-gap">□</em>}{seg}</>
+                ))}
+              </p>
+              <p class="cr-note">
+                {r.suggest ? <><span class="cr-tag">建议</span><b class="cr-sug">{r.suggest}</b></> : <><span class="cr-tag">建议</span><span class="cr-sug none">暂无</span></>}
+                <span class="cr-sep">·</span>
+                <span class="cr-src">{r.gradeTxt || r.src}</span>
+              </p>
+            </div>
+            <span class="cr-go">原文 →</span>
+          </a>
+          <div class="cr-acts">
+            <button type="button" class="cr-copy" data-copy={`卷${r.vol} #${r.no}｜${r.mark}｜建议：${r.suggest || '待考'}`}>复制校记</button>
+            {r.wiki && <a class="cr-wiki" href={r.wiki} target="_blank" rel="noopener">维基</a>}
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <p class="cr-empty" id="crEmpty" hidden>没有匹配的条目。</p>
+  </main>
+</BaseLayout>
+
+<style>
+  .cr {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 26px clamp(16px, 2vw, 34px) 90px;
+  }
+
+  .cr-head { padding: 4px 6px 20px; }
+  .cr-back {
+    display: inline-block;
+    font-size: 13px;
+    color: var(--muted, #6b7280);
+    text-decoration: none;
+    padding: 5px 12px 5px 10px;
+    border-radius: 999px;
+    background: #eef0f3;
+  }
+  .cr-back:hover { background: #e6e8ec; color: #111827; }
+  .cr-head h1 {
+    margin: 14px 0 6px;
+    font-size: clamp(24px, 2.4vw, 32px);
+    font-weight: 650;
+    letter-spacing: .01em;
+  }
+  .cr-sub { margin: 0; font-size: 13.5px; color: #6b7280; }
+  .cr-sub b { color: #111827; font-weight: 600; }
+
+  .cr-tools {
+    position: sticky;
+    top: calc(var(--nav-h, 64px) + 8px);
+    z-index: 20;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 14px;
+    background: rgba(242, 243, 245, .86);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-radius: 14px;
+  }
+
+  .cr-seg {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    background: #e8eaee;
+    border-radius: 10px;
+    flex: none;
+  }
+  .cr-seg button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: #4b5563;
+    padding: 6px 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .16s, color .16s, box-shadow .16s;
+  }
+  .cr-seg button:hover { color: #111827; }
+  .cr-seg button.on {
+    background: #fff;
+    color: #111827;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
+  }
+
+  .cr-search {
+    flex: 1 1 auto;
+    min-width: 0;
+    font: inherit;
+    font-size: 13.5px;
+    padding: 9px 14px;
+    border: 1px solid #d9dce1;
+    border-radius: 10px;
+    background: #fff;
+    outline: none;
+  }
+  .cr-search:focus { border-color: #9aa3af; box-shadow: 0 0 0 3px rgba(0, 0, 0, .05); }
+
+  .cr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+
+  .cr-row {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid #e6e8ec;
+    border-radius: 14px;
+    padding: 4px 6px 4px 0;
+    transition: border-color .16s, box-shadow .16s, transform .16s;
+  }
+  .cr-row:hover { border-color: #d3d7dd; box-shadow: 0 3px 12px rgba(16, 24, 40, .06); }
+  .cr-row:target,
+  .cr-row.is-hit {
+    border-color: #f0b429;
+    box-shadow: 0 0 0 3px rgba(240, 180, 41, .18);
+  }
+
+  .cr-hit {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 8px 12px 14px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .cr-meta { display: flex; flex-direction: column; gap: 5px; }
+  .cr-no { font-size: 12px; color: #9aa3af; font-variant-numeric: tabular-nums; }
+  .cr-vol { font-size: 13.5px; font-weight: 600; color: #111827; font-variant-numeric: tabular-nums; }
+  .cr-grade {
+    align-self: flex-start;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 4px 7px;
+    border-radius: 6px;
+    letter-spacing: .04em;
+  }
+  .cr-grade.g-A { background: #e7f4ec; color: #1a7f45; }
+  .cr-grade.g-B { background: #fff4e0; color: #a86400; }
+  .cr-grade.g-C { background: #fdeaea; color: #b3261e; }
+
+  .cr-body { min-width: 0; }
+  .cr-ctx {
+    margin: 0;
+    font-size: 15.5px;
+    line-height: 1.75;
+    color: #1f2937;
+    letter-spacing: .01em;
+    word-break: break-all;
+  }
+  .cr-gap {
+    font-style: normal;
+    display: inline-block;
+    min-width: 1em;
+    margin: 0 2px;
+    color: #b3261e;
+    background: #fdeaea;
+    border-radius: 4px;
+    text-align: center;
+  }
+  .cr-note {
+    margin: 6px 0 0;
+    font-size: 12.5px;
+    color: #6b7280;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .cr-tag {
+    font-size: 11px;
+    color: #6b7280;
+    background: #f1f2f4;
+    border-radius: 5px;
+    padding: 2px 6px;
+  }
+  .cr-sug { font-size: 14px; color: #1f2937; font-weight: 600; }
+  .cr-sug.none { font-weight: 400; color: #9aa3af; }
+  .cr-sep { color: #d1d5db; }
+  .cr-src { color: #6b7280; }
+
+  .cr-go { font-size: 12.5px; color: #9aa3af; white-space: nowrap; }
+
+  .cr-acts {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding-right: 6px;
+  }
+  .cr-copy, .cr-wiki {
+    appearance: none;
+    border: 1px solid #e0e3e8;
+    background: #f7f8fa;
+    color: #4b5563;
+    font: inherit;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    white-space: nowrap;
+    transition: background .16s, color .16s;
+  }
+  .cr-copy:hover, .cr-wiki:hover { background: #eef0f3; color: #111827; }
+
+  .cr-empty { text-align: center; color: #9aa3af; font-size: 13.5px; padding: 40px 0; }
+
+  @media (max-width: 860px) {
+    .cr-tools { flex-direction: column; align-items: stretch; }
+    .cr-hit { grid-template-columns: 84px minmax(0, 1fr); }
+    .cr-go { display: none; }
+    .cr-acts { flex-direction: row; padding: 0 8px 10px 14px; }
+  }
+</style>
+
+<script>
+  const list = document.getElementById('crList') as HTMLElement | null;
+  const search = document.getElementById('crSearch') as HTMLInputElement | null;
+  const emptyEl = document.getElementById('crEmpty') as HTMLElement | null;
+  const segBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.cr-seg button'));
+  let grade = 'all';
+
+  function apply() {
+    if (!list) return;
+    const q = (search?.value || '').trim().toLowerCase();
+    let shown = 0;
+    list.querySelectorAll<HTMLElement>('.cr-row').forEach((row) => {
+      const okG = grade === 'all' || row.dataset.g === grade;
+      const okQ = !q || (row.textContent || '').toLowerCase().includes(q);
+      const vis = okG && okQ;
+      row.hidden = !vis;
+      if (vis) shown += 1;
+    });
+    if (emptyEl) emptyEl.hidden = shown > 0;
+  }
+
+  segBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      grade = btn.dataset.g || 'all';
+      segBtns.forEach((b) => b.classList.toggle('on', b === btn));
+      apply();
+    });
+  });
+  search?.addEventListener('input', apply);
+
+  // 复制校记
+  document.querySelectorAll<HTMLButtonElement>('.cr-copy').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const text = btn.dataset.copy || '';
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      const old = btn.textContent;
+      btn.textContent = '已复制';
+      window.setTimeout(() => { btn.textContent = old; }, 1200);
+    });
+  });
+
+  // 回跳高亮：?need=vol039-7847 或 #vol039-7847
+  const need = new URLSearchParams(location.search).get('need');
+  const anchor = need || decodeURIComponent(location.hash.replace(/^#/, ''));
+  if (anchor) {
+    const row = document.getElementById(anchor);
+    if (row) {
+      row.classList.add('is-hit');
+      row.scrollIntoView({ block: 'center' });
+    }
+  }
+</script>
