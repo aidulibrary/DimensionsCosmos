@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { OPERATOR } from '../config/commerce';
+const base = Astro.site?.pathname ?? '/';
+const updated = '2026-10-31';
+---
+
+<BaseLayout title="服务条款 · 维点图书馆">
+  <section class="doc">
+    <h1>服务条款</h1>
+    <p class="meta">最后更新：{updated}</p>
+
+    <h2>一、服务内容</h2>
+    <p>
+      本站提供中国古典文献的在线阅读与辅助解读服务，包括：原文全文阅读（源自中文维基文库等开放许可来源）、
+      章节目录与卷次整理、以及由程序与语言模型辅助生成的解读文本。
+    </p>
+    <p>
+      站内实际可访问的内容以页面呈现为准。尚未生成或尚未上架的内容，站点不展示购买入口，也不收取任何费用。
+    </p>
+
+    <h2>二、内容性质与使用限制</h2>
+    <ul>
+      <li>原文底本多来自中文维基文库（CC BY-SA 4.0）等开放许可来源，转载与再利用需遵守相应许可协议。</li>
+      <li>AI 辅助生成的解读内容仅供参考，<b>不构成学术定论、校勘结论或任何形式的专业建议</b>，引用前请自行核对原始文献。</li>
+      <li>禁止将本站内容用于违法用途，或以自动化方式批量抓取后转售。</li>
+    </ul>
+
+    <h2>三、AI 生成内容标识</h2>
+    <p>
+      按《生成式人工智能服务管理暂行办法》相关要求，本站对 AI 辅助生成的内容作显著标识：
+      解读类页面在正文顶部标注「AI 辅助生成」，并注明生成模型与生成时间（如可得）。
+      此类内容经人工抽查但未逐句审校，可能存在错漏。
+    </p>
+
+    <h2>四、付费与订单</h2>
+    <p>
+      当前阶段本站尚未开放线上收款，站内所有内容均不收费。开放收费后，价格、交付范围与退款规则以购买页展示为准，
+      并适用 <a href={`${base}refund`}>退款说明</a>。
+    </p>
+
+    <h2>五、责任限制</h2>
+    <p>
+      本站按「现状」提供服务，不对内容的完整性、准确性作明示或默示担保。因使用本站内容产生的直接或间接损失，
+      在法律允许范围内不承担赔偿责任。因不可抗力、网络故障、第三方服务中断导致的服务不可用，本站不承担违约责任。
+    </p>
+
+    <h2>六、条款变更</h2>
+    <p>本站可能不时更新本条款，更新后在页面公示即生效。继续使用即视为接受更新后的条款。</p>
+
+    <h2>七、联系与主体信息</h2>
+    <ul>
+      <li>运营方：{OPERATOR.legalName}</li>
+      <li>联系邮箱：{OPERATOR.email}</li>
+      <li>项目仓库：<a href={OPERATOR.repo}>{OPERATOR.repo.replace('https://', '')}</a></li>
+      <li>服务地区：{OPERATOR.region}</li>
+    </ul>
+    <p class="hint">
+      说明：运营主体与联系方式字段由站点配置（<code>src/config/commerce.ts</code>）统一提供，
+      正式对外收费前必须补齐真实信息。
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .doc { max-width: 780px; margin: 0 auto; padding: 56px 6vw 90px; }
+  .doc h1 { font-size: 30px; letter-spacing: 5px; margin-bottom: 6px; }
+  .doc .meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 32px; }
+  .doc h2 { font-size: 17px; letter-spacing: 2px; margin: 32px 0 12px; padding-left: 12px; border-left: 3px solid var(--cinnabar); }
+  .doc p, .doc li { font-size: 14.5px; line-height: 1.95; color: var(--ink); }
+  .doc p { margin-bottom: 12px; }
+  .doc ul { padding-left: 20px; margin-bottom: 12px; }
+  .doc li { margin-bottom: 6px; }
+  .doc a { color: var(--cinnabar); }
+  .doc b { color: var(--cinnabar-deep); }
+  .hint { font-size: 12.5px !important; color: var(--ink-soft) !important; background: var(--paper-deep); padding: 12px 14px; border-radius: 8px; }
+  .hint code { font-size: 12px; background: rgba(0,0,0,.05); padding: 1px 5px; border-radius: 3px; }
+</style>

@@ -42,11 +42,8 @@ const guide = (book?.guides as Guide[] ?? []).find((g) => g.method_id === method
 const methodInfo = getMethodInfo(method ?? '');
 const allGuides = (book?.guides as Guide[] ?? []).map((g) => g.method_id);
 
+// 有内容就直出（当前全部免费）；无内容时按「未上架」展示，不出现任何价格或购买入口
 const showPaywall = !guide && !methodInfo.free;
-const zhuxiGuide = (book?.guides as Guide[] ?? []).find((g) => g.method_id === 'zhuxi');
-const previewText: string | undefined = zhuxiGuide
-  ? (zhuxiGuide.content as Record<string, unknown>)?.structure as string | undefined
-  : undefined;
 const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书馆`;
 ---
 
@@ -56,7 +53,8 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
       <PaywallGate
         methodId={method ?? ''}
         bookSlug={slug ?? ''}
-        freePreview={previewText}
+        bookTitle={book.seed_title}
+        readyMethods={allGuides}
       />
     </section>
   </BaseLayout>
@@ -76,16 +74,16 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
         <div class="cs-divider"></div>
 
         <div class="cs-status">
-          <span class="cs-badge">⏳ AI 解读生成中</span>
+          <span class="cs-badge">尚未上架</span>
         </div>
         <p class="cs-desc">
-          这篇解读正在排队等待本地 Ollama（qwen2.5:1.5b）逐条生成。
-          每条约需 4-5 分钟，全部 28 部书 × 10 种方法预计 2 天内完成。
+          《{book.seed_title}》的这一视角还在整理中，尚未生成内容，因此不提供购买入口、也不收取费用。
+          在它上架前，可以先用其他视角或直接阅读原文。
         </p>
 
         <div class="cs-actions">
           <a href={`${base}books/${slug}`} class="btn-secondary">← 返回书详情</a>
-          <a href={`https://zh.wikisource.org/wiki/${book.seed_title}`} class="btn-primary" target="_blank" rel="noopener">📖 先看维基文库原文</a>
+          <a href={`${base}books/${slug}/read`} class="btn-primary">阅读原文全文</a>
         </div>
 
         <!-- 这本书已有的其他解读 -->

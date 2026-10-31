@@ -1,5 +1,6 @@
 ---
 import { getAllMethods } from '../lib/data';
+import { PAY_ENABLED } from '../config/commerce';
 
 const methods = getAllMethods();
 const freeMethods = methods.filter((m) => m.free);
@@ -46,29 +47,35 @@ const { bookSlug, selectedMethod = '', unlockedMethods = [] } = Astro.props;
 
   <!-- 付费方法 -->
   <div class="method-group">
-    <h3 class="group-label">🔐 付费解锁（¥3.9–12.9 / 篇）</h3>
+    <h3 class="group-label">
+      {PAY_ENABLED
+        ? `🔐 付费解锁（¥${Math.min(...paidMethods.map((m) => m.price))}–${Math.max(...paidMethods.map((m) => m.price))} / 篇）`
+        : '🔓 其他大师视角（部分尚未上架）'}
+    </h3>
     <div class="method-grid">
       {paidMethods.map((m) => {
         const isActive = selectedMethod === m.id;
-        const isUnlocked = unlockedMethods.includes(m.id);
-        const href = isUnlocked
-          ? `${base}read/${bookSlug}/${m.id}`
-          : `${base}pricing?book=${bookSlug}&method=${m.id}`;
+        // 未开放销售期：有内容的直出阅读，没有内容的进「尚未上架」说明页
+        const hasContent = unlockedMethods.includes(m.id);
+        const href = PAY_ENABLED && !hasContent
+          ? `${base}pricing?book=${bookSlug}&method=${m.id}`
+          : `${base}read/${bookSlug}/${m.id}`;
         return (
-          <a href={href} class={`method-chip paid ${isActive ? 'active' : ''} ${isUnlocked ? 'unlocked' : 'locked'}`}>
+          <a href={href} class={`method-chip paid ${isActive ? 'active' : ''} ${hasContent ? 'unlocked' : 'locked'}`}>
             <span class="chip-icon">{m.icon}</span>
             <div class="chip-body">
               <strong>{m.name_zh}</strong>
               <small>{m.era}</small>
               <p>{m.summary}</p>
               <div class="chip-footer">
-                {isUnlocked
-                  ? <span class="chip-check">已解锁 ✓</span>
-                  : <span class="chip-price">¥{m.price}</span>
-                }
+                {hasContent
+                  ? <span class="chip-check">{PAY_ENABLED ? '已解锁 ✓' : '免费可读 ✓'}</span>
+                  : PAY_ENABLED
+                    ? <span class="chip-price">¥{m.price}</span>
+                    : <span class="chip-price chip-pending">尚未上架</span>}
               </div>
             </div>
-            {!isUnlocked && <div class="lock-overlay"><span>🔒</span></div>}
+            {PAY_ENABLED && !hasContent && <div class="lock-overlay"><span>🔒</span></div>}
           </a>
         );
       })}
@@ -143,6 +150,9 @@ const { bookSlug, selectedMethod = '', unlockedMethods = [] } = Astro.props;
   }
   .chip-check {
     font-size: 12px; color: var(--gold, #b8934a); font-weight: 600;
+  }
+  .chip-pending {
+    background: #efece6; color: #8a8478; font-weight: 600;
   }
 
   .lock-overlay {

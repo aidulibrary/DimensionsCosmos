@@ -1,0 +1,95 @@
+---
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { OPERATOR, PAY_ENABLED } from '../config/commerce';
+
+const base = Astro.site?.pathname ?? '/';
+const idx = JSON.parse(
+  readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8'),
+) as { generatedAt: string; total: number; ok: number; works: any[]; guidesCount: number };
+
+const works = (idx.works ?? []).filter((w: any) => w.ok);
+const chapters = works.reduce((s: number, w: any) => s + (w.chapter_count || 0), 0);
+const chars = works.reduce((s: number, w: any) => s + (w.total_chars || 0), 0);
+const generatedAt = new Date(idx.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+---
+
+<BaseLayout title="关于本站 · 维点图书馆">
+  <section class="doc">
+    <h1>关于维点图书馆</h1>
+    <p class="meta">古籍 · 全文 · 多视角解读</p>
+
+    <h2>本站是什么</h2>
+    <p>
+      一个中国古典文献的在线阅读库，把「读原文」和「换视角读」放在同一处：
+      原文按卷次与章节整理，可全文检索式浏览；解读用不同的读书方法（朱熹读书法、费曼、苏格拉底、
+      钱钟书、苏轼、王阳明、阿伦特、伊本·赫勒敦等）逐篇生成，方便对照不同进路。
+    </p>
+
+    <h2>当前收录规模（实时取自构建数据）</h2>
+    <div class="stat-grid">
+      <div><b>{works.length}</b><span>部书</span></div>
+      <div><b>{chapters.toLocaleString()}</b><span>章正文</span></div>
+      <div><b>{(chars / 10000).toFixed(0)}</b><span>万字</span></div>
+      <div><b>{idx.guidesCount}</b><span>篇 AI 解读</span></div>
+    </div>
+    <p class="small">数据生成时间：{generatedAt}（北京时间）</p>
+
+    <h2>内容来源与许可</h2>
+    <ul>
+      <li>原文底本主要来自中文维基文库（CC BY-SA 4.0）等开放许可来源，经清洗流程去除维基标记、注脚与模板残留。</li>
+      <li>底本存在缺章、缺字（以 □ 标注）或篇幅异常时，页面会显式提示，<b>不做补写</b>，以免混淆原文。</li>
+      <li>原文的再分发需遵守原许可协议（署名—相同方式共享）。</li>
+    </ul>
+
+    <h2>AI 内容的边界</h2>
+    <ul>
+      <li>解读类内容由语言模型辅助生成，页面顶部标注「AI 辅助生成」，并注明生成模型与时间。</li>
+      <li>AI 解读用于提供阅读路径与提问角度，<b>不是校勘结论，也不能替代原典与研究文献</b>。</li>
+      <li>未生成的书目不会展示任何购买入口；上架清单以 <a href={`${base}pricing`}>定价页</a> 为准。</li>
+    </ul>
+
+    <h2>收费状态</h2>
+    <p>
+      {PAY_ENABLED
+        ? '已开放线上销售，价格与交付范围见定价页。'
+        : '尚未开放线上收款，站内全部内容免费阅读，也不会以任何形式向您索取款项。'}
+    </p>
+
+    <h2>运营主体与联系</h2>
+    <ul>
+      <li>运营方：{OPERATOR.legalName}</li>
+      <li>联系邮箱：{OPERATOR.email}</li>
+      <li>项目仓库：<a href={OPERATOR.repo}>{OPERATOR.repo.replace('https://', '')}</a></li>
+      <li>服务地区：{OPERATOR.region}</li>
+      <li>相关条款：<a href={`${base}terms`}>服务条款</a> · <a href={`${base}refund`}>退款说明</a> · <a href={`${base}privacy`}>隐私政策</a></li>
+    </ul>
+
+    <p class="hint">
+      运营主体与联系邮箱当前为待填占位，集中在 <code>src/config/commerce.ts</code> 中维护；
+      对外正式运营（尤其收费）前必须补齐真实信息。
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .doc { max-width: 780px; margin: 0 auto; padding: 56px 6vw 90px; }
+  .doc h1 { font-size: 30px; letter-spacing: 5px; margin-bottom: 6px; }
+  .doc .meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 30px; letter-spacing: 1px; }
+  .doc h2 { font-size: 17px; letter-spacing: 2px; margin: 32px 0 12px; padding-left: 12px; border-left: 3px solid var(--cinnabar); }
+  .doc p, .doc li { font-size: 14.5px; line-height: 1.95; color: var(--ink); }
+  .doc p { margin-bottom: 12px; }
+  .doc ul { padding-left: 20px; margin-bottom: 12px; }
+  .doc li { margin-bottom: 6px; }
+  .doc a { color: var(--cinnabar); }
+  .doc b { color: var(--cinnabar-deep); }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0 8px; }
+  .stat-grid div { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px 8px; text-align: center; }
+  .stat-grid b { display: block; font-size: 22px; color: var(--cinnabar); }
+  .stat-grid span { font-size: 12px; color: var(--ink-soft); }
+  .small { font-size: 12.5px !important; color: var(--ink-soft) !important; }
+  .hint { font-size: 12.5px !important; color: var(--ink-soft) !important; background: var(--paper-deep); padding: 12px 14px; border-radius: 8px; }
+  .hint code { font-size: 12px; background: rgba(0,0,0,.05); padding: 1px 5px; border-radius: 3px; }
+  @media (max-width: 640px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>

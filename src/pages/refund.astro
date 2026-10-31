@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { OPERATOR } from '../config/commerce';
+const base = Astro.site?.pathname ?? '/';
+const updated = '2026-10-31';
+---
+
+<BaseLayout title="退款说明 · 维点图书馆">
+  <section class="doc">
+    <h1>退款说明</h1>
+    <p class="meta">最后更新：{updated} · 适用于本站在线销售的数字化内容</p>
+
+    <div class="callout">
+      当前本站尚未开放线上收款，不存在任何订单，也不会向您索取款项。
+      本页为开放销售后的规则预告，届时以购买页展示为准。
+    </div>
+
+    <h2>一、可退款情形</h2>
+    <ul>
+      <li><b>内容与页面描述不符</b>：例如购买「某书 × 某方法」的解读，实际获得的是其他内容或明显残缺。</li>
+      <li><b>无法访问</b>：付款后经我方排查仍无法打开所购内容，且无法提供替代交付方式。</li>
+      <li><b>重复支付</b>：同一订单因支付渠道问题被重复扣款，重复部分全额退回。</li>
+      <li><b>未交付</b>：付款成功但内容未在约定时间内解锁。</li>
+    </ul>
+
+    <h2>二、不支持退款的情形</h2>
+    <ul>
+      <li>数字化内容已完整交付并解锁后，以「不符合个人预期」「已自行读完」等主观理由提出的退款请求。</li>
+      <li>因违反服务条款（如批量抓取、转售）被限制访问的。</li>
+      <li>原文类内容本身属于开放许可来源，对其学术观点、版本差异提出的争议不构成退款理由。</li>
+    </ul>
+
+    <h2>三、申请方式与时限</h2>
+    <p>
+      自付款之日起 <b>7 个自然日内</b>提出申请。请提供订单号（或支付凭证截图）与问题说明，
+      发送至 {OPERATOR.email}，或通过 <a href={OPERATOR.repo}>项目仓库</a>提交。
+      我方在收到申请后 3 个工作日内答复，确认符合退款条件的，按原支付渠道退回，到账时间以支付渠道为准。
+    </p>
+
+    <h2>四、争议解决</h2>
+    <p>
+      双方应先友好协商；协商不成的，可向运营方所在地有管辖权的人民法院提起诉讼，
+      或通过支付渠道的争议处理机制申请介入。
+    </p>
+
+    <h2>五、相关条款</h2>
+    <p>完整使用规则见 <a href={`${base}terms`}>服务条款</a>。</p>
+
+    <p class="hint">
+      联系邮箱与运营主体信息请见 <a href={`${base}about`}>关于本站</a>；
+      正式开放收费前这些字段必须补为真实可用的联系方式。
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .doc { max-width: 780px; margin: 0 auto; padding: 56px 6vw 90px; }
+  .doc h1 { font-size: 30px; letter-spacing: 5px; margin-bottom: 6px; }
+  .doc .meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 28px; }
+  .doc h2 { font-size: 17px; letter-spacing: 2px; margin: 30px 0 12px; padding-left: 12px; border-left: 3px solid var(--cinnabar); }
+  .doc p, .doc li { font-size: 14.5px; line-height: 1.95; color: var(--ink); }
+  .doc p { margin-bottom: 12px; }
+  .doc ul { padding-left: 20px; margin-bottom: 12px; }
+  .doc li { margin-bottom: 6px; }
+  .doc a { color: var(--cinnabar); }
+  .doc b { color: var(--cinnabar-deep); }
+  .callout {
+    background: #fdf8e8; border: 1px solid #e8d9ad; border-left: 4px solid var(--gold);
+    border-radius: 8px; padding: 14px 18px; font-size: 14px; line-height: 1.8; color: #6b5a2a;
+    margin-bottom: 24px;
+  }
+  .hint { font-size: 12.5px !important; color: var(--ink-soft) !important; background: var(--paper-deep); padding: 12px 14px; border-radius: 8px; }
+</style>

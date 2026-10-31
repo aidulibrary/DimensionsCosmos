@@ -2,6 +2,11 @@
 import type { Guide } from '../lib/data';
 import { getMethodInfo } from '../lib/data';
 import Field from './Field.astro';
+import { PAY_ENABLED } from '../config/commerce';
+
+// 当前阶段尚未开放销售，付费方法一律标「限时免费」，避免页面标价与实际免费状态不一致
+const priceLabel = (free: boolean, price: number) =>
+  free ? '免费' : PAY_ENABLED ? `¥${price}` : '限时免费';
 
 interface Props {
   guide: Guide;
@@ -27,7 +32,7 @@ function notEmpty(v: unknown): boolean {
   <header class="guide-header">
     <div class="guide-meta-top">
       <span class="method-badge">{method.icon} {method.name_zh}</span>
-      <span class="price-tag">{method.free ? '免费' : `¥${method.price}`}</span>
+      <span class="price-tag">{priceLabel(method.free, method.price)}</span>
     </div>
     <h1>{bookTitle}</h1>
     <p class="book-info">{bookAuthor} · {bookDynasty} — 以 {method.name_zh} 解读</p>
@@ -88,7 +93,7 @@ function notEmpty(v: unknown): boolean {
   </div>
 
   <footer class="guide-footer">
-    <p>🤖 AI 生成于 {new Date(guide.generated_at).toLocaleDateString('zh-CN')} · 模型：{guide.model_used || '免费 API 降级链'} · 人工抽检中</p>
+    <p><b>AI 辅助生成</b> · 生成日期 {new Date(guide.generated_at).toLocaleDateString('zh-CN')} · 模型 {guide.model_used || '语言模型'} · 仅供参考，不代表校勘结论，引用前请核对原典</p>
     <p>📖 原文来源：中文维基文库（CC BY-SA 4.0）· <a href={`https://zh.wikisource.org/wiki/${bookTitle}`}>查看原文 →</a></p>
   </footer>
 </article>

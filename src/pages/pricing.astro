@@ -1,86 +1,153 @@
 ---
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getAllMethods, getMethodInfo } from '../lib/data';
+import { PAY_ENABLED, getBuyLink, OPERATOR } from '../config/commerce';
 
 const base = Astro.site?.pathname ?? '/';
-const url = new URL(Astro.request.url);
-const preselectedMethod = url.searchParams.get('method') ?? '';
-const preselectedBook = url.searchParams.get('book') ?? '';
 
-const methods = getAllMethods();
-const paidMethods = methods.filter((m) => !m.free);
-
-// 收款链接（部署后替换为实际链接）
-// 面包多（微信）：https://mbd.pub/your-product-id
-// Gumroad（信用卡/国际）：https://gumroad.com/l/dimensions-cosmos
-const WORKER_URL = 'https://dimensions-cosmos-auth.workers.dev';
-const BUY_LINK = (book, method) => {
-  const mbd = `https://mbd.pub/go/dimensions-cosmos?book=${encodeURIComponent(book || '')}&method=${encodeURIComponent(method || '')}`;
-  return mbd; // 替换为实际收款链接后自动生效
+type GuideRef = { method_id: string };
+type WorkRef = {
+  id: number;
+  slug: string;
+  seed_title: string;
+  author?: string;
+  dynasty?: string;
+  ok: boolean;
+  chapter_count: number;
+  total_chars: number;
+  guides: GuideRef[];
 };
+
+const idx = JSON.parse(
+  readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8'),
+) as { total: number; ok: number; readable: number; works: WorkRef[] };
+
+const works = (idx.works ?? []).filter((w) => w.ok);
+const totalChapters = works.reduce((s, w) => s + (w.chapter_count || 0), 0);
+const totalChars = works.reduce((s, w) => s + (w.total_chars || 0), 0);
+
+// 已上架商品 = 数据里真实存在的导读，且方法为付费方法
+const paidMethods = getAllMethods().filter((m) => !m.free);
+const paidMethodIds = new Set(paidMethods.map((m) => m.id));
+const shelf = works
+  .flatMap((w) =>
+    (w.guides ?? [])
+      .filter((g) => paidMethodIds.has(g.method_id))
+      .map((g) => ({ work: w, methodId: g.method_id, method: getMethodInfo(g.method_id) })),
+  )
+  .filter((x) => x.method && x.methodId);
+
+const shelfCount = shelf.length;
+const coveredWorks = new Set(shelf.map((s) => s.work.id)).size;
+const pendingWorks = works.length - coveredWorks;
+
+const priceRange = paidMethods.length
+  ? `¥${Math.min(...paidMethods.map((m) => m.price))}–${Math.max(...paidMethods.map((m) => m.price))}`
+  : '¥3.9';
 ---
 
 <BaseLayout title="定价 · 维点图书馆">
   <section>
     <div class="sec-head">
       <h2>简单定价</h2>
-      <p>每本书、每种方法独立购买——不囤课、不年费、按需付费</p>
+      <p>全文阅读永久免费；AI 深度导读按篇购买，不囤课、不年费</p>
       <div class="rule"></div>
     </div>
 
-    <!-- 价格卡片 -->
+    <!-- 真实供给概览：与数据库现状一致，不承诺未建成的内容 -->
+    <div class="supply-bar">
+      <div class="sb-item"><b>{works.length}</b><span>部古籍全文</span></div>
+      <div class="sb-item"><b>{totalChapters.toLocaleString()}</b><span>章可读</span></div>
+      <div class="sb-item"><b>{Math.round(totalChars / 10000).toLocaleString()}</b><span>万字</span></div>
+      <div class="sb-item"><b>{shelfCount}</b><span>篇导读已上架</span></div>
+    </div>
+
     <div class="pricing-grid">
       <div class="price-card">
-        <div class="card-badge free-badge">🆓 免费</div>
-        <h3>朱熹视角</h3>
+        <div class="card-badge free-badge">永久免费</div>
+        <h3>全文阅读</h3>
         <div class="amount">¥0</div>
-        <p class="card-desc">每本书永久免费附赠</p>
+        <p class="card-desc">全部 {works.length} 部书、{totalChapters.toLocaleString()} 章原文</p>
         <ul>
-          <li>中文经典全文阅读</li>
-          <li>朱熹读书法解读</li>
-          <li>逐字逐句涵泳分析</li>
-          <li>切己体察应用引导</li>
+          <li>原文全文在线阅读</li>
+          <li>章节目录 / 卷次分组</li>
+          <li>简繁原文与缺字标注</li>
+          <li>无需注册、无广告</li>
         </ul>
         <a href={`${base}books`} class="card-btn ghost">开始阅读</a>
       </div>
 
       <div class="price-card featured">
-        <div class="card-badge hot-badge">🔥 最受欢迎</div>
-        <h3>单篇解锁</h3>
-        <div class="amount">¥3.9<span>/篇起</span></div>
-        <p class="card-desc">买一篇、看一篇，永久可读</p>
+        <div class="card-badge hot-badge">{PAY_ENABLED ? '可购买' : '当前免费开放'}</div>
+        <h3>单篇导读</h3>
+        <div class="amount">{PAY_ENABLED ? priceRange.split('–')[0] : '¥0'}<span>{PAY_ENABLED ? '/篇起' : '· 限时'}</span></div>
+        <p class="card-desc">
+          {PAY_ENABLED
+            ? `已上架 ${shelfCount} 篇，买一篇看一篇、永久可读`
+            : `已生成 ${shelfCount} 篇深度导读，现阶段免费阅读`}
+        </p>
         <ul>
-          <li>任选一种付费方法</li>
-          <li>应用到任意一本书</li>
-          <li>Markdown / JSON 导出</li>
-          <li>永久访问、无过期</li>
+          <li>按方法深度解读一本书</li>
+          <li>结构化拆解与阅读路径</li>
+          <li>一次性购买、永久访问</li>
+          <li>{PAY_ENABLED ? '7 天内不满意可退' : '正式收费前不产生任何费用'}</li>
         </ul>
-        {preselectedBook && preselectedMethod && (
-          <p class="preorder-hint">
-            📖 {preselectedBook} × {getMethodInfo(preselectedMethod).name_zh}
-          </p>
-        )}
-        <a href={BUY_LINK(preselectedBook, preselectedMethod)} class="card-btn solid">¥3.9–12.9 解锁一篇</a>
+        {PAY_ENABLED
+          ? shelf.length > 0 && (
+              <a href={`${base}read/${shelf[0].work.slug}/${shelf[0].method.id}`} class="card-btn solid">
+                查看已上架导读
+              </a>
+            )
+          : <a href="#shelf" class="card-btn solid">查看可读清单</a>}
       </div>
 
       <div class="price-card">
-        <div class="card-badge">🚀 即将推出</div>
+        <div class="card-badge">筹备中</div>
         <h3>方法包</h3>
         <div class="amount">¥49<span>/年</span></div>
-        <p class="card-desc">无限次数、所有方法</p>
+        <p class="card-desc">全部方法无限次使用</p>
         <ul>
-          <li>全部 9 种方法无限用</li>
+          <li>全部 {getAllMethods().length} 种方法</li>
           <li>新方法自动解锁</li>
           <li>优先投票新书入库</li>
           <li>B 端 API 折扣</li>
         </ul>
-        <a href="#" class="card-btn ghost disabled">筹备中</a>
+        <a href="#" class="card-btn ghost disabled">尚未开放</a>
       </div>
+    </div>
+
+    <!-- 已上架清单：只列真实存在、点开即能读的内容 -->
+    <div class="shelf" id="shelf">
+      <h3>已上架导读（{shelfCount} 篇 · 覆盖 {coveredWorks} 部书）</h3>
+      {shelfCount === 0 ? (
+        <p class="shelf-empty">目前还没有已上架的导读，全部内容以原文阅读开放。</p>
+      ) : (
+        <ul class="shelf-list">
+          {shelf.map(({ work, methodId, method }) => (
+            <li>
+              <a href={`${base}read/${work.slug}/${methodId}`} class="shelf-item">
+                <span class="si-book">《{work.seed_title}》</span>
+                <span class="si-method">{method.icon} {method.name_zh}</span>
+                <span class="si-price">{PAY_ENABLED ? `¥${method.price}` : '免费'}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {pendingWorks > 0 && (
+        <p class="shelf-note">
+          其余 {pendingWorks} 部书的 AI 导读仍在逐篇生成，<b>未生成的一律不售卖、页面上也不会出现购买入口</b>。
+          生成完成后会在此清单中自动出现。
+        </p>
+      )}
     </div>
 
     <!-- 付费方法单价表 -->
     <div class="price-table-wrap">
-      <h3>付费方法单价明细</h3>
+      <h3>付费方法单价</h3>
       <table class="price-table">
         <thead>
           <tr><th>方法</th><th>时代</th><th>单价</th><th>说明</th></tr>
@@ -96,21 +163,26 @@ const BUY_LINK = (book, method) => {
           ))}
         </tbody>
       </table>
+      <p class="table-note">单价为正式开放销售后的定价；当前阶段已上架导读免费阅读。</p>
     </div>
 
     <!-- 信任区 -->
     <div class="trust">
       <div>
-        <h4>💳 如何付款</h4>
-        <p>通过面包多（微信支付）或 Gumroad（Visa/Mastercard）购买。付款后自动获得解锁码，粘贴到页面即可阅读。</p>
+        <h4>如何付款</h4>
+        <p>
+          {PAY_ENABLED
+            ? '通过商品页完成支付，支付后即可解锁对应导读。'
+            : '尚未开放付款。开放前站内所有内容均不收费，也不会向您索取任何款项。'}
+        </p>
       </div>
       <div>
-        <h4>🔄 退款保证</h4>
-        <p>如果 AI 解读质量不符合预期，7 天内无条件退款——发邮件即可，无需理由。</p>
+        <h4>退款政策</h4>
+        <p>数字化内容一经解锁不支持无理由退款；内容与描述不符或无法访问的，按 <a href={`${base}refund`}>退款说明</a> 处理。</p>
       </div>
       <div>
-        <h4>📧 联系我们</h4>
-        <p>GitHub Issues: <a href="https://github.com/aidulibrary/DimensionsCosmos/issues">aidulibrary/DimensionsCosmos</a></p>
+        <h4>联系我们</h4>
+        <p>条款与主体信息见 <a href={`${base}terms`}>服务条款</a>、<a href={`${base}about`}>关于本站</a>；问题反馈：<a href={OPERATOR.repo}>{OPERATOR.repo.replace('https://', '')}</a></p>
       </div>
     </div>
   </section>
@@ -118,25 +190,30 @@ const BUY_LINK = (book, method) => {
 
 <style>
   section { padding: 60px 6vw; max-width: 1060px; margin: 0 auto; }
-  .sec-head { text-align: center; margin-bottom: 48px; }
+  .sec-head { text-align: center; margin-bottom: 40px; }
   .sec-head h2 { font-size: 30px; letter-spacing: 6px; }
   .sec-head p { color: var(--ink-soft); margin-top: 8px; }
   .sec-head .rule { width: 56px; height: 3px; background: var(--cinnabar); margin: 16px auto 0; border-radius: 2px; }
 
-  .pricing-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
-    margin-bottom: 50px;
+  .supply-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin-bottom: 40px;
   }
+  .sb-item {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 10px; text-align: center;
+  }
+  .sb-item b { display: block; font-size: 24px; color: var(--cinnabar); letter-spacing: 1px; }
+  .sb-item span { font-size: 12.5px; color: var(--ink-soft); }
+
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-bottom: 46px; }
 
   .price-card {
     background: #fff; border: 1px solid var(--line); border-radius: 12px;
     padding: 34px 28px; text-align: center; position: relative;
     display: flex; flex-direction: column;
   }
-  .price-card.featured {
-    border: 2px solid var(--cinnabar);
-    box-shadow: 0 8px 30px rgba(158,43,37,.1);
-  }
+  .price-card.featured { border: 2px solid var(--cinnabar); box-shadow: 0 8px 30px rgba(158,43,37,.1); }
   .card-badge {
     display: inline-block; font-size: 12px; letter-spacing: 2px;
     padding: 3px 14px; border-radius: 999px; margin-bottom: 14px;
@@ -151,16 +228,9 @@ const BUY_LINK = (book, method) => {
   .amount { font-size: 40px; color: var(--cinnabar); margin: 12px 0 4px; font-weight: 700; }
   .amount span { font-size: 14px; color: var(--ink-soft); font-weight: 400; }
   .card-desc { font-size: 14px; color: var(--ink-soft); margin-bottom: 18px; }
-  .price-card ul { list-style: none; margin-bottom: 24px; flex: 1; }
-  .price-card li {
-    padding: 6px 0; font-size: 14px; color: var(--ink-soft);
-  }
+  .price-card ul { list-style: none; margin-bottom: 24px; flex: 1; padding: 0; }
+  .price-card li { padding: 6px 0; font-size: 14px; color: var(--ink-soft); }
   .price-card li::before { content: "✓ "; color: var(--gold); font-weight: 700; }
-
-  .preorder-hint {
-    font-size: 13px; color: var(--cinnabar); margin-bottom: 12px;
-    padding: 8px; background: #fef9f5; border-radius: 6px;
-  }
 
   .card-btn {
     display: block; padding: 13px 0; font-size: 15px; font-weight: 700;
@@ -172,26 +242,43 @@ const BUY_LINK = (book, method) => {
   .card-btn.ghost:hover { background: var(--ink); color: var(--paper); }
   .card-btn.disabled { opacity: .4; pointer-events: none; }
 
+  /* 已上架清单 */
+  .shelf { margin-bottom: 46px; }
+  .shelf h3 { font-size: 18px; letter-spacing: 3px; margin-bottom: 16px; }
+  .shelf-list {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  }
+  .shelf-item {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border: 1px solid var(--line); border-radius: 9px;
+    padding: 12px 14px; text-decoration: none; color: var(--ink);
+  }
+  .shelf-item:hover { border-color: var(--cinnabar); }
+  .si-book { font-weight: 700; letter-spacing: 1px; }
+  .si-method { font-size: 13px; color: var(--ink-soft); flex: 1; }
+  .si-price { font-size: 12.5px; color: var(--cinnabar); font-weight: 700; }
+  .shelf-empty, .shelf-note {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.8;
+    background: var(--paper-deep); border-radius: 8px; padding: 14px 16px; margin-top: 14px;
+  }
+
   /* 单价表 */
-  .price-table-wrap { margin-bottom: 50px; }
+  .price-table-wrap { margin-bottom: 46px; }
   .price-table-wrap h3 { font-size: 18px; letter-spacing: 3px; margin-bottom: 18px; }
   .price-table {
-    width: 100%; border-collapse: collapse;
-    background: #fff; border-radius: 8px; overflow: hidden;
-    border: 1px solid var(--line);
+    width: 100%; border-collapse: collapse; background: #fff;
+    border-radius: 8px; overflow: hidden; border: 1px solid var(--line);
   }
   .price-table th {
     text-align: left; padding: 14px 18px; background: var(--paper-deep);
-    font-size: 13px; letter-spacing: 2px; color: var(--ink-soft);
+    font-size: 13px; letter-spacing: 2px; color: var(--ink-soft); font-weight: 600;
   }
-  .price-table td {
-    padding: 14px 18px; font-size: 14px;
-    border-top: 1px solid var(--line);
-  }
-  .price-table td strong { letter-spacing: 1px; }
+  .price-table td { padding: 14px 18px; font-size: 14px; border-top: 1px solid var(--line); }
   .price-cell { color: var(--cinnabar); font-weight: 700; }
   .desc-cell { color: var(--ink-soft); font-size: 13px !important; }
   .era-cell { color: var(--ink-soft); font-size: 13px; }
+  .table-note { margin-top: 12px; font-size: 12.5px; color: var(--ink-soft); }
 
   .trust {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
@@ -202,6 +289,6 @@ const BUY_LINK = (book, method) => {
   .trust a { color: var(--cinnabar); }
 
   @media (max-width: 800px) {
-    .pricing-grid, .trust { grid-template-columns: 1fr; }
+    .pricing-grid, .trust, .supply-bar, .shelf-list { grid-template-columns: 1fr; }
   }
 </style>

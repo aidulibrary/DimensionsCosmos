@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getAllMethods } from '../lib/data';
+import { PAY_ENABLED } from '../config/commerce';
 
 const methods = getAllMethods();
 const base = Astro.site?.pathname ?? '/';
@@ -9,7 +10,7 @@ const base = Astro.site?.pathname ?? '/';
 <BaseLayout title="大师视角 · 阅读方法库 · 维点图书馆">
   <section>
     <div class="sec-head">
-      <h2>九种大师视角</h2>
+      <h2>{methods.length} 种大师视角</h2>
       <p>每位大师的阅读方法都是一个独立的 AI 插件——可以应用到任意文明的任意文本</p>
       <div class="rule"></div>
     </div>
@@ -58,8 +59,8 @@ const base = Astro.site?.pathname ?? '/';
             <div class="md-tags">
               {m.tags.map((t) => <span class="tag">{t}</span>)}
             </div>
-            <p class="md-price">¥{m.price} / 篇</p>
-            <a href={`${base}pricing?method=${m.id}`} class="md-cta">去解锁 →</a>
+            <p class="md-price">{m.free ? '免费' : PAY_ENABLED ? `¥${m.price} / 篇` : '限时免费'}</p>
+            <a href={`${base}pricing?method=${m.id}`} class="md-cta">{PAY_ENABLED ? '去解锁 →' : '查看说明 →'}</a>
           </div>
         ))}
       </div>

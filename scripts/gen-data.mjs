@@ -223,7 +223,31 @@ for (const w of worksWithSlug) {
 // 6) 清理旧版残留（老 book-*.json 里内嵌全文的时代已过）
 const totalCh = Object.values(workChapters).reduce((s, a) => s + a.length, 0);
 
+// 6.1) 删除库中已不存在的章节文件：避免陈旧正文被一并部署上线
+const keep = new Set();
+for (const arr of Object.values(workChapters)) {
+  for (const c of arr) keep.add(`${c.id}.json`);
+}
+let removed = 0;
+for (const f of fs.readdirSync(CH_DIR)) {
+  if (!f.endsWith(".json")) continue;
+  if (!keep.has(f)) {
+    fs.unlinkSync(path.join(CH_DIR, f));
+    removed++;
+  }
+}
+if (removed) console.log(`[gen] 已清理 ${removed} 个陈旧章节文件`);
+
 db.close();
+
+// 7) 零数据门禁：导出结果为空说明库/字段异常，必须硬失败，禁止空产物上线
+if (!indexJson.ok || totalCh === 0) {
+  console.error(
+    `[gen] 导出结果异常：可读 ${indexJson.ok} 部 · ${totalCh} 章 —— 疑似数据库或字段异常，终止构建`,
+  );
+  process.exit(1);
+}
+
 console.log(
   `[gen] ${worksWithSlug.length} 部书 · 有正文 ${indexJson.ok} · 可阅读 ${indexJson.readable} · ` +
     `${totalCh} 章 → ${CH_DIR}`,
