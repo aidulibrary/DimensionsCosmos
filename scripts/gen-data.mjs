@@ -131,7 +131,9 @@ try {
 }
 
 // 4) 章节：目录写进 book-*.json，正文按章落 ch/{id}.json
-const ORDER = `ORDER BY (c.ord IS NULL), c.ord, c.id`;
+const ORDER = has("ord")
+  ? `ORDER BY (c.ord IS NULL), c.ord, c.id`
+  : `ORDER BY c.id`;
 const chapterStmt = db.prepare(
   `SELECT c.id, c.title, c.chars, ${col.ord}, ${col.ordGroup},
           ${col.quality}, ${col.note}, ${col.clean}, ${col.blocks}
