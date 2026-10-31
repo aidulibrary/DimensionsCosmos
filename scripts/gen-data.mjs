@@ -142,9 +142,28 @@ const chapterStmt = db.prepare(
 
 const workChapters = {};
 const missing = [];
+// 同一本书内若已存在「卷号×1e9」刻度条目，则把 1e6 以下的正序条目归一到同一刻度，
+// 避免混刻度导致章节顺序错乱（如《史記》卷033「魯周公世家」被篇序号 33 顶到全书最前）。
+const ORD_UNIT = 1e9;
+function normalizeOrdScale(rows) {
+  if (!rows.length) return;
+  if (!rows.some((c) => Number(c.ord) >= 1e6)) return;
+  for (const c of rows) {
+    const o = Number(c.ord);
+    if (o > 0 && o < 1e6) c.ord = o * ORD_UNIT;
+  }
+  rows.sort((a, b) => {
+    const an = a.ord == null;
+    const bn = b.ord == null;
+    if (an !== bn) return an ? 1 : -1;
+    if (a.ord !== b.ord) return (a.ord ?? 0) - (b.ord ?? 0);
+    return a.id - b.id;
+  });
+}
 for (const w of worksWithSlug) {
   if (!w.ok) continue;
   const rows = chapterStmt.all(w.id);
+  normalizeOrdScale(rows);
   workChapters[w.id] = rows.map((c) => {
     let blocks = null;
     if (c.blocks) {

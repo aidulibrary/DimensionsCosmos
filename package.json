@@ -1,6 +1,6 @@
 {
   "name": "dimensions-cosmos",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "维点图书馆 / DimensionsCosmos Library —— 古籍 AI 导读引擎",
   "private": true,
@@ -11,6 +11,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "postbuild": "node scripts/postbuild-seo.mjs",
     "preview": "astro preview"
   },
   "engines": {
