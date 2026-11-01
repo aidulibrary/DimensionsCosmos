@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-01T17:32:19.746Z",
+  "generatedAt": "2026-11-01T18:52:44.861Z",
   "total": 108,
   "ok": 108,
   "readable": 108,
@@ -722,7 +722,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "王弼、楼宇烈整理《老子》，中华书局，2011年；本库正文底本：《正统道藏》洞神部本文类《道德真经》无注本，八十一章（河上公分章）",
+          "text": "短制（正文 6588 字）。王弼、楼宇烈整理《老子》，中华书局，2011年；本库正文底本：《正统道藏》洞神部本文类《道德真经》无注本，八十一章（河上公分章）",
           "structure": null,
           "readingTip": null,
           "grade": "verified",
@@ -842,7 +842,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "《孙子兵法》（白文本十三篇（计篇至用间），据殆知阁收录《孙子兵法》白文）",
+          "text": "短制（正文 7414 字）。《孙子兵法》（白文本十三篇（计篇至用间），据殆知阁收录《孙子兵法》白文）",
           "structure": null,
           "readingTip": null,
           "grade": "reference",
@@ -1466,7 +1466,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "宋 王应麟撰，清版与民国复位版合编，未分章。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "text": "短制（正文 3430 字）。宋 王应麟撰，清版与民国复位版合编，未分章。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
           "structure": null,
           "readingTip": null,
           "grade": null,
@@ -1490,7 +1490,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "元魏 菩提流支译本，一卷，底本无品目，未分章。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "text": "短制（正文 7817 字）。元魏 菩提流支译本，一卷，底本无品目，未分章。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
           "structure": null,
           "readingTip": null,
           "grade": null,
@@ -1586,7 +1586,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "唐 玄奘译，一卷二百六十字，底本未分章、按单篇入库。底本前附明太祖御制序与唐释慧忠序，导入时剔除，仅存经文。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "text": "短制（正文 334 字）。唐 玄奘译，一卷二百六十字，底本未分章、按单篇入库。底本前附明太祖御制序与唐释慧忠序，导入时剔除，仅存经文。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
           "structure": null,
           "readingTip": null,
           "grade": null,
@@ -1682,7 +1682,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "汉 魏伯阳撰，三卷。底本正文以○分条而无篇目，本库按单篇入库、未分章；分章注本（分章通真义等）另本未取。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "text": "短制（正文 7743 字）。汉 魏伯阳撰，三卷。底本正文以○分条而无篇目，本库按单篇入库、未分章；分章注本（分章通真义等）另本未取。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
           "structure": null,
           "readingTip": null,
           "grade": null,
@@ -1756,7 +1756,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "王文锦编《大学》，中华书局，2025年",
+          "text": "短制（正文 2389 字）。王文锦编《大学》，中华书局，2025年",
           "structure": null,
           "readingTip": null,
           "grade": "verified",
@@ -1780,7 +1780,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "《中庸》（《中庸》白文本，据《正统道藏》所收本；分章依朱熹《中庸章句》三十三章）",
+          "text": "短制（正文 4445 字）。《中庸》（《中庸》白文本，据《正统道藏》所收本；分章依朱熹《中庸章句》三十三章）",
           "structure": null,
           "readingTip": null,
           "grade": "reference",
@@ -1924,7 +1924,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "孔子《孝经》，中华书局，2007年",
+          "text": "短制（正文 2302 字）。孔子《孝经》，中华书局，2007年",
           "structure": null,
           "readingTip": null,
           "grade": "reference",
@@ -2334,7 +2334,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "钟嵘著《诗品》，中华书局，2017年",
+          "text": "短制（正文 6498 字）。钟嵘著《诗品》，中华书局，2017年",
           "structure": null,
           "readingTip": null,
           "grade": "verified",
@@ -2430,7 +2430,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "清末 王国维撰，通行六十四则本。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "text": "短制（正文 5186 字）。清末 王国维撰，通行六十四则本。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
           "structure": null,
           "readingTip": null,
           "grade": null,
@@ -2454,7 +2454,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "唐 司空图撰，二十四品（雄浑至流动）。底本「纤□」处缺字，通行本作「纤秾」。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "text": "短制（正文 1793 字）。唐 司空图撰，二十四品（雄浑至流动）。底本「纤□」处缺字，通行本作「纤秾」。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
           "structure": null,
           "readingTip": null,
           "grade": null,
@@ -2718,7 +2718,7 @@
         "ok": true,
         "readable": true,
         "version": {
-          "text": "宋 李清照撰，毛晋汲古阁辑本，存词十七阕，附《金石录后序》一篇；同调连作者题「又」，按底本原题保留并加序号区分。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "text": "短制（正文 2885 字）。宋 李清照撰，毛晋汲古阁辑本，存词十七阕，附《金石录后序》一篇；同调连作者题「又」，按底本原题保留并加序号区分。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
           "structure": null,
           "readingTip": null,
           "grade": null,
@@ -3342,7 +3342,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "王弼、楼宇烈整理《老子》，中华书局，2011年；本库正文底本：《正统道藏》洞神部本文类《道德真经》无注本，八十一章（河上公分章）",
+        "text": "短制（正文 6588 字）。王弼、楼宇烈整理《老子》，中华书局，2011年；本库正文底本：《正统道藏》洞神部本文类《道德真经》无注本，八十一章（河上公分章）",
         "structure": null,
         "readingTip": null,
         "grade": "verified",
@@ -3467,7 +3467,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "《孙子兵法》（白文本十三篇（计篇至用间），据殆知阁收录《孙子兵法》白文）",
+        "text": "短制（正文 7414 字）。《孙子兵法》（白文本十三篇（计篇至用间），据殆知阁收录《孙子兵法》白文）",
         "structure": null,
         "readingTip": null,
         "grade": "reference",
@@ -4117,7 +4117,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "宋 王应麟撰，清版与民国复位版合编，未分章。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "text": "短制（正文 3430 字）。宋 王应麟撰，清版与民国复位版合编，未分章。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
         "structure": null,
         "readingTip": null,
         "grade": null,
@@ -4142,7 +4142,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "元魏 菩提流支译本，一卷，底本无品目，未分章。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "text": "短制（正文 7817 字）。元魏 菩提流支译本，一卷，底本无品目，未分章。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
         "structure": null,
         "readingTip": null,
         "grade": null,
@@ -4242,7 +4242,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "唐 玄奘译，一卷二百六十字，底本未分章、按单篇入库。底本前附明太祖御制序与唐释慧忠序，导入时剔除，仅存经文。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "text": "短制（正文 334 字）。唐 玄奘译，一卷二百六十字，底本未分章、按单篇入库。底本前附明太祖御制序与唐释慧忠序，导入时剔除，仅存经文。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
         "structure": null,
         "readingTip": null,
         "grade": null,
@@ -4342,7 +4342,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "汉 魏伯阳撰，三卷。底本正文以○分条而无篇目，本库按单篇入库、未分章；分章注本（分章通真义等）另本未取。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "text": "短制（正文 7743 字）。汉 魏伯阳撰，三卷。底本正文以○分条而无篇目，本库按单篇入库、未分章；分章注本（分章通真义等）另本未取。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
         "structure": null,
         "readingTip": null,
         "grade": null,
@@ -4468,7 +4468,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "王文锦编《大学》，中华书局，2025年",
+        "text": "短制（正文 2389 字）。王文锦编《大学》，中华书局，2025年",
         "structure": null,
         "readingTip": null,
         "grade": "verified",
@@ -4493,7 +4493,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "《中庸》（《中庸》白文本，据《正统道藏》所收本；分章依朱熹《中庸章句》三十三章）",
+        "text": "短制（正文 4445 字）。《中庸》（《中庸》白文本，据《正统道藏》所收本；分章依朱熹《中庸章句》三十三章）",
         "structure": null,
         "readingTip": null,
         "grade": "reference",
@@ -4643,7 +4643,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "孔子《孝经》，中华书局，2007年",
+        "text": "短制（正文 2302 字）。孔子《孝经》，中华书局，2007年",
         "structure": null,
         "readingTip": null,
         "grade": "reference",
@@ -5068,7 +5068,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "钟嵘著《诗品》，中华书局，2017年",
+        "text": "短制（正文 6498 字）。钟嵘著《诗品》，中华书局，2017年",
         "structure": null,
         "readingTip": null,
         "grade": "verified",
@@ -5168,7 +5168,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "清末 王国维撰，通行六十四则本。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "text": "短制（正文 5186 字）。清末 王国维撰，通行六十四则本。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
         "structure": null,
         "readingTip": null,
         "grade": null,
@@ -5193,7 +5193,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "唐 司空图撰，二十四品（雄浑至流动）。底本「纤□」处缺字，通行本作「纤秾」。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "text": "短制（正文 1793 字）。唐 司空图撰，二十四品（雄浑至流动）。底本「纤□」处缺字，通行本作「纤秾」。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
         "structure": null,
         "readingTip": null,
         "grade": null,
@@ -5468,7 +5468,7 @@
       "ok": true,
       "readable": true,
       "version": {
-        "text": "宋 李清照撰，毛晋汲古阁辑本，存词十七阕，附《金石录后序》一篇；同调连作者题「又」，按底本原题保留并加序号区分。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "text": "短制（正文 2885 字）。宋 李清照撰，毛晋汲古阁辑本，存词十七阕，附《金石录后序》一篇；同调连作者题「又」，按底本原题保留并加序号区分。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
         "structure": null,
         "readingTip": null,
         "grade": null,

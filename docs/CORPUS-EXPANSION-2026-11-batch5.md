@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 0c5caf7145ca8876d640e5da87215fbf_8a8350a7d62211f1b4e4525400cd780f
+    ReservedCode1: iBPg09xjxB5IfvpcdCOmwcChX41JPWIQy74tFU09Z7ggYp3plm4sXXRPoGCtxA78CLIBPq02zfHAtviaDQIsKoH6VrbFbq+KCW3sSurZ4wREIQHeEH/3mNTsc3U/G/2+WDfi5lLMVTdx/NkSQQUkn63CXx3gxpB4AAmVTyo1wwaea/WbmAMmh6CVgdI=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 0c5caf7145ca8876d640e5da87215fbf_8a8350a7d62211f1b4e4525400cd780f
+    ReservedCode2: iBPg09xjxB5IfvpcdCOmwcChX41JPWIQy74tFU09Z7ggYp3plm4sXXRPoGCtxA78CLIBPq02zfHAtviaDQIsKoH6VrbFbq+KCW3sSurZ4wREIQHeEH/3mNTsc3U/G/2+WDfi5lLMVTdx/NkSQQUkn63CXx3gxpB4AAmVTyo1wwaea/WbmAMmh6CVgdI=
+---
+
 # 古籍扩容执行记录 · batch5（2026-11-02）
 
 > 依据：《维点图书馆 · 新增古籍筛选及入选顺序标准 v1.1》（`docs/CORPUS-ACQUISITION-STANDARD-v1.1.md`）
@@ -101,7 +112,7 @@ D3 全部为 `UNVERIFIED`，按 §2.2 走 provisional 归一化，未用印象�
 | 结构缺口 | 方志（华阳国志 C 2.77）、药学总集（本草纲目 C 2.36，S4）、农书总集（农政全书 C 2.23，S4）、蒙学千字文系（千字文系 4 种 C） | 三条均卡在「C 档不升」：① 先补 D3 核验与 D5 依据复核，使其自然进 B 档；② 或按 §3.7 提出标准修订（零覆盖部类破格条款），不得私改分数；③ 大篇幅总集须另立「选本/分卷」子批 |
 | 数据缺口 | D3 全部 provisional（122 部）；`wikidata_qid` 缺 59 部；`compiled_year` 未满；AI 导读 108 部仅 1 篇过 QA 闸 | 联网后 `--backfill-impact` 重算 + 批量生成导读逐篇过闸 |
 | 质量缺口 | `incomplete` 章 92 条（全在旧库 work 5/14/111/112/115/117/119/123/127/131）；《幼学琼林》仅存卷一、二；《海国图志》单章 | 换底本重做 or 版本说明加固 |
-| 流程缺口 | 本批已推送（`0f6b16ee`）；构建期 `brandName` 未定义由远端 `328a6327` 先行修复，本地同内容修复提交在与远端同步时丢弃；§P3 短制字数下限条款与既有基线冲突待裁定（见「五之补」） | 已偿还；条款裁定需业主确认，不跨两轮 |
+| 流程缺口 | 本批已推送（`0f6b16ee`）；构建期 `brandName` 未定义由远端 `328a6327` 先行修复，本地同内容修复提交在与远端同步时丢弃；§P3 短制字数下限条款与既有基线冲突 | 已偿还。条款已于 2026-11-02 经业主裁定方案 A 结清（见「五之补 · 裁定结果」） |
 
 ### 五之补 · 程序性瑕疵披露（短制字数下限）
 
@@ -113,6 +124,18 @@ D3 全部为 `UNVERIFIED`，按 §2.2 走 provisional 归一化，未用印象�
 - **方案 B**：严格执行原条，清退全库 13 部短制（含旧库已交付的孝经/大学/中庸/老子/孙子兵法/金刚经/诗品/人间词话/二十四诗品/三字经），代价是经部四书轴、兵学与词学主线同时破裂。
 
 裁定前：本批 3 部保留在库且 `status=ok`，但登记为程序性瑕疵，本轮不宣称「六项交付标准全绿」为洁净结论。
+
+### 五之补 · 裁定结果（2026-11-02，业主拍板方案 A）
+
+业主裁定：**采纳方案 A**，标准升 v1.2.1，短制经典口径由提案转为生效条款。执行口径对原提案作一处收窄——标注落在 `work_profiles.version_text` 首句，格式「短制（正文 N 字）。」，`N` 取 `works.total_chars`（可复算、可审计），不新增 `short_class` 字段，避免为一类元信息改动表结构。
+
+已落地三项：
+
+1. **标准**：`docs/CORPUS-ACQUISITION-STANDARD-v1.2.md` §2.7 条款改写为生效版（三条准入要件 + 不追溯撤销），附录 C 增 v1.2.1 行，§4 程序性瑕疵行改记「无未裁定项」。
+2. **数据**：13 部短制 `version_text` 首句标注全部补齐，逐部比对 `total_chars` 一致，标注集合与预期集合完全吻合（缺失 0 / 多余 0）。快照 `.backups/guji.db.before-shortform-20261102-024328`。
+3. **口径边界**：原条款「单部 1 万字下限」对**有注疏传统之短制经典**失效；碎片、资料性短篇、无注疏传统短篇仍禁入，故该下限对新增普通书籍继续有效——本次不是废条，是开了一个有条件的例外口。
+
+方案 B（清退 13 部）未采纳：清退将同时打断经部四书轴、子部兵家/道家、集部词学三条主线，代价大于条款瑕疵本身。
 
 ## 六、留痕
 
