@@ -1,0 +1,120 @@
+import type { Locale } from '../config';
+
+/**
+ * 首页文案（B1 三语）。
+ * h1 与少数需要强调的句子用 HTML 片段，因为各语言的语序不同（中文「用大师的方法读书」，
+ * 英文得写成「Read any book through a master's eyes」），硬套占位符会译出译文腔。
+ * 译者即本文件作者，内容可信，模板处用 set:html 渲染。
+ */
+export interface HomeDict {
+  title: string;
+  description: string;
+  kicker: string;
+  h1Html: string;
+  motto: string;
+  sub: string;
+  searchPlaceholder: string;
+  searchBtn: string;
+  statBooks: string;
+  statMethods: string;
+  statFree: string;
+  heroArt: [string, string, string];
+  verticalNote: string;
+  libTitle: string;
+  /** {n} 会被替换成实际书数 */
+  libSub: string;
+  browseAll: string;
+  stripTitle: string;
+  /** {n} 会被替换成方法数 */
+  stripSub: string;
+  /** {n} 会被替换成剩余方法数 */
+  stripMore: string;
+  band: { title: string; desc: string }[];
+}
+
+export const home: Record<Locale, HomeDict> = {
+  zh: {
+    title: '维点图书馆 · 用大师的方法读一切书',
+    description: '伟大心智的阅读操作系统：用苏格拉底的方法读庄子，用费曼的方法读相对论，用朱熹的方法读古兰经。',
+    kicker: '伟大心智 · 阅读操作系统',
+    h1Html: '用<em>大师</em>的方法，<br>读<em>一切</em>书',
+    motto: '浇灌自由生长的文明',
+    sub: '同样的文本，不同的大师会看到完全不同的东西。选一部经典，再选一位大师的视角——朱熹带你涵泳，费曼帮你白话，苏格拉底追着你问。',
+    searchPlaceholder: '搜书名：论语 / 史记 / 庄子 ……',
+    searchBtn: '检索',
+    statBooks: '部经典可读',
+    statMethods: '种大师视角',
+    statFree: '个免费体验',
+    heroArt: ['朱熹 × 费曼 × 苏格拉底', '苏轼 × 钱锺书 × 王阳明', '阿伦特 × 伊本·赫勒敦 × 阿德勒'],
+    verticalNote: '筛选 · 组织 · 导读',
+    libTitle: '经典书库',
+    libSub: '经史子集 · 首批 {n} 部 · 原文来自中文维基文库（CC BY-SA）',
+    browseAll: '浏览全部书库 →',
+    stripTitle: '🧠 选好书了？挑一种大师视角来读',
+    stripSub: '每本书都内置 {n} 种解读方法——从朱熹到苏格拉底，从费曼到阿伦特',
+    stripMore: '+{n} 种更多 →',
+    band: [
+      { title: '📖 先选书，再选方法', desc: '主流流程：浏览书库 → 找到感兴趣的书 → 选择一位大师的视角 → 开始阅读。' },
+      { title: '🧪 创建自己的读书法', desc: '即将开放：上传你的阅读方法论（系统提示词 + 输出模板），转换为可售卖插件，获得收益分成。' },
+      { title: '📤 上传你的藏书', desc: '即将开放：像识典古籍一样整理并上传自己的文本，经 AI 自动校勘、标点、分段后入库。' },
+      { title: '🔌 方法即插件', desc: '每种大师方法都是一个独立 AI 插件——可组合、可复用、可导出为 Markdown / JSON。' },
+    ],
+  },
+
+  'zh-TW': {
+    title: '維點圖書館 · 用大師的方法讀一切書',
+    description: '偉大心智的閱讀作業系統：用蘇格拉底的方法讀莊子，用費曼的方法讀相對論，用朱熹的方法讀古蘭經。',
+    kicker: '偉大心智 · 閱讀作業系統',
+    h1Html: '用<em>大師</em>的方法，<br>讀<em>一切</em>書',
+    motto: '澆灌自由生長的文明',
+    sub: '同樣的文本，不同的大師會看到完全不同的東西。選一部經典，再選一位大師的視角——朱熹帶你涵泳，費曼幫你白話，蘇格拉底追著你問。',
+    searchPlaceholder: '搜書名：論語 / 史記 / 莊子 ……',
+    searchBtn: '檢索',
+    statBooks: '部經典可讀',
+    statMethods: '種大師視角',
+    statFree: '個免費體驗',
+    heroArt: ['朱熹 × 費曼 × 蘇格拉底', '蘇軾 × 錢鍾書 × 王陽明', '阿倫特 × 伊本·赫勒敦 × 阿德勒'],
+    verticalNote: '篩選 · 組織 · 導讀',
+    libTitle: '經典書庫',
+    libSub: '經史子集 · 首批 {n} 部 · 原文來自中文維基文庫（CC BY-SA）',
+    browseAll: '瀏覽全部書庫 →',
+    stripTitle: '🧠 選好書了？挑一種大師視角來讀',
+    stripSub: '每本書都內建 {n} 種解讀方法——從朱熹到蘇格拉底，從費曼到阿倫特',
+    stripMore: '+{n} 種更多 →',
+    band: [
+      { title: '📖 先選書，再選方法', desc: '主流流程：瀏覽書庫 → 找到感興趣的書 → 選擇一位大師的視角 → 開始閱讀。' },
+      { title: '🧪 建立自己的讀書法', desc: '即將開放：上傳你的閱讀方法論（系統提示詞 + 輸出範本），轉換為可販售外掛，獲得收益分潤。' },
+      { title: '📤 上傳你的藏書', desc: '即將開放：像識典古籍一樣整理並上傳自己的文本，經 AI 自動校勘、標點、分段後入庫。' },
+      { title: '🔌 方法即外掛', desc: '每種大師方法都是一個獨立 AI 外掛——可組合、可重複使用、可匯出為 Markdown / JSON。' },
+    ],
+  },
+
+  en: {
+    title: 'DimensionsCosmos Library · Read any book through a master\u2019s eyes',
+    description:
+      'A reading operating system for great minds: read Zhuangzi the way Socrates would, relativity the way Feynman would, the Quran the way Zhu Xi would.',
+    kicker: 'GREAT MINDS · A READING OS',
+    h1Html: 'Read <em>any</em> book<br>through a <em>master</em>\u2019s eyes',
+    motto: 'Watering a civilisation that grows freely',
+    sub: 'The same text looks different to every great mind. Pick a classic, then pick a master\u2019s vantage point — Zhu Xi reads with you line by line, Feynman puts it in plain words, Socrates keeps asking why.',
+    searchPlaceholder: 'Search a title: Analects / Records of the Grand Historian / Zhuangzi…',
+    searchBtn: 'Search',
+    statBooks: 'classics to read',
+    statMethods: 'master perspectives',
+    statFree: 'free to try',
+    heroArt: ['Zhu Xi × Feynman × Socrates', 'Su Shi × Qian Zhongshu × Wang Yangming', 'Arendt × Ibn Khaldun × Adler'],
+    verticalNote: 'FILTER · ORGANISE · GUIDE',
+    libTitle: 'The Classics Library',
+    libSub: 'Classics, history, masters, collected works · first {n} titles · source texts from Chinese Wikisource (CC BY-SA)',
+    browseAll: 'Browse the full library →',
+    stripTitle: '🧠 Found your book? Now pick a master\u2019s vantage point',
+    stripSub: 'Every title ships with {n} interpretive methods — from Zhu Xi to Socrates, from Feynman to Arendt',
+    stripMore: '+{n} more methods →',
+    band: [
+      { title: '📖 Pick the book, then the method', desc: 'The main path: browse the library → find a title that pulls you in → choose a master\u2019s vantage point → start reading.' },
+      { title: '🧪 Build your own reading method', desc: 'Coming soon: upload your own methodology (system prompt + output template), publish it as a sellable plugin and share the revenue.' },
+      { title: '📤 Upload your own collection', desc: 'Coming soon: organise and upload your own texts the way classical-text platforms do. AI handles collation, punctuation and paragraphing.' },
+      { title: '🔌 Methods are plugins', desc: 'Each master\u2019s method is a standalone AI plugin — composable, reusable, and exportable as Markdown or JSON.' },
+    ],
+  },
+};
