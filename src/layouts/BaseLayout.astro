@@ -24,6 +24,14 @@ const {
 const rawBase = import.meta.env.BASE_URL || '/';
 const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
 
+// ── 品牌标识几何（L0 母版，与 public/logo.svg 完全同源）──
+// 由标识矢量母版导出：viewBox 569×735（比例 0.774），一次书写、四处复用
+// （顶栏 .brand-mark / 页脚 .footer-mark），任何一处改几何都必须同步 /logo.svg，
+// 否则就出现「感觉差不多的第二个图形」，那是品牌规范明令禁止的。
+const MARK_VIEWBOX = '0 0 569 735';
+const MARK_PATH =
+  'M72 0 L495 0 L498 2 L503 2 L504 3 L512 5 L524 11 L535 19 L545 29 L547 33 L554 42 L561 57 L561 59 L563 63 L563 66 L564 67 L564 70 L565 71 L565 76 L566 77 L566 82 L567 83 L567 90 L568 91 L568 145 L566 145 L565 146 L497 146 L496 145 L496 100 L495 99 L494 92 L492 89 L492 87 L485 78 L478 73 L472 72 L468 70 L98 70 L94 72 L88 73 L82 77 L78 81 L75 87 L73 89 L72 95 L70 99 L70 488 L72 489 L82 482 L84 482 L89 479 L93 479 L96 477 L99 477 L104 475 L118 474 L123 472 L132 472 L132 540 L131 541 L126 541 L122 544 L118 544 L104 550 L98 554 L85 567 L81 573 L75 587 L75 591 L74 592 L74 596 L73 597 L73 610 L74 611 L74 615 L75 616 L75 620 L76 621 L77 626 L84 639 L91 647 L92 647 L102 656 L114 662 L123 664 L125 666 L130 666 L132 667 L132 720 L133 721 L133 730 L132 731 L132 733 L130 733 L129 734 L119 734 L118 733 L98 732 L97 731 L83 731 L76 728 L70 728 L67 726 L57 723 L53 720 L51 720 L39 713 L31 707 L25 701 L16 689 L14 684 L12 682 L10 677 L7 673 L7 671 L5 667 L5 662 L3 658 L2 650 L0 647 L0 74 L2 71 L2 67 L3 66 L5 58 L7 55 L7 53 L13 41 L16 38 L21 30 L32 19 L43 11 L51 7 L58 5 L61 3 L70 2ZM168 471h401v68h-401ZM167 571h402v66h-402ZM167 669h402v66h-402ZM385 392h184v46h-184ZM385 315h184v46h-184ZM167 392h183v46h-183ZM167 315h183v46h-183ZM385 236h184v46h-184ZM167 236h183v46h-183Z';
+
 // 数据新鲜度：构建时读取 public/data/index.json 的 generatedAt，页脚展示。
 // 用途：CI 的数据提交若失败，Cloudflare 会拿旧数据构建出"成功但内容陈旧"的站点，
 // 页脚日期可让这种静默陈旧一眼可见。读取失败时静默降级，不影响构建。
@@ -93,6 +101,7 @@ try {
   <meta name="apple-mobile-web-app-title" content="维点图书馆">
 
   <!-- 图标 -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png">
@@ -146,17 +155,14 @@ try {
 <body>
   <nav>
     <a class="brand" href={base}>
-      <img
+      <svg
         class="brand-mark"
-        src={`${base}icons/icon-512.png`}
-        srcset={`${base}icons/icon-192.png 192w, ${base}icons/icon-512.png 512w`}
-        sizes="42px"
-        alt=""
-        width="42"
-        height="42"
-        decoding="async"
+        viewBox={MARK_VIEWBOX}
         aria-hidden="true"
-      />
+        focusable="false"
+      >
+        <path d={MARK_PATH} />
+      </svg>
       <span><b>维点图书馆</b><small>DimensionsCosmos</small></span>
     </a>
     <div class="nav-links">
@@ -171,7 +177,16 @@ try {
     <slot />
   </main>
   <footer>
-    <p><b>维点图书馆</b> DimensionsCosmos Library · 伟大心智的阅读操作系统</p>
+    <div class="footer-brand">
+      <svg class="footer-mark" viewBox={MARK_VIEWBOX} aria-hidden="true" focusable="false">
+        <path d={MARK_PATH} />
+      </svg>
+      <span class="footer-brand-name">
+        <b>维点图书馆</b>
+        <small>Dimensions Cosmos Library</small>
+      </span>
+    </div>
+    <p>伟大心智的阅读操作系统</p>
     <p style="margin-top:4px">原文 © 中文维基文库（CC BY-SA 4.0）及其他开放来源</p>
     <p style="margin-top:4px"><strong>AI 生成内容标识</strong>：解读类文本由语言模型辅助生成，仅供参考，不代表校勘结论；详见 <a href={base + 'about'}>关于本站</a></p>
     <p style="margin-top:4px">浇灌自由生长的文明 · v1.0 MVP · <a href="https://github.com/aidulibrary/DimensionsCosmos">GitHub</a></p>

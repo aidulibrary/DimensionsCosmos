@@ -11,7 +11,7 @@
  *   非 GET 请求   不拦截（预留未来 AI 接口 POST）
  */
 
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.0.1';
 const SHELL_CACHE = `dc-shell-${VERSION}`;
 const PAGE_CACHE = `dc-page-${VERSION}`;
 const DATA_CACHE = `dc-data-${VERSION}`;
@@ -33,6 +33,8 @@ const PRECACHE_URLS = [
   '/icons/icon-512-maskable.png',
   '/icons/apple-touch-icon-180.png',
   '/favicon.ico',
+  '/favicon.svg',
+  '/logo.svg',
 ];
 
 /** 无缓存时才等网络，给到 8 秒，避免把「慢」误判成「断网」 */
@@ -127,7 +129,7 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/_astro/') ||
     url.pathname.startsWith('/icons/') ||
     url.pathname.startsWith('/fonts/') ||
-    /\/favicon\.(ico|png)$/.test(url.pathname)
+    /\/favicon\.(ico|png|svg)$/.test(url.pathname)
   ) {
     event.respondWith(cacheFirst(req, ASSET_CACHE));
     return;

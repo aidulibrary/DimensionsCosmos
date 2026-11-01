@@ -14,6 +14,23 @@
   --shadow-lg: 0 18px 50px rgba(43, 41, 38, 0.16);
   --radius: 8px;
   --radius-lg: 14px;
+
+  /* ══ 品牌标准色（见 /brand 与 BRAND.md，配比 60:25:10:5）══
+     四色各对应一处真实空间，不随页面主题改动：
+     星穹蓝=天穹/应用底色，生态绿=田野/千湖，原木土=原木/夯土，一点红=印章点睛。 */
+  --brand-sky: #003048;
+  --brand-sky-deep: #002436;
+  --brand-sky-tint: #e8eef1;
+  --brand-eco: #84a890;
+  --brand-earth: #9c6c48;
+  --brand-red: #e41824;
+  --brand-on-sky: #fcfcfc;
+  --brand-on-sky-soft: rgba(252, 252, 252, 0.66);
+
+  /* 图标几何常量：L1 应用图标圆角 22.5%、图形占高 76%（maskable 另算 62%） */
+  --brand-icon-radius: 22.5%;
+  --brand-glyph-inset: 12%;
+  --brand-mark-size: 42px;
 }
 
 * {
@@ -66,14 +83,20 @@ nav {
   writing-mode: vertical-rl;
   box-shadow: 2px 2px 0 rgba(43, 41, 38, 0.18);
 }
+/* 顶栏标识：内联 SVG（L0 母版矢量），几何与 /logo.svg 完全一致，
+   圆角 22.5% 与图形占高 76% 由 --brand-icon-radius / --brand-glyph-inset 统一控制，
+   不再依赖位图，任意 DPR 下都不会发虚。 */
 .brand-mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
+  width: var(--brand-mark-size);
+  height: var(--brand-mark-size);
+  padding: var(--brand-glyph-inset);
+  box-sizing: border-box;
+  border-radius: var(--brand-icon-radius);
+  background: var(--brand-sky);
+  fill: var(--brand-on-sky);
+  color: var(--brand-on-sky);
   display: block;
   flex: 0 0 auto;
-  object-fit: contain;
-  background: #003048;
   box-shadow: 0 1px 3px rgba(0, 48, 72, 0.26);
 }
 .brand b {
@@ -776,16 +799,58 @@ section {
   line-height: 1.75;
 }
 
-/* ---- Footer ---- */
+/* ---- Footer：L3 锁定组合（图形 + 中英文全称），底色为星穹蓝 ---- */
 footer {
   text-align: center;
-  padding: 34px 6vw;
-  color: var(--ink-soft);
+  padding: 38px 6vw 34px;
+  background: var(--brand-sky);
+  color: var(--brand-on-sky-soft);
   font-size: 13px;
   border-top: 1px solid var(--line);
 }
 footer b {
-  color: var(--cinnabar);
+  color: var(--brand-on-sky);
+  letter-spacing: 3px;
+  font-weight: 700;
+}
+footer a {
+  color: rgba(252, 252, 252, 0.88);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(252, 252, 252, 0.28);
+}
+footer a:hover {
+  border-bottom-color: var(--brand-on-sky);
+}
+/* L3 锁定组合：纯图形标识 + 双语名。图形为负形（无底板），与页脚底色同一层。 */
+.footer-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.footer-mark {
+  width: 34px;
+  height: 44px;
+  flex: 0 0 auto;
+  fill: var(--brand-on-sky);
+  color: var(--brand-on-sky);
+}
+.footer-brand-name {
+  text-align: left;
+  line-height: 1.35;
+}
+.footer-brand-name b {
+  font-size: 17px;
+}
+.footer-brand-name small {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2.4px;
+  color: var(--brand-eco);
+  font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+  text-transform: uppercase;
+  margin-top: 3px;
 }
 
 /* ---- 响应式 ---- */
@@ -805,10 +870,12 @@ footer b {
 }
 
 @media (max-width: 600px) {
-  .brand-mark {
-    width: 36px;
+  :root {
+    --brand-mark-size: 36px;
+  }
+  .footer-mark {
+    width: 28px;
     height: 36px;
-    border-radius: 8px;
   }
   .hero h1 {
     font-size: clamp(28px, 7vw, 42px) !important;

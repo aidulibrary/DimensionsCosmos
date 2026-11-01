@@ -61,15 +61,30 @@ const LAYERS = [
       </p>
     </header>
 
-    <div class="mark">
-      <img src="/icons/icon-512.png" alt="维点图书馆标识" width="200" height="200" />
-      <p class="mark-cap">主标识 · Master Mark</p>
+    <div class="marks">
+      <figure class="mark-cell">
+        <div class="l0-stage"><span class="l0-glyph" role="img" aria-label="维点图书馆主标识"></span></div>
+        <figcaption><b>L0</b>主标识母版<span class="mono">logo.svg</span></figcaption>
+      </figure>
+      <figure class="mark-cell">
+        <div class="l1-stage">
+          <img src="/icons/icon-512.png" alt="维点图书馆应用图标" width="150" height="150" />
+        </div>
+        <figcaption><b>L1</b>应用图标<span class="mono">icon-512.png</span></figcaption>
+      </figure>
+      <figure class="mark-cell">
+        <div class="fav-stage">
+          <img src="/icons/favicon-32.png" alt="32 像素简化版" width="32" height="32" />
+          <img src="/icons/favicon-16.png" alt="16 像素极简版" width="16" height="16" />
+        </div>
+        <figcaption><b>favicon</b>简化版<span class="mono">favicon.svg</span></figcaption>
+      </figure>
     </div>
 
     <h2>结构释义</h2>
     <ul class="reads">
       <li><strong>书脊与书口</strong>——左侧竖脊接顶部横梁，是一本书最稳定的两条边。</li>
-      <li><strong>页边纹</strong>——框内八条长短错落的横线，是书页层叠的页边。</li>
+      <li><strong>页边纹</strong>——九段长短错落的横线：上三组中缝断开（地／坤三阴），下三条贯通（天／乾三阳）。</li>
       <li><strong>翻页起点</strong>——左下角内凹的弧线，手指翻开第一页的位置。</li>
       <li><strong>右侧敞开</strong>——不闭合，表示还没写完，也把位置留给后来的人。</li>
     </ul>
@@ -126,6 +141,30 @@ const LAYERS = [
       三条铁律：主标识是唯一图形来源，不得为某个场景另画一个「感觉差不多的」；应用图标不带字，系统已在图标下方显示应用名；缩写是替补，空间够就回退到中文或英文组合。
     </p>
 
+    <h2>图标几何三参数</h2>
+    <table class="layers">
+      <thead>
+        <tr><th>参数</th><th>值</th><th>依据</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="id">圆角</td><td>22.5%</td><td>与 Android / macOS / Windows 商店图标的视觉重量对齐，不方也不过圆</td></tr>
+        <tr><td class="id">图形占高</td><td>76%</td><td>四周各留 12% 呼吸位，缩到 16px 仍不贴边</td></tr>
+        <tr><td class="id">maskable</td><td>62%</td><td>Android 会把图标裁成圆形，62% 使图形外接圆落在 80% 安全区内</td></tr>
+      </tbody>
+    </table>
+    <p class="note">
+      母版是<strong>单色矢量</strong>（<code>currentColor</code>）：它本身不带颜色，深底出白形、浅底出星穹蓝，颜色由场景决定。
+      因此<strong>不提供多色或渐变版本</strong>——四色一旦进入图形内部，60:25:10:5 的配比立刻失效，一点红也会从点睛退化为装饰。
+    </p>
+
+    <h2>取用</h2>
+    <ul class="assets">
+      <li><a href="/logo.svg" download>logo.svg</a><span>L0 主标识母版 · 单色矢量 · 569×735</span></li>
+      <li><a href="/favicon.svg" download>favicon.svg</a><span>简化版 · 上三组改为整线 · 供 16–32px</span></li>
+      <li><a href="/icons/icon-512.png" download>icon-512.png</a><span>L1 应用图标 · 星穹蓝底 · 圆角 22.5%</span></li>
+      <li><a href="/icons/icon-512-maskable.png" download>icon-512-maskable.png</a><span>Android 自适应图标 · 图形 62%</span></li>
+    </ul>
+
     <p class="back"><a href="/">← 返回书库</a></p>
   </section>
 </BaseLayout>
@@ -147,13 +186,54 @@ const LAYERS = [
     padding-bottom: 10px; border-bottom: 1px solid var(--line);
   }
   .brand h3 { font-size: 15px; letter-spacing: 1px; color: var(--ink); }
-  .mark { text-align: center; margin: 8px 0 0; }
-  .mark img {
-    border-radius: 26px; box-shadow: var(--shadow-sm);
+  .marks {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin: 8px 0 0;
+  }
+  .mark-cell { margin: 0; text-align: center; }
+  .l0-stage, .l1-stage, .fav-stage {
+    display: grid; place-items: center; height: 190px;
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
     border: 1px solid var(--line);
   }
-  .mark-cap {
-    margin-top: 12px; font-size: 12px; letter-spacing: 2px; color: var(--ink-soft);
+  .l0-stage { background: var(--brand-sky); }
+  /* 母版是单色矢量：用 mask 着色，证明「一个文件、任意颜色」*/
+  .l0-glyph {
+    display: block; width: 108px; height: 140px;
+    background: var(--brand-on-sky);
+    -webkit-mask: url('/logo.svg') center / contain no-repeat;
+    mask: url('/logo.svg') center / contain no-repeat;
+  }
+  .l1-stage { background: var(--brand-sky-tint); }
+  .l1-stage img { border-radius: 34px; box-shadow: 0 6px 18px rgba(0, 48, 72, 0.22); }
+  .fav-stage { background: var(--white); gap: 14px; grid-auto-flow: column; }
+  .fav-stage img { border-radius: 6px; box-shadow: var(--shadow-sm); }
+  figcaption {
+    margin-top: 10px; font-size: 12px; letter-spacing: 1px; color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  figcaption b {
+    color: var(--brand-sky); margin-right: 6px;
+    font-family: ui-monospace, Consolas, monospace; font-size: 12px;
+  }
+  figcaption .mono {
+    display: block; font-size: 10.5px; color: var(--ink-soft);
+    font-family: ui-monospace, Consolas, monospace; opacity: 0.8; margin-top: 2px;
+  }
+  .assets { list-style: none; }
+  .assets li {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px;
+    padding: 10px 2px; border-bottom: 1px dashed var(--line); font-size: 13px;
+  }
+  .assets a {
+    color: var(--brand-sky); font-family: ui-monospace, Consolas, monospace;
+    font-size: 13px; text-decoration: none; border-bottom: 1px solid var(--brand-sky);
+  }
+  .assets a:hover { color: var(--cinnabar); border-bottom-color: var(--cinnabar); }
+  .assets span { color: var(--ink-soft); font-size: 12.5px; }
+  code {
+    font-family: ui-monospace, Consolas, monospace; font-size: 12px;
+    background: var(--paper-deep); padding: 1px 5px; border-radius: 4px;
   }
   .reads { list-style: none; }
   .reads li {
@@ -214,6 +294,8 @@ const LAYERS = [
     .brand { padding: 36px 16px 70px; }
     .brand-head h1 { font-size: 24px; letter-spacing: 2px; }
     .swatches { grid-template-columns: 1fr; }
+    .marks { grid-template-columns: 1fr; }
+    .l0-stage, .l1-stage, .fav-stage { height: 160px; }
     .layers { font-size: 12.5px; }
   }
 </style>
