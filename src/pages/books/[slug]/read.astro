@@ -9,7 +9,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import type { IndexData, BookMeta, Chapter, ChapterContent } from '../../../lib/data';
+import type { IndexData, BookMeta, Chapter, ChapterContent, Guide } from '../../../lib/data';
+import { getMethodInfo } from '../../../lib/data';
 
 export async function getStaticPaths() {
   const raw = readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8');
@@ -161,11 +162,51 @@ const tocLite = allChapters.map((c) => ({
   // 稳定引用（REF-SPEC v1，如 dc:Q276015/c002），前端据此拼 URN 锚点
   r: c.ref ?? null,
 }));
+// ---- 原文页 → 导读页 互链数据（P3）----
+//   1) guideLite：本书已上架的解读方法，供工具条「看解读」入口（无解读则不出入口，避免死链）
+//   2) chapCites：章 URN → 该章被哪些导读引用 / 最细落点锚，供章标题下的「本章解读」徽标
+const guidesRaw = ((book.guides ?? []) as Guide[]).filter((g) => !!g?.method_id);
+const guideLite = guidesRaw.map((g) => {
+  const mi = getMethodInfo(g.method_id);
+  return { id: g.method_id, name: mi.name_zh, icon: mi.icon ?? '' };
+});
+
+type ChapHit = { m: string; name: string; u: string; n: number };
+const chapGuideMap: Record<string, ChapHit[]> = {};
+const urnDepth = (urn: string) => urn.split('/').length;
+for (const g of guidesRaw) {
+  const mi = getMethodInfo(g.method_id);
+  const best = new Map<string, string>();
+  const counts = new Map<string, number>();
+  const push = (urnRaw: string) => {
+    const urn = String(urnRaw || '').trim();
+    // 只接受章级及更细的稳定引用，纯 work 级不作为章内落点
+    const m = /^(dc:[^/]+\/c\d+)((?:\/b\d+)?(?:\/k\d+)?)$/.exec(urn);
+    if (!m) return;
+    const chap = m[1];
+    counts.set(chap, (counts.get(chap) ?? 0) + 1);
+    const cur = best.get(chap);
+    if (!cur || urnDepth(urn) > urnDepth(cur)) best.set(chap, urn);
+  };
+  for (const u of g.citations ?? []) push(u);
+  for (const p of g.paragraphs ?? []) for (const u of p.cites ?? []) push(u);
+  for (const [chap, anchor] of best) {
+    (chapGuideMap[chap] ??= []).push({
+      m: g.method_id,
+      name: mi.name_zh,
+      u: anchor,
+      n: counts.get(chap) ?? 1,
+    });
+  }
+}
+
 const passData = {
   base,
   slug: slug ?? '',
   toc: tocLite,
   first: firstChapter?.id ?? null,
+  guides: guideLite,
+  chapCites: chapGuideMap,
   collation: collation
     ? { href: collationHref, label: collation.label ?? '校勘', vols: collationVols, rows: collationRows }
     : null,
@@ -278,7 +319,34 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
                 {typeof collation.pending === 'number' && <em>{collation.pending}</em>}
               </a>
             )}
-            <a class="tb-guide" href={`${base}read/${slug}/zhuxi`}>看解读</a>
+            {guideLite.length === 1 && (
+              <a
+                class="tb-guide"
+                data-guide-link
+                data-m={guideLite[0].id}
+                href={`${base}read/${slug}/${guideLite[0].id}`}
+                title={`以${guideLite[0].name}的方法读本书`}
+              >
+                {guideLite[0].icon} 看{guideLite[0].name}解读
+              </a>
+            )}
+            {guideLite.length > 1 && (
+              <details class="tb-guide-wrap" id="guideWrap">
+                <summary class="tb-guide">看解读（{guideLite.length}）▾</summary>
+                <div class="tb-guide-menu">
+                  {guideLite.map((g) => (
+                    <a
+                      data-guide-link
+                      data-m={g.id}
+                      href={`${base}read/${slug}/${g.id}`}
+                      title={`以${g.name}的方法读本书`}
+                    >
+                      {g.icon} {g.name}解读
+                    </a>
+                  ))}
+                </div>
+              </details>
+            )}
           </div>
         </div>
 
@@ -329,6 +397,13 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
         <p class="source-note">
           原文底本：中文维基文库（CC BY-SA 4.0）。已过清洗管线去除维基标记、注脚与模板残留。
         </p>
+
+        {guideLite.length === 0 && (
+          <p class="guide-pending">
+            本书的解读正在筹备中。
+            <a href={`${base}methods`}>了解可用的解读方法 →</a>
+          </p>
+        )}
       </main>
 
       {collation && (
@@ -551,6 +626,56 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     a.textContent = `${C.label || '校勘'} · 本卷 ${hit.n} 处 →`;
     a.title = '本卷正文有源本残阙，点击查看待考清单';
     h1.insertAdjacentElement('afterend', a);
+  }
+
+  // ---- 原文页 → 导读页 互链（P3）----
+  //   章标题下「本篇解读 N 处引证 →」，把原文与导读按章节级绑定；工具条入口随章节同步锚点
+  const GUIDES: any[] = (D as any).guides || [];
+  const CHAP_CITES: Record<string, any[]> = (D as any).chapCites || {};
+
+  const chapKeyOf = (id: number) => {
+    const meta: any = toc[idxOf(id)];
+    return meta?.r ? String(meta.r) : '';
+  };
+
+  function decorateGuides(id: number) {
+    document.querySelectorAll('.ch-guide').forEach((e) => e.remove());
+    if (!GUIDES.length) return;
+    const key = chapKeyOf(id);
+    const hits = key ? CHAP_CITES[key] : null;
+    if (!hits || !hits.length) return;
+    const h1 = reader.querySelector('.ch-title');
+    if (!h1) return;
+    const box = document.createElement('div');
+    box.className = 'ch-guide';
+    const lead = document.createElement('span');
+    lead.className = 'cg-lead';
+    lead.textContent = '本篇解读';
+    box.appendChild(lead);
+    for (const g of hits) {
+      const a = document.createElement('a');
+      a.href = `${base}read/${D.slug}/${g.m}#${g.u}`;
+      a.textContent = `${g.name} · ${g.n} 处引证 →`;
+      a.title = '跳到导读里引用本篇的位置';
+      box.appendChild(a);
+    }
+    // 已有校勘徽标时排在其后，不抢标题下第一行
+    const col = reader.querySelector('.ch-collation');
+    (col ?? h1).insertAdjacentElement('afterend', box);
+  }
+
+  function syncGuideLinks(id: number) {
+    const links = document.querySelectorAll('[data-guide-link]');
+    if (!links.length) return;
+    const key = chapKeyOf(id);
+    const hits = (key ? CHAP_CITES[key] : null) || [];
+    links.forEach((el) => {
+      const a = el as HTMLAnchorElement;
+      const m = a.dataset.m || '';
+      if (!m) return;
+      const hit = hits.find((h: any) => h.m === m);
+      a.href = `${base}read/${D.slug}/${m}` + (hit ? `#${hit.u}` : '');
+    });
   }
 
   // ---- 右侧第三列：校勘待考面板（同页分列，可拖拽列宽） ----
@@ -811,6 +936,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     }
     if (!spot) window.scrollTo({ top: 0, behavior: 'smooth' });
     decorate(id);
+    decorateGuides(id);
+    syncGuideLinks(id);
     renderCnav();
     if (spot) {
       setTimeout(() => {
@@ -879,7 +1006,11 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   else {
     setActive(D.first || 0);
     updateNav();
-    if (D.first) decorate(D.first);
+    if (D.first) {
+      decorate(D.first);
+      decorateGuides(D.first);
+    }
+    syncGuideLinks(D.first || 0);
     if (S0) {
       setTimeout(() => {
         if (focusNeed(S0.bi, S0.kth)) showNeedTip(S0.kth);
@@ -1006,6 +1137,38 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     transition: all 0.15s ease;
   }
   .article .ch-collation:hover {
+    color: var(--cinnabar, #9b2c2c);
+    border-color: var(--cinnabar, #9b2c2c);
+    background: #fff;
+  }
+
+  /* 章标题下：本篇被哪些导读引用（原文 → 导读 章节级互链） */
+  .article .ch-guide {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 8px;
+    margin: -14px auto 24px;
+    font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .article .ch-guide .cg-lead {
+    color: #94897a;
+    letter-spacing: 1px;
+  }
+  .article .ch-guide a {
+    color: #8a4a2f;
+    background: #fdf3ec;
+    border: 1px solid #ecd6c8;
+    border-radius: 20px;
+    padding: 2px 11px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .article .ch-guide a:hover {
     color: var(--cinnabar, #9b2c2c);
     border-color: var(--cinnabar, #9b2c2c);
     background: #fff;
@@ -1566,6 +1729,44 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     padding-left: 4px;
     white-space: nowrap;
   }
+  /* 多方法时的下拉入口 */
+  .tb-guide-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .tb-guide-wrap > summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .tb-guide-wrap > summary::-webkit-details-marker {
+    display: none;
+  }
+  .tb-guide-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 30;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 10px 26px rgba(43, 41, 38, 0.12);
+  }
+  .tb-guide-menu a {
+    font-size: 13px;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 7px 10px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+  .tb-guide-menu a:hover {
+    background: var(--paper);
+    color: var(--cinnabar);
+  }
   .tb-collation {
     display: inline-flex;
     align-items: center;
@@ -1724,6 +1925,20 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     font-size: 12px;
     color: var(--ink-soft);
     line-height: 1.7;
+  }
+  .guide-pending {
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
+  }
+  .guide-pending a {
+    color: var(--cinnabar);
+    text-decoration: none;
+  }
+  .guide-pending a:hover {
+    text-decoration: underline;
   }
 
   /* ---------- 移动端 ---------- */

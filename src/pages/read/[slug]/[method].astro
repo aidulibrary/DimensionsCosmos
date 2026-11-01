@@ -171,6 +171,13 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
         chapterTitles={chapterTitles}
       />
 
+      <div class="back-to-source">
+        <a class="bts-primary" href={`${base}books/${slug}/read/`}>对照原文全文 →</a>
+        <span class="bts-hint">
+          文中每段「本段引证」都可点开，直达原文对应章句；原文页的章标题下也会反向列出引用该篇的解读。
+        </span>
+      </div>
+
       <div class="switch-section">
         <h3>换个视角再看一遍</h3>
         <MethodSelector
@@ -192,6 +199,33 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
   .switch-section {
     max-width: 760px; margin: 50px auto 0; padding-top: 36px;
     border-top: 1px solid var(--line);
+  }
+  /* 导读 → 原文：页末主入口，配合段末引证形成双向可达 */
+  .back-to-source {
+    max-width: 760px;
+    margin: 40px auto 0;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .back-to-source .bts-primary {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--cinnabar);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .back-to-source .bts-primary:hover { text-decoration: underline; }
+  .back-to-source .bts-hint {
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    flex: 1 1 260px;
   }
   .switch-section h3 { font-size: 18px; letter-spacing: 2px; margin-bottom: 16px; }
 
