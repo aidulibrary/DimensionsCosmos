@@ -52,16 +52,16 @@ if (isEmpty(value)) return;
 
 <style>
   .field {
-    background: var(--white); border: 1px solid #ddd2bd;
+    background: var(--white); border: 1px solid var(--line);
     border-radius: 8px; padding: 22px 26px; margin-bottom: 16px;
   }
   .field h4 {
     font-size: 15px; letter-spacing: 2px; color: var(--accent);
     margin-bottom: 12px; padding-bottom: 8px;
-    border-bottom: 1px dotted #ddd2bd;
+    border-bottom: 1px dotted var(--line);
   }
   .field p {
-    font-size: 15.5px; line-height: 1.85; color: #2b2926;
+    font-size: 15.5px; line-height: 1.85; color: var(--ink);
     white-space: pre-line;
   }
   .field ul {
@@ -74,7 +74,7 @@ if (isEmpty(value)) return;
   .field li:last-child { border-bottom: none; }
   .field dl { margin: 0; }
   .field dt {
-    font-size: 13px; color: #6b655c;
+    font-size: 13px; color: var(--ink-soft);
     margin-top: 10px; letter-spacing: 1px;
   }
   .field dd {
@@ -83,6 +83,6 @@ if (isEmpty(value)) return;
   .field-item { display: block; margin: 4px 0; }
   .field-item em {
     font-style: normal; font-weight: 600;
-    color: #b8934a;
+    color: var(--gold);
   }
 </style>

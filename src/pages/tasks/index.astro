@@ -277,7 +277,7 @@ const highlight = (ctx = '') =>
     border: 0; background: transparent; padding: 7px 14px; font: inherit;
     font-size: 13px; color: var(--ink-soft); cursor: pointer;
   }
-  .seg button.on { background: var(--cinnabar); color: var(--white); }
+  .seg button.on { background: var(--cinnabar); color: var(--on-accent); }
   #q {
     flex: 1; min-width: 180px; padding: 8px 14px; font: inherit; font-size: 13px;
     border: 1px solid var(--line); border-radius: 999px; background: var(--white); color: var(--ink);
@@ -318,7 +318,7 @@ const highlight = (ctx = '') =>
   }
   .badge.g-A { border-color: var(--cinnabar); color: var(--cinnabar); background: #fdf2f0; }
   .badge.g-B { border-color: var(--gold); color: #8a6a24; background: #fdf8ec; }
-  .badge.g-C { border-color: #b9b3a6; color: #6b655c; background: #f6f4ef; }
+  .badge.g-C { border-color: #b9b3a6; color: var(--ink-soft); background: #f6f4ef; }
   .badge.ghost { background: transparent; }
   .t-id { color: var(--ink-soft); letter-spacing: 1px; }
   .t-type { color: #33566a; }
@@ -337,7 +337,7 @@ const highlight = (ctx = '') =>
     font: inherit; font-size: 13px; padding: 6px 18px; border-radius: 999px;
     border: 1px solid var(--cinnabar); background: var(--white); color: var(--cinnabar); cursor: pointer;
   }
-  .btn-claim:hover { background: var(--cinnabar); color: var(--white); }
+  .btn-claim:hover { background: var(--cinnabar); color: var(--on-accent); }
   .task[data-state="claimed"] .btn-claim { background: var(--gold); border-color: var(--gold); color: var(--white); }
   .empty { text-align: center; color: var(--ink-soft); padding: 40px 0; }
 
@@ -392,7 +392,7 @@ const highlight = (ctx = '') =>
   .form-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .btn-solid {
     display: inline-block; font: inherit; font-size: 13px; padding: 9px 20px; border-radius: 999px;
-    background: var(--cinnabar); color: var(--white); border: 1px solid var(--cinnabar); text-decoration: none; cursor: pointer;
+    background: var(--cinnabar); color: var(--on-accent); border: 1px solid var(--cinnabar); text-decoration: none; cursor: pointer;
   }
   .btn-solid:hover { background: var(--cinnabar-deep); }
   .err { color: var(--cinnabar); font-size: 12px; }

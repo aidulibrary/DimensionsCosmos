@@ -1053,10 +1053,10 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   }
   /* 命中的单个缺字：强高亮 + 两次脉冲，确保"可见" */
   .article .mk-hit {
-    color: #7a4a06;
-    background: #ffe3a3;
+    color: var(--warn-ink);
+    background: var(--warn-bg);
     border-radius: 3px;
-    box-shadow: 0 0 0 2px #ffe3a3;
+    box-shadow: 0 0 0 2px var(--warn-bg);
     animation: needPulse 1.5s ease-out 2;
   }
   @keyframes needPulse {
@@ -1127,9 +1127,9 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     font-family: system-ui, sans-serif;
     font-size: 12.5px;
     line-height: 1.6;
-    color: #8a6d1f;
-    background: #fdf8e8;
-    border: 1px solid #e8d9ad;
+    color: var(--note-ink);
+    background: var(--note-bg);
+    border: 1px solid var(--note-border);
     border-radius: 20px;
     padding: 3px 14px;
     text-decoration: none;
@@ -1137,8 +1137,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     transition: all 0.15s ease;
   }
   .article .ch-collation:hover {
-    color: var(--cinnabar, #9b2c2c);
-    border-color: var(--cinnabar, #9b2c2c);
+    color: var(--cinnabar, var(--accent));
+    border-color: var(--cinnabar, var(--accent));
     background: var(--white);
   }
 
@@ -1169,18 +1169,18 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     transition: all 0.15s ease;
   }
   .article .ch-guide a:hover {
-    color: var(--cinnabar, #9b2c2c);
-    border-color: var(--cinnabar, #9b2c2c);
+    color: var(--cinnabar, var(--accent));
+    border-color: var(--cinnabar, var(--accent));
     background: var(--white);
   }
 
   .article .ch-note {
-    background: #fdf6e3;
+    background: var(--note-bg);
     border-left: 3px solid var(--gold);
     padding: 8px 14px;
     font-size: 13.5px;
     line-height: 1.7;
-    color: #6b5a2a;
+    color: var(--note-ink);
     margin: 0 0 24px;
     font-family: system-ui, sans-serif;
   }
@@ -1266,7 +1266,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   }
   .cnav-tab.active {
     background: var(--white);
-    color: #2b2926;
+    color: var(--ink);
     font-weight: 600;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
   }
@@ -1354,8 +1354,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   }
   .cnav-item .ci-hit {
     font-style: normal;
-    color: #7a4a06;
-    background: #ffe3a3;
+    color: var(--warn-ink);
+    background: var(--warn-bg);
     border-radius: 3px;
     padding: 0 2px;
     font-weight: 600;
@@ -1364,9 +1364,9 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     grid-column: 2;
     justify-self: end;
     font-size: 11.5px;
-    color: #8a6d1f;
-    background: #fdf8e8;
-    border: 1px solid #e8d9ad;
+    color: var(--note-ink);
+    background: var(--note-bg);
+    border: 1px solid var(--note-border);
     border-radius: 999px;
     padding: 1px 8px;
     white-space: nowrap;
@@ -1414,7 +1414,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     border: 1px solid rgba(43, 41, 38, 0.1);
     background: rgba(255, 253, 249, 0.94);
     backdrop-filter: blur(10px);
-    color: #8a6d1f;
+    color: var(--note-ink);
     font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
     font-size: 12.5px;
     padding: 8px 14px;
@@ -1529,18 +1529,18 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   }
 
   .quality-banner {
-    background: #fdf6e3;
-    border: 1px solid #e8d9a8;
+    background: var(--note-bg);
+    border: 1px solid var(--note-border);
     border-left: 4px solid var(--gold);
     border-radius: 8px;
     padding: 12px 18px;
     font-size: 13.5px;
     line-height: 1.7;
-    color: #6b5a2a;
+    color: var(--note-ink);
     margin-bottom: 18px;
   }
   .quality-banner b {
-    color: #8a6d1f;
+    color: var(--note-ink);
     margin-right: 8px;
   }
 
@@ -1573,7 +1573,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   }
   .toc-head {
     /* 结构面③：目录卡顶部的深蓝帽，长文阅读中稳定的品牌落点 */
-    background: var(--accent);
+    background: var(--surface-brand);
     color: var(--brand-on-sky);
     margin: -16px -6px 12px -14px;
     padding: 16px 12px 12px 14px;
@@ -1780,10 +1780,10 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     gap: 4px;
     font-size: 12.5px;
     font-family: system-ui, sans-serif;
-    color: #8a6d1f;
+    color: var(--note-ink);
     text-decoration: none;
     border: 1px solid #e2cf9a;
-    background: #fdf8e8;
+    background: var(--note-bg);
     border-radius: 6px;
     padding: 3px 8px;
     white-space: nowrap;
@@ -1824,7 +1824,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 1px;
-    color: #8a6d1f;
+    color: var(--note-ink);
     background: #f4ecda;
     border-radius: 4px;
     padding: 1px 6px;
@@ -1835,7 +1835,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   }
   .collation-bar .cb-link {
     flex: none;
-    color: var(--cinnabar, #9b2c2c);
+    color: var(--cinnabar, var(--accent));
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;

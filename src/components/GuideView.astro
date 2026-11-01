@@ -160,44 +160,44 @@ function notEmpty(v: unknown): boolean {
   }
   .guide-header {
     text-align: center; margin-bottom: 40px;
-    padding-bottom: 30px; border-bottom: 1px solid #ddd2bd;
+    padding-bottom: 30px; border-bottom: 1px solid var(--line);
   }
   .guide-meta-top {
     display: flex; justify-content: center; gap: 12px;
     margin-bottom: 16px;
   }
   .method-badge {
-    font-size: 14px; background: var(--accent); color: var(--white);
+    font-size: 14px; background: var(--accent); color: var(--on-accent);
     padding: 4px 14px; border-radius: 999px; letter-spacing: 1px;
   }
   .price-tag {
-    font-size: 13px; background: var(--accent); color: var(--white);
+    font-size: 13px; background: var(--accent); color: var(--on-accent);
     padding: 4px 12px; border-radius: 999px; font-weight: 700;
   }
   .guide-header h1 {
     font-size: 36px; letter-spacing: 6px; margin-bottom: 12px;
   }
-  .book-info { color: #6b655c; font-size: 16px; }
-  .method-era { color: #b8934a; font-size: 13px; margin-top: 6px; }
+  .book-info { color: var(--ink-soft); font-size: 16px; }
+  .method-era { color: var(--gold); font-size: 13px; margin-top: 6px; }
 
   .guide-content { margin-bottom: 36px; }
 
   .guide-body { margin-bottom: 36px; }
   .guide-body h2 {
-    font-size: 15px; letter-spacing: 2px; margin: 0 0 8px; color: #2b2926;
-    border-left: 3px solid #b8934a; padding-left: 8px;
+    font-size: 15px; letter-spacing: 2px; margin: 0 0 8px; color: var(--ink);
+    border-left: 3px solid var(--gold); padding-left: 8px;
   }
   .body-hint { font-size: 12px; color: #8a7a63; margin: 0 0 16px; }
   .guide-para { margin-bottom: 22px; }
   .guide-para p {
-    font-size: 16px; line-height: 1.95; color: #2b2926;
+    font-size: 16px; line-height: 1.95; color: var(--ink);
     text-align: justify; margin: 0;
   }
   .para-cites {
     margin-top: 8px; font-size: 12px; color: #8a7a63;
     display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
   }
-  .para-cites-label { color: #b8934a; letter-spacing: 1px; }
+  .para-cites-label { color: var(--gold); letter-spacing: 1px; }
   .para-cites a {
     color: #9c6b30; text-decoration: none; border-bottom: 1px dotted #cbb08a;
   }
@@ -208,7 +208,7 @@ function notEmpty(v: unknown): boolean {
     background: #fbf7ef; padding: 18px 20px; margin-bottom: 32px;
   }
   .guide-citations h2 {
-    font-size: 15px; letter-spacing: 2px; margin: 0 0 8px; color: #2b2926;
+    font-size: 15px; letter-spacing: 2px; margin: 0 0 8px; color: var(--ink);
   }
   .cite-hint { font-size: 12px; color: #8a7a63; margin: 0 0 12px; }
   .guide-citations ul { list-style: none; margin: 0; padding: 0; }
@@ -226,8 +226,8 @@ function notEmpty(v: unknown): boolean {
 
   .guide-footer {
     text-align: center; padding-top: 24px;
-    border-top: 1px solid #ddd2bd;
-    font-size: 12px; color: #6b655c;
+    border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--ink-soft);
   }
   .guide-footer p { margin: 4px 0; }
 </style>

@@ -66,6 +66,22 @@ try {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!--
+    夜间模式首帧判定：必须内联且放在 head 最前。
+    放到 body 末尾或用外部脚本，都会先闪一帧米色纸底再变暗，深色下非常刺眼。
+    优先级：用户手选 > 系统偏好。
+  -->
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { /* 隐私模式下 localStorage 可能抛错，按日间渲染 */ }
+    })();
+  </script>
   <title>{title}</title>
   <meta name="description" content={description}>
   {noindex && <meta name="robots" content="noindex, follow">}
@@ -73,7 +89,7 @@ try {
   <!-- ══ PWA 基础 ══ -->
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#003048">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
 
   <!--
     商店模式探测（应用商店 / MSIX 包装 / 已安装的独立窗口）：
@@ -175,6 +191,7 @@ try {
       <a href={`${base}methods`}>方法</a>
       {!hideCommercial && <a href={`${base}pricing`} data-store-hide>定价</a>}
       {!hideCommercial && <a class="nav-cta" href={`${base}pricing`} data-store-hide>解锁全部</a>}
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换夜间模式">夜</button>
     </div>
   </nav>
   <main>
@@ -214,6 +231,45 @@ try {
       apply();
       window.addEventListener('resize', apply, { passive: true });
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(apply);
+    })();
+  </script>
+
+  <script is:inline>
+    // 夜间模式切换：只改 <html data-theme>，配色全部由 global.css 的 token 承载
+    (function () {
+      var d = document.documentElement;
+      var btn = document.getElementById('themeToggle');
+      function sync() {
+        var dark = d.getAttribute('data-theme') === 'dark';
+        if (btn) {
+          btn.textContent = dark ? '昼' : '夜';
+          btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+          btn.setAttribute('aria-label', dark ? '切换到日间模式' : '切换到夜间模式');
+        }
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', dark ? '#0E1A22' : '#003048');
+      }
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var next = d.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          d.setAttribute('data-theme', next);
+          try { localStorage.setItem('theme', next); } catch (e) {}
+          sync();
+        });
+      }
+      sync();
+      // 用户没手选过时跟随系统切换
+      if (window.matchMedia) {
+        try {
+          window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+            var saved = null;
+            try { saved = localStorage.getItem('theme'); } catch (err) {}
+            if (saved) return;
+            d.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            sync();
+          });
+        } catch (e) { /* 老浏览器不支持 addEventListener，忽略 */ }
+      }
     })();
   </script>
 
