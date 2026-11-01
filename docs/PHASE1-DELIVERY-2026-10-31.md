@@ -118,3 +118,4 @@ npm run build    # prebuild 校验数据 → astro build → postbuild 生成 ro
 - 数据源唯一事实：`data/guji.db`；`public/data` 为派生产物，**禁止手工编辑**
 - ord 刻度约定：`序号/卷号 × 1e9`，负值表示前置附文；导出层已做混刻度归一，新增书籍若出现小刻度条目会被自动纠正
 - 收费开关唯一入口：`src/config/commerce.ts` 的 `PAY_ENABLED`
+*（内容由AI生成，仅供参考）*
