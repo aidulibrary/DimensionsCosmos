@@ -116,7 +116,7 @@ const { bookSlug, selectedMethod = '', unlockedMethods = [] } = Astro.props;
 
   .method-chip {
     display: flex; gap: 14px; padding: 18px;
-    background: #fff; border: 1.5px solid var(--line, #ddd2bd);
+    background: var(--white); border: 1.5px solid var(--line, #ddd2bd);
     border-radius: 10px; text-decoration: none; color: inherit;
     transition: all .2s; position: relative; overflow: hidden;
   }
@@ -145,7 +145,7 @@ const { bookSlug, selectedMethod = '', unlockedMethods = [] } = Astro.props;
 
   .chip-footer { margin-top: 10px; }
   .chip-price {
-    display: inline-block; background: var(--cinnabar, #9e2b25); color: #fff;
+    display: inline-block; background: var(--cinnabar, #9e2b25); color: var(--white);
     font-size: 13px; font-weight: 700; padding: 3px 12px; border-radius: 999px;
   }
   .chip-check {

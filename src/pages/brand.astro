@@ -40,6 +40,47 @@ const COLORS = [
   },
 ];
 
+// 配比三层口径：实体讲材质面积，屏幕讲视觉层次，实测讲当前基线。
+// 三者不可互相代替——把实体 60:25:10:5 直接当屏幕目标，星穹蓝会去抢正文的地盘。
+const RATIOS = [
+  {
+    name: '实体空间',
+    tag: '材质面积',
+    seq: '星穹蓝 60 · 生态绿 25 · 原木土 10 · 一点红 5',
+    note: '院落与书式民宿的真实用料比例：夯土与夜天 60、田野与水系 25、原木 10、印章 5。这是品牌最初的量，不是屏幕指标。',
+    segs: [
+      { w: 60, color: 'var(--brand-sky)', label: '60' },
+      { w: 25, color: 'var(--brand-eco)', label: '25' },
+      { w: 10, color: 'var(--brand-earth)', label: '10' },
+      { w: 5, color: 'var(--brand-red)', label: '' },
+    ],
+  },
+  {
+    name: '屏幕目标',
+    tag: '视觉层次',
+    seq: '星穹蓝 66 · 生态绿 18 · 原木土 8 · 一点红 5 · 浅阶蓝 3',
+    note: '界面不靠大色块铺面积，靠明度分三层：纸底、卡片白、浅阶蓝 #E8EEF1。生态绿与原木土退到点缀位，一点红始终是点，不是面。',
+    segs: [
+      { w: 66, color: 'var(--brand-sky)', label: '66' },
+      { w: 18, color: 'var(--brand-eco)', label: '18' },
+      { w: 8, color: 'var(--brand-earth)', label: '8' },
+      { w: 5, color: 'var(--brand-red)', label: '' },
+      { w: 3, color: 'var(--brand-sky-tint)', label: '', edge: true },
+    ],
+  },
+  {
+    name: '线上实测',
+    tag: '当前基线',
+    seq: '纸墨 97.2 · 星穹蓝 0.1 · 品牌四色未见',
+    note: '对线上页面逐像素统计的结果：屏幕几乎全被纸墨占满，品牌色尚未落地。这是改造前的基线，留档用于对照，不作为目标。',
+    segs: [
+      { w: 97.2, color: 'var(--paper-deep)', label: '97.2', edge: true },
+      { w: 0.1, color: 'var(--brand-sky)', label: '' },
+      { w: 2.7, color: 'var(--line)', label: '' },
+    ],
+  },
+];
+
 const LAYERS = [
   { id: 'L0', name: '主标识', comp: '书形轮廓图形，比例 0.77', use: '一切场合的锚点' },
   { id: 'L1', name: '应用图标', comp: 'L0 + 星穹蓝底板 + 安全区留白', use: '桌面、应用商店、favicon（永不带字）' },
@@ -111,14 +152,34 @@ const LAYERS = [
     </div>
 
     <h2>配比</h2>
-    <div class="ratio">
-      <span class="r1" style="width:60%">60</span>
-      <span class="r2" style="width:25%">25</span>
-      <span class="r3" style="width:10%">10</span>
-      <span class="r4" style="width:5%"></span>
+    <p class="note">
+      配比有三层口径，不是一个数字：<strong>实体讲材质面积，屏幕讲视觉层次，实测讲当前基线</strong>。
+      三者不能互相顶替——把实体比例直接搬到屏幕上，星穹蓝就会去抢正文的地盘。
+    </p>
+    <div class="ratios">
+      {RATIOS.map((r) => (
+        <div class="ratio-row">
+          <div class="ratio-head">
+            <b>{r.name}</b>
+            <span class="ratio-tag">{r.tag}</span>
+            <span class="ratio-seq">{r.seq}</span>
+          </div>
+          <div class="ratio">
+            {r.segs.map((s) => (
+              <span
+                class:list={['seg', { edge: s.edge }]}
+                style={`width:${s.w}%;background:${s.color};`}
+                title={`${s.w}%`}
+              >{s.label}</span>
+            ))}
+          </div>
+          <p class="ratio-note">{r.note}</p>
+        </div>
+      ))}
     </div>
     <p class="note">
-      星穹蓝 60 : 生态绿 25 : 原木土 10 : 一点红 5。唯一红线——<strong>一点红面积永不超过 5%</strong>，超过就从「点睛」退化为「廉价」。
+      唯一红线不变——<strong>一点红面积永不超过 5%</strong>，超过就从「点睛」退化为「廉价」。
+      屏幕侧另有一条：浅阶蓝只做信息衬底（目录卡、表头、选中态），不参与强调，也不与星穹蓝叠加成第二种主色。
     </p>
 
     <h2>分层使用</h2>
@@ -257,7 +318,7 @@ const LAYERS = [
     position: relative; flex: 0 0 76px; height: 76px; border-radius: 10px;
     display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;
   }
-  .chip-hex { font-size: 9.5px; letter-spacing: 0.5px; color: #ffffff; opacity: 0.82; }
+  .chip-hex { font-size: 9.5px; letter-spacing: 0.5px; color: var(--white); opacity: 0.82; }
   .chip-hex.on-dark { color: #FCFCFC; }
   .swatch-body h3 { margin-bottom: 3px; }
   .swatch-body h3 .en {
@@ -266,15 +327,32 @@ const LAYERS = [
   }
   .space { font-size: 12px; letter-spacing: 1px; color: var(--cinnabar); margin-bottom: 5px; }
   .rgb { font-size: 10.5px; font-family: ui-monospace, Consolas, monospace; color: var(--ink-soft); margin-top: 4px; }
-  .ratio { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin-top: 6px; }
-  .ratio span {
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; color: #fff;
+  /* 配比三层口径：三条独立比例条，不用一个条概括三种事实 */
+  .ratios { display: grid; gap: 20px; margin-top: 14px; }
+  .ratio-head {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 8px;
   }
-  .r1 { background: #003048; }
-  .r2 { background: #84A890; }
-  .r3 { background: #9C6C48; }
-  .r4 { background: #E41824; }
+  .ratio-head b { font-size: 14px; letter-spacing: 1px; }
+  .ratio-tag {
+    font-size: 10.5px; letter-spacing: 1px; color: var(--brand-sky);
+    background: var(--brand-sky-tint); border-radius: 4px; padding: 1px 7px;
+  }
+  .ratio-seq {
+    font-size: 11.5px; color: var(--ink-soft);
+    font-family: ui-monospace, Consolas, monospace;
+  }
+  .ratio { display: flex; height: 26px; border-radius: 6px; overflow: hidden; }
+  .seg {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--white);
+  }
+  /* 浅底段（浅阶蓝 / 纸深 / 细窄段）白字不可读，改用细边线 + 墨色字 */
+  .seg.edge {
+    color: var(--ink-soft);
+    box-shadow: inset 0 0 0 1px rgba(43, 41, 38, 0.16);
+  }
+  .ratio-note { font-size: 12.5px; line-height: 1.8; color: var(--ink-soft); margin-top: 8px; }
   .layers { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .layers th {
     text-align: left; padding: 9px 10px; font-weight: 600;

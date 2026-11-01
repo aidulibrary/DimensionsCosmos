@@ -141,9 +141,9 @@ const base = Astro.site?.pathname ?? '/';
   .hero h1 em { font-style: normal; color: var(--cinnabar); }
   .hero p.motto { margin-top: 16px; font-size: 18px; letter-spacing: 6px; color: var(--cinnabar); }
   .hero p.sub { margin: 14px 0 30px; color: var(--ink-soft); font-size: 17px; max-width: 34em; line-height: 1.7; }
-  .hero-search { display: flex; max-width: 520px; border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden; background: #fff; }
+  .hero-search { display: flex; max-width: 520px; border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden; background: var(--white); }
   .hero-search input { flex: 1; border: 0; outline: 0; padding: 14px 16px; font-size: 16px; font-family: inherit; background: transparent; }
-  .hero-search button { border: 0; background: var(--cinnabar); color: #fff; padding: 0 26px; font-size: 16px; font-family: inherit; cursor: pointer; }
+  .hero-search button { border: 0; background: var(--cinnabar); color: var(--white); padding: 0 26px; font-size: 16px; font-family: inherit; cursor: pointer; }
   .hero-search button:hover { background: var(--cinnabar-deep); }
   .hero-stats { display: flex; gap: 36px; margin-top: 34px; }
   .stat-link { text-decoration: none; color: inherit; transition: transform .2s; }
@@ -177,7 +177,7 @@ const base = Astro.site?.pathname ?? '/';
   .filters { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
   .filters button {
     font-family: inherit; font-size: 15px; cursor: pointer;
-    border: 1px solid var(--line); background: #fff; color: var(--ink-soft);
+    border: 1px solid var(--line); background: var(--white); color: var(--ink-soft);
     padding: 7px 20px; border-radius: 999px;
   }
   .filters button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
@@ -190,7 +190,7 @@ const base = Astro.site?.pathname ?? '/';
 
   /* 方法引导条 */
   .method-strip {
-    background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
   }
   .strip-inner {
     max-width: 960px; margin: 0 auto;

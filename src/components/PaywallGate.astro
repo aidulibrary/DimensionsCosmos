@@ -55,7 +55,7 @@ const base = Astro.site?.pathname ?? '/';
 <style>
   .pending-wrap { padding: 70px 6vw 90px; display: grid; place-items: center; }
   .pending-card {
-    background: #fff; border: 1.5px solid var(--line); border-radius: 16px;
+    background: var(--white); border: 1.5px solid var(--line); border-radius: 16px;
     padding: 42px 34px; max-width: 540px; width: 100%; text-align: center;
     box-shadow: 0 10px 34px rgba(43, 41, 38, .07);
   }
@@ -75,7 +75,7 @@ const base = Astro.site?.pathname ?? '/';
     padding: 11px 22px; border-radius: 8px; font-size: 14px;
     font-weight: 600; text-decoration: none;
   }
-  .btn-primary { background: var(--cinnabar); color: #fff; }
+  .btn-primary { background: var(--cinnabar); color: var(--white); }
   .btn-primary:hover { background: var(--cinnabar-deep); }
   .btn-secondary { border: 1.5px solid var(--line); color: var(--ink); }
   .btn-secondary:hover { background: var(--paper); }

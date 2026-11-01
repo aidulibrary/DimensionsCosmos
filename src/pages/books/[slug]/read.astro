@@ -1139,7 +1139,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   .article .ch-collation:hover {
     color: var(--cinnabar, #9b2c2c);
     border-color: var(--cinnabar, #9b2c2c);
-    background: #fff;
+    background: var(--white);
   }
 
   /* 章标题下：本篇被哪些导读引用（原文 → 导读 章节级互链） */
@@ -1171,7 +1171,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   .article .ch-guide a:hover {
     color: var(--cinnabar, #9b2c2c);
     border-color: var(--cinnabar, #9b2c2c);
-    background: #fff;
+    background: var(--white);
   }
 
   .article .ch-note {
@@ -1265,14 +1265,14 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
   }
   .cnav-tab.active {
-    background: #fff;
+    background: var(--white);
     color: #2b2926;
     font-weight: 600;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
   }
   .cnav-min {
     border: 1px solid rgba(43, 41, 38, 0.1);
-    background: #fff;
+    background: var(--white);
     color: #8a7a5f;
     width: 26px;
     height: 26px;
@@ -1316,7 +1316,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     padding: 9px 11px;
     border-radius: 12px;
     border: 1px solid rgba(43, 41, 38, 0.06);
-    background: #fff;
+    background: var(--white);
     cursor: pointer;
     transition: background 0.16s ease, border-color 0.16s ease;
   }
@@ -1790,7 +1790,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   .tb-collation:hover {
     border-color: var(--cinnabar);
     color: var(--cinnabar);
-    background: #fff;
+    background: var(--white);
   }
 
   .collation-bar {

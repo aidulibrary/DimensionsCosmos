@@ -7,7 +7,9 @@
   --cinnabar-deep: #7e211c;
   --line: #ddd2bd;
   --gold: #b8934a;
-  --white: #fefcf7;
+  /* 全站唯一白色：卡片、输入框、反白文字一律取 --white，禁止再写 #FFFFFF。
+     纯白 #FFFFFF 压在纸底 #F7F2E8 上会发青发冷，一眼看出是「套模板」。 */
+  --white: #FEFCF7;
   --success: #3a7d44;
   --shadow-sm: 0 2px 8px rgba(43, 41, 38, 0.08);
   --shadow-md: 0 8px 24px rgba(43, 41, 38, 0.12);
@@ -74,7 +76,7 @@ nav {
   height: 42px;
   border-radius: 6px;
   background: var(--cinnabar);
-  color: #fff;
+  color: var(--white);
   display: grid;
   place-items: center;
   font-size: 15px;
@@ -180,7 +182,7 @@ section {
 .btn-primary {
   display: inline-block;
   background: var(--cinnabar);
-  color: #fff;
+  color: var(--white);
   padding: 12px 28px;
   border-radius: var(--radius);
   text-decoration: none;
@@ -211,7 +213,7 @@ section {
 
 /* ---- 书卡 ---- */
 .book-card {
-  background: #fff;
+  background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 16px;
@@ -242,7 +244,7 @@ section {
 .badge {
   font-size: 11px;
   background: var(--cinnabar);
-  color: #fff;
+  color: var(--white);
   padding: 2px 8px;
   border-radius: 999px;
   white-space: nowrap;
@@ -285,7 +287,7 @@ section {
   font-size: 15px;
   cursor: pointer;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--white);
   color: var(--ink-soft);
   padding: 7px 20px;
   border-radius: 999px;
@@ -333,7 +335,7 @@ section {
   padding: 10px 16px;
   border-radius: 999px;
   text-decoration: none;
-  background: #fff;
+  background: var(--white);
   border: 1px solid var(--line);
   transition: all 0.2s;
 }
@@ -386,7 +388,7 @@ section {
 .method-badge {
   display: inline-block;
   background: var(--cinnabar);
-  color: #fff;
+  color: var(--white);
   padding: 4px 14px;
   border-radius: 999px;
   font-size: 14px;
@@ -517,7 +519,7 @@ section {
   display: inline-block;
   font-size: 15px;
   background: var(--cinnabar);
-  color: #fff;
+  color: var(--white);
   padding: 5px 16px;
   border-radius: 999px;
   letter-spacing: 1px;
@@ -540,7 +542,7 @@ section {
   margin-bottom: 20px;
 }
 .free-preview {
-  background: #fff;
+  background: var(--white);
   border: 1px dashed var(--line);
   padding: 14px;
   margin-bottom: 18px;
@@ -567,7 +569,7 @@ section {
 }
 .btn-purchase {
   background: var(--cinnabar);
-  color: #fff;
+  color: var(--white);
   padding: 14px;
   border-radius: var(--radius);
   text-decoration: none;
@@ -594,7 +596,7 @@ section {
   color: var(--ink-soft);
 }
 .paywall-note code {
-  background: #fff;
+  background: var(--white);
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 12px;
@@ -614,7 +616,7 @@ section {
   border-radius: var(--radius);
   font-family: inherit;
   font-size: 14px;
-  background: #fff;
+  background: var(--white);
 }
 .token-input-group input:focus {
   outline: none;
@@ -651,7 +653,7 @@ section {
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  background: #fff;
+  background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   text-decoration: none;
@@ -698,7 +700,7 @@ section {
   margin: 0 auto 44px;
 }
 .pricing-card {
-  background: #fff;
+  background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 28px 22px;
@@ -754,7 +756,7 @@ section {
   margin: 0 auto;
 }
 .quota-item {
-  background: #fff;
+  background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 18px;
