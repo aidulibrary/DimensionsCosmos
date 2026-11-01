@@ -1,12 +1,18 @@
 ---
 import type { BookMeta } from '../lib/data';
+import { type Locale } from '../i18n/config';
+import { bookDict } from '../i18n/pages/book';
 
 interface Props {
   book: BookMeta;
   minimal?: boolean;
+  lang?: Locale;
 }
 
-const { book, minimal = false } = Astro.props;
+const { book, minimal = false, lang = 'zh' } = Astro.props;
+const bd = bookDict[lang];
+const buLabel = book.bu ? (bd.bu[book.bu] ?? book.bu) : null;
+const dynastyLabel = book.dynasty ? (bd.dynasty[book.dynasty] ?? book.dynasty) : null;
 const guideCount = book.guides?.length ?? 0;
 const freeGuide = book.guides?.find((g) => g.method_id === 'zhuxi');
 const base = Astro.site?.pathname ?? '/';
@@ -17,24 +23,24 @@ const href = minimal ? '#' : `${base}books/${book.slug}`;
   <a href={href} class="card-link">
     <header class="card-header">
       <h3>{book.seed_title}</h3>
-      {guideCount > 0 && <span class="badge">{guideCount} 种解读</span>}
+      {guideCount > 0 && <span class="badge">{bd.guides(guideCount)}</span>}
     </header>
     <p class="card-meta">
       {book.author && <span class="author">{book.author}</span>}
-      {book.dynasty && <span class="dynasty">{book.dynasty}</span>}
-      {book.bu && <span class="bu">{book.bu}</span>}
+      {dynastyLabel && <span class="dynasty">{dynastyLabel}</span>}
+      {buLabel && <span class="bu">{buLabel}</span>}
     </p>
     {!minimal && freeGuide && (
       <p class="preview">
         {(freeGuide.content as Record<string, unknown>)?.structure
           || (freeGuide.content as Record<string, unknown>)?.explain_to_12_year_old
-          || '已有 AI 解读'}
+          || bd.fallback}
       </p>
     )}
   </a>
   {book.readable && (
-    <a class="card-read" href={`${base}books/${book.slug}/read`}>
-      读原文 <span aria-hidden="true">→</span>
+    <a class="card-read" href={`${base}books/${book.slug}/read`} aria-label={bd.readAria(book.seed_title)}>
+      {bd.read} <span aria-hidden="true">→</span>
     </a>
   )}
 </div>

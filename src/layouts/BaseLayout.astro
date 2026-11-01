@@ -126,14 +126,14 @@ try {
       } catch (e) { /* 探测失败一律按网页模式处理，不隐藏任何内容 */ }
     })();
   </script>
-  <meta name="application-name" content="维点图书馆">
+  <meta name="application-name" content={brandName}>
   <meta name="format-detection" content="telephone=no">
 
   <!-- iOS 全屏与添加到主屏 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="维点图书馆">
+  <meta name="apple-mobile-web-app-title" content={brandName}>
 
   <!-- 图标 -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -143,13 +143,13 @@ try {
 
   <!-- ══ 社交分享 ══ -->
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="维点图书馆">
+  <meta property="og:site_name" content={brandName}>
   <meta property="og:title" content={title}>
   <meta property="og:description" content={description}>
   <meta property="og:image" content="/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="维点图书馆 · 用大师的方法读一切书">
+  <meta property="og:image:alt" content={`${brandName} · ${brandTag}`}>
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="/og-image.png">
 

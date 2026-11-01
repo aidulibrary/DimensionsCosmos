@@ -70,7 +70,7 @@ const total = indexData?.ok ?? 0;
     </div>
     <div class="book-grid">
       {works.slice(0, 50).map((book) => (
-        <BookCard book={book} />
+        <BookCard book={book} lang={lang} />
       ))}
     </div>
     <p class="center-link">
@@ -87,7 +87,7 @@ const total = indexData?.ok ?? 0;
       <div class="strip-pills">
         {methods.slice(0, 5).map((m) => (
           <a href={`/methods#${m.id}`} class="strip-pill">
-            {m.icon} {m.name_zh}
+            {m.icon} {lang === 'en' ? m.name_en : m.name_zh}
           </a>
         ))}
         <a href="/methods" class="strip-pill more">{t.stripMore.replace('{n}', String(methods.length - 5))}</a>
