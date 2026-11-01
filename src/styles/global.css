@@ -66,6 +66,16 @@ nav {
   writing-mode: vertical-rl;
   box-shadow: 2px 2px 0 rgba(43, 41, 38, 0.18);
 }
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+  background: #003048;
+  box-shadow: 0 1px 3px rgba(0, 48, 72, 0.26);
+}
 .brand b {
   font-size: 20px;
   letter-spacing: 4px;
@@ -795,6 +805,11 @@ footer b {
 }
 
 @media (max-width: 600px) {
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+  }
   .hero h1 {
     font-size: clamp(28px, 7vw, 42px) !important;
   }
