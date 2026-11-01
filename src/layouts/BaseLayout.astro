@@ -28,6 +28,14 @@ const {
 // ── 国际化上下文 ──
 const meta = LOCALES[lang];
 const t = ui[lang];
+// 品牌名与标语：三语各自惯用写法，英文版不夹中文
+const brandName = lang === 'en' ? 'DimensionsCosmos Library' : lang === 'zh-TW' ? '維點圖書館' : '维点图书馆';
+const brandTag =
+  lang === 'en'
+    ? 'Read any book through a master\u2019s eyes'
+    : lang === 'zh-TW'
+      ? '用大師的方法讀一切書'
+      : '用大师的方法读一切书';
 // 当前路径去掉语言前缀，供语言切换器换算出其他语言的同一页地址
 const rawPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 const curPrefix = meta.prefix;
