@@ -15,20 +15,26 @@ AIGC:
 
 ## 1. 目标口径
 
-36 篇 = **4 部书 × 9 种方法**（`multimodal` 不计入正篇）：
+36 篇 = **4 部书 × 9 种方法**（`multimodal` 不计入正篇）。
 
-| 书 | works.id | 已覆盖 | 缺 |
-|---|---|---|---|
-| 论语 | 1 | `zhuxi` `sushi` `qianzhongshu` `wangyangming` `adler` `feynman` | `socratic` `arendt` `ibn_khaldun` |
-| 老子 | 23 | `arendt` `ibn_khaldun` | 其余 7 |
-| 颜氏家训 | 32 | `socratic` `arendt` `ibn_khaldun` | 其余 6 |
-| 世说新语 | 33 | `ibn_khaldun` | 其余 8 |
+**统计口径以体检闸门为准**：库里"有记录"不等于"可交付"。按 `pipeline/qa_guides.py` 的硬指标判定后，真实进度如下（截至 2026-11-01）：
+
+| 书 | works.id | 过闸可用 | 需重做 | 缺失 | 待做 |
+|---|---|---|---|---|---|
+| 论语 | 1 | 1（`zhuxi`） | 5 | 3 | 8 |
+| 老子 | 23 | 0 | 2 | 7 | 9 |
+| 颜氏家训 | 32 | 0 | 3 | 6 | 9 |
+| 世说新语 | 33 | 0 | 1 | 8 | 9 |
+| **合计** | | **1** | **11** | **24** | **35** |
 
 进度随时用一条命令自检（不调模型，秒级）：
 
 ```bash
-python pipeline/batch_guides.py --plan
+python pipeline/batch_guides.py --plan                       # 矩阵 + 待做清单
+python pipeline/batch_guides.py --plan --plan-out output/ledger.md   # 顺手存台账
 ```
+
+`✓` 过闸可用 / `~` 有记录未过闸需重做 / `·` 缺失。未过闸的旧篇会被自动排进重做队列（不再算"已完成"），所以 `--run` 会连同 11 篇重做一起处理。
 
 单篇验收口径（v1.1）：**≥5 段、正文 ≥1000 字、每段 1 处池内逐字引证、论述段落 ≥120 字、无占位符、content 四字段非空**。
 
@@ -59,8 +65,14 @@ ollama pull qwen3:4b        # 或 qwen2.5:7b / 14b，取决于显存
 # 先看清单
 python pipeline/batch_guides.py --plan
 
-# 全量补齐 24 篇（已有项自动跳过＝断点续跑）
+# 全量补齐 35 篇（含 11 篇重做；已过闸的自动跳过＝断点续跑）
 python pipeline/batch_guides.py --run
+
+# 建议按书分 4 批跑，单批 1.5~2 小时，中断后重跑同一条命令即续
+python pipeline/batch_guides.py --run --only-book 论语      --max-seconds 7200
+python pipeline/batch_guides.py --run --only-book 老子      --max-seconds 7200
+python pipeline/batch_guides.py --run --only-book 颜氏家训  --max-seconds 7200
+python pipeline/batch_guides.py --run --only-book 世说新语  --max-seconds 7200
 
 # 分夜跑：给 8 小时预算，到点优雅退出，第二天重跑同一条命令即续
 python pipeline/batch_guides.py --run --max-seconds 28800
@@ -91,7 +103,7 @@ export OLLAMA_HOST=http://10.0.0.5:11434   # 模型在另一台机器上时
 生成只写异机的 `guji.db`，**不要回传整个数据库**，只回传导读 JSON：
 
 ```bash
-# 异机：导出（约 44 KB/12 篇，24 篇约 90 KB）
+# 异机：导出（约 44 KB/12 篇，35 篇约 130 KB）
 python pipeline/batch_guides.py --export output/guides.json
 
 # 本机：先试跑校验，再正式合并
@@ -111,13 +123,21 @@ python pipeline/batch_guides.py --import output/guides.json
 ## 6. 本机发布（异机回传之后）
 
 ```bash
-python pipeline/batch_guides.py --plan          # 应显示 36/36
-npm run build                                    # 前端构建（退出码 0）
+python pipeline/batch_guides.py --plan                       # 应显示 36/36 过闸
+python pipeline/qa_guides.py --gate data/guide-qa-gate.json  # 重新生成放行名单
+node scripts/gen.mjs                                          # 未过闸的导读自动拦下
+npx astro build && node scripts/postbuild-seo.mjs             # 构建 + sitemap
 git add data docs pipeline && git commit -m "feat: 补齐 36 篇引证式导读"
-git push                                         # Cloudflare 自动构建
+git push                                                      # Cloudflare 自动构建
 ```
 
-线上验证：`/work/<qid>` 页导读段数与引证数、`/r/dc:<qid>/c<n>/b<m>` 短链 200。
+发布链路有三道保护，未达标的内容不会上线：
+
+1. `qa_guides.py --gate` 只把过闸篇目写进白名单
+2. `scripts/gen.mjs` 按白名单出前端数据，未过闸的显示为"筹备中"
+3. 该页带 `noindex` 且不进 sitemap，不会被搜索引擎收进索引
+
+线上验证：导读页正文段数与"本段引证"锚点数、`/r/dc:<qid>/c<n>/b<m>` 短链 200。
 
 ## 7. 已知坑
 
