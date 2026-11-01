@@ -3,8 +3,14 @@
   --paper-deep: #efe7d6;
   --ink: #2b2926;
   --ink-soft: #6b655c;
-  --cinnabar: #9e2b25;
-  --cinnabar-deep: #7e211c;
+  /* 语义色：结构化强调一律星穹蓝，一点红只做「点」。
+     历史变量名 --cinnabar / --cinnabar-deep 保留（全站 145 处引用），值已归位星穹蓝，
+     旧朱砂 #9e2b25 退役；需要真正的红，只能从 --point 取，且仅限印章、角标、当前位置这类点状物。 */
+  --accent: var(--brand-sky);
+  --accent-deep: var(--brand-sky-deep);
+  --point: var(--brand-red);
+  --cinnabar: var(--brand-sky);
+  --cinnabar-deep: var(--brand-sky-deep);
   --line: #ddd2bd;
   --gold: #b8934a;
   /* 全站唯一白色：卡片、输入框、反白文字一律取 --white，禁止再写 #FFFFFF。
@@ -75,7 +81,7 @@ nav {
   width: 42px;
   height: 42px;
   border-radius: 6px;
-  background: var(--cinnabar);
+  background: var(--point);
   color: var(--white);
   display: grid;
   place-items: center;
@@ -127,7 +133,7 @@ nav {
   color: var(--cinnabar);
 }
 .nav-cta {
-  background: var(--ink);
+  background: var(--accent);
   color: var(--paper) !important;
   padding: 8px 18px;
   border-radius: 4px;
@@ -243,7 +249,7 @@ section {
 }
 .badge {
   font-size: 11px;
-  background: var(--cinnabar);
+  background: var(--point);
   color: var(--white);
   padding: 2px 8px;
   border-radius: 999px;
@@ -298,9 +304,10 @@ section {
   color: var(--cinnabar);
 }
 .filters button.active {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
+  /* 选中态=信息衬底，浅阶蓝；不抢主按钮的蓝 */
+  background: var(--brand-sky-tint);
+  color: var(--accent-deep);
+  border-color: var(--accent);
 }
 
 /* ---- 方法选择器 ---- */
@@ -624,8 +631,8 @@ section {
 }
 .token-input-group button {
   padding: 10px 18px;
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--accent);
+  color: var(--white);
   border: none;
   border-radius: var(--radius);
   font-family: inherit;

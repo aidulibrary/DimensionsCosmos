@@ -130,7 +130,7 @@ const buSet = [...new Set((indexData.works ?? []).map((w) => w.bu).filter(Boolea
     font-size: 15px; font-family: inherit;
   }
   .search-bar button {
-    border: 0; background: var(--ink); color: var(--paper);
+    border: 0; background: var(--accent); color: var(--white);
     padding: 0 18px; font-size: 16px; cursor: pointer;
   }
   .clear-btn {
@@ -145,7 +145,7 @@ const buSet = [...new Set((indexData.works ?? []).map((w) => w.bu).filter(Boolea
     background: var(--white); transition: all .2s;
   }
   .filter-chip:hover { border-color: var(--cinnabar); }
-  .filter-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .filter-chip.active { background: var(--brand-sky-tint); color: var(--accent-deep); border-color: var(--accent); }
 
   .result-count {
     text-align: center; font-size: 13px; color: var(--ink-soft); margin-bottom: 24px;

@@ -1099,7 +1099,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   }
   .need-status a {
     margin-left: auto;
-    color: #9b2c2c;
+    color: var(--accent);
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
@@ -1283,8 +1283,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     transition: background 0.16s ease, color 0.16s ease;
   }
   .cnav-min:hover {
-    color: #9b2c2c;
-    border-color: rgba(155, 44, 44, 0.25);
+    color: var(--accent);
+    border-color: rgba(0, 48, 72, 0.25);
   }
   .cnav-meta {
     padding: 7px 12px 8px;
@@ -1372,9 +1372,10 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     white-space: nowrap;
   }
   .cnav-item .ci-tag.gB {
-    color: #9b2c2c;
-    background: #fff5f5;
-    border-color: #e8d2d2;
+    /* 质量警示是「点」级标签，保留一点红，但只做浅红衬底 */
+    color: var(--point);
+    background: #fdecee;
+    border-color: #f3c9cd;
   }
   .cnav-item .ci-tag.gC {
     color: #2f6b46;
@@ -1399,7 +1400,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     backdrop-filter: blur(8px);
   }
   .cnav-foot a {
-    color: #9b2c2c;
+    color: var(--accent);
     text-decoration: none;
   }
   .cnav-foot a:hover {
@@ -1422,7 +1423,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     box-shadow: 0 6px 18px rgba(43, 41, 38, 0.12);
   }
   .cnav-open:hover {
-    color: #9b2c2c;
+    color: var(--accent);
   }
   @media (max-width: 1440px) {
     .reader-grid.reader-grid.has-cnav {
@@ -1512,7 +1513,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   .progress-bar {
     height: 100%;
     width: 0;
-    background: linear-gradient(90deg, var(--cinnabar), var(--gold));
+    /* 进度用星穹蓝，末端留一点红——进度尽头就是个「点」，不铺面 */
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 78%, var(--point) 100%);
     transition: width 0.25s ease;
   }
 
@@ -1650,9 +1652,10 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     color: var(--cinnabar);
   }
   .toc-link.active {
-    background: #f8efe2;
-    border-left-color: var(--cinnabar);
-    color: var(--cinnabar-deep);
+    /* 选中态用浅阶蓝衬底，左侧 2px 一点红标「我在这里」 */
+    background: var(--brand-sky-tint);
+    border-left-color: var(--point);
+    color: var(--accent-deep);
     font-weight: 600;
   }
   .toc-link.bad {
@@ -1844,7 +1847,9 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     color: var(--ink);
     letter-spacing: 0.015em;
     transition: opacity 0.18s ease;
-    max-width: 52em;
+    /* 行长硬上限：34em ≈ 34 个汉字（em 随字号缩放，调字号不会把行拉长）。
+       中文单行 30–40 字为舒适区，52 字时眼球回扫会丢行。 */
+    max-width: 34em;
     margin: 0 auto;
   }
   .article.loading {
