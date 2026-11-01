@@ -16,6 +16,9 @@ const SITE = "https://dimensionscosmos.pages.dev";
 
 // 不进入搜索引擎索引的内部目录
 const EXCLUDE_PREFIX = ["/data/", "/collation/"];
+// 稳定引用短链页（/<workKey>/c<chapNo>/）由 postbuild-ref-routes 生成，
+// 属于"引用入口"而非内容页，已在页面内标 noindex，同样不进 sitemap
+const EXCLUDE_REF_ROUTE = /^\/(?:Q\d+|x[0-9a-f]{8})\/c\d+\/$/;
 
 if (!fs.existsSync(DIST)) {
   console.error("[seo] 未找到 dist 目录，请先执行 astro build");
@@ -35,6 +38,7 @@ function collect(dir, acc = []) {
       rel = rel.replace(/\/+/g, "/");
       const loc = rel === "/" ? "/" : rel;
       if (EXCLUDE_PREFIX.some((x) => loc.startsWith(x))) continue;
+      if (EXCLUDE_REF_ROUTE.test(loc)) continue;
       acc.push({ loc, mtime: fs.statSync(p).mtime });
     }
   }

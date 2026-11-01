@@ -14,6 +14,16 @@ data/guji.db
 data/guji.db-journal
 data/guji.db-wal
 data/guji.db-shm
+# 数据库备份（迁移/回滚前快照，一律不入库）
+data/guji.db.bak*
+*.db.bak*
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+
+# 任务中间产物（脚本、体检报告、备份 JSON）
+temp/
 
 # 环境变量
 .env

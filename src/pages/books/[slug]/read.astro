@@ -3,7 +3,8 @@
 // 设计要点：
 //   1) 章节目录按 chapters.ord 排序（前置附文为负值，未定位者置末）
 //   2) 首章服务端直出，其余章客户端按需 fetch /data/ch/{id}.json
-//   3) 章节用 hash 定位（#ch-123），可分享、可刷新还原
+//   3) 章节/句元用 hash 定位，主用稳定引用 URN（#dc:Q276015/c002/b003），
+//      锚点主用稳定引用 #dc:<work>/c<章号>[/b<块>/k<序号>]，并兼容旧锚（#ch-123 / #ch-123:b..:k..）——见 docs/REF-SPEC.md
 //   4) 质量闸门：incomplete 章顶部显式提示底本残缺
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -157,6 +158,8 @@ const tocLite = allChapters.map((c) => ({
   g: c.ordGroup,
   q: c.quality,
   n: c.qualityNote,
+  // 稳定引用（REF-SPEC v1，如 dc:Q276015/c002），前端据此拼 URN 锚点
+  r: c.ref ?? null,
 }));
 const passData = {
   base,
@@ -184,7 +187,7 @@ const richLine = (s: string) =>
     .replace(/>/g, '&gt;')
     .replace(/□/g, '<span class="mk-box">□</span>');
 
-// 首章可见块序：过滤空块并保留序号，与客户端 render 的块序保持一致，供深链 #ch-<id>:b<块序>:k<序号> 定位
+// 首章可见块序：过滤空块并保留序号，与客户端 render 的块序保持一致，供深链 #dc:<work>/c<章号>/b<块序>/k<序号> 定位
 const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   (b) => cleanLine(b?.x ?? '').length > 0,
 );
@@ -229,7 +232,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
             <ul>
               {frontMatter.map((c) => (
                 <li>
-                  <a href={`#ch-${c.id}`} data-cid={c.id} class="toc-link front">
+                  <a href={c.ref ? `#${c.ref}` : `#ch-${c.id}`} data-cid={c.id} class="toc-link front">
                     {c.title.split('/').pop()}
                   </a>
                 </li>
@@ -245,7 +248,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
             ) : (
               <li>
                 <a
-                  href={`#ch-${item.ch.id}`}
+                  href={item.ch.ref ? `#${item.ch.ref}` : `#ch-${item.ch.id}`}
                   data-cid={item.ch.id}
                   class:list={['toc-link', { active: item.ch.id === firstChapter?.id, bad: item.ch.quality !== 'ok' }]}
                 >
@@ -429,15 +432,45 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     }
   }
 
-  // ---- 缺字定位（深链 #ch-<章id>:b<可见块序>:k<块内第几个□>）----
-  const HASH_RE = /^#ch-(\d+)(?::b(\d+):k(\d+))?$/;
-  function parseHash() {
-    const m = location.hash.match(HASH_RE);
-    if (!m) return null;
+  // ---- 稳定引用锚点（REF-SPEC v1）----
+  //   新：#dc:<work-key>/c<chapNo>[/b<block>[/k<item>]]  —— 与自增主键解耦，重导数据不漂移
+  //   旧：#ch-<id>[:b<block>:k<item>]                  —— 仅作兼容，供老外链与老书签回退
+  const LEGACY_HASH_RE = /^#ch-(\d+)(?::b(\d+):k(\d+))?$/;
+  const REF_HASH_RE = /^#(dc:[^/#]+(?:\/c\d+))(?:\/b(\d+))?(?:\/k(\d+))?$/;
+
+  const refToId = new Map<string, number>();
+  for (const c of toc as any[]) if (c?.r) refToId.set(String(c.r), Number(c.id));
+
+  const pad3 = (n: number) => String(n).padStart(3, '0');
+
+  // 章内锚点：有 ref 用稳定 URN，缺 ref 退回旧式 #ch-<id>
+  function hashFor(id: number, spot: { bi: number; kth: number } | null = null) {
+    const meta: any = toc[idxOf(id)];
+    const r = meta?.r ? String(meta.r) : '';
+    // REF-SPEC v1 要求块级/句元级 1-based；内部 bi/kth 为 0-based，序列化时 +1
+    if (r) return spot ? `#${r}/b${pad3(spot.bi + 1)}/k${pad3(spot.kth + 1)}` : `#${r}`;
+    return spot ? `#ch-${id}:b${spot.bi}:k${spot.kth}` : `#ch-${id}`;
+  }
+
+  function parseHash(): { id: number; bi: number | null; kth: number | null } | null {
+    const m = location.hash.match(REF_HASH_RE);
+    if (m) {
+      const id = refToId.get(m[1]);
+      // 本页目录里查不到该 URN（他书引用 / 已下架章节）时按无锚点处理，不误跳
+      if (id === undefined) return null;
+      // URN 中块级/句元级为 1-based，内部统一转回 0-based，与 data-bi / data-kth 对齐
+      return {
+        id,
+        bi: m[2] !== undefined ? Number(m[2]) - 1 : null,
+        kth: m[3] !== undefined ? Number(m[3]) - 1 : null,
+      };
+    }
+    const l = location.hash.match(LEGACY_HASH_RE);
+    if (!l) return null;
     return {
-      id: Number(m[1]),
-      bi: m[2] !== undefined ? Number(m[2]) : null,
-      kth: m[3] !== undefined ? Number(m[3]) : null,
+      id: Number(l[1]),
+      bi: l[2] !== undefined ? Number(l[2]) : null,
+      kth: l[3] !== undefined ? Number(l[3]) : null,
     };
   }
 
@@ -634,14 +667,14 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
         history.replaceState(
           null,
           '',
-          location.pathname + location.search + `#ch-${r.chId}:b${r.blk}:k${r.kth}`,
+          location.pathname + location.search + hashFor(r.chId, { bi: r.blk, kth: r.kth }),
         );
         markCnavActive();
         showNeedTip(r.kth);
       }
       return;
     }
-    location.hash = `#ch-${r.chId}:b${r.blk}:k${r.kth}`;
+    location.hash = hashFor(r.chId, { bi: r.blk, kth: r.kth });
   }
 
   document.querySelectorAll('.cnav-tab').forEach((b) => {
@@ -755,7 +788,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
       history.replaceState(
         null,
         '',
-        location.pathname + location.search + (spot ? `#ch-${id}:b${spot.bi}:k${spot.kth}` : `#ch-${id}`),
+        location.pathname + location.search + hashFor(id, spot),
       );
     if (!spot) hideNeedTip();
 
@@ -833,7 +866,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     applyFont(font);
   });
 
-  // 初始：hash 优先（支持 #ch-<id>:b<块序>:k<序号> 深链），其次上次阅读位置
+  // 初始：hash 优先（支持稳定引用 #dc:... 与旧式 #ch-<id> 深链），其次上次阅读位置
   const H0 = parseHash();
   const S0 = H0 && H0.bi !== null ? { bi: H0.bi, kth: H0.kth ?? 0 } : null;
   let target = H0?.id || 0;

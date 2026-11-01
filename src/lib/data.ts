@@ -19,6 +19,8 @@ export interface Chapter {
   quality: string;
   qualityNote: string | null;
   excerpt: string;
+  /** 稳定引用 URN（REF-SPEC v1），如 dc:Q276015/c002；与主键解耦，可长期外链 */
+  ref?: string | null;
   /** 兼容旧字段 */
   text?: string;
 }
@@ -35,6 +37,8 @@ export interface ChapterContent {
   quality: string;
   qualityNote: string | null;
   blocks: Block[];
+  /** 稳定引用 URN（REF-SPEC v1），块级由前端派生为 {ref}/b{block} */
+  ref?: string | null;
 }
 
 export interface GuideContent {
@@ -86,11 +90,29 @@ export interface GuideContent {
   [key: string]: unknown;
 }
 
+export interface GuideParagraph {
+  /** 段落正文，「」内为逐字原文引文 */
+  text: string;
+  /** 本段引用的原文锚点（REF-SPEC v1 URN，池内块级） */
+  cites: string[];
+}
+
 export interface Guide {
   method_id: string;
   generated_at: string;
   model_used: string;
   content: GuideContent;
+  /**
+   * 引证式导读正文（P0-5）：每段必带 cites，引文与所引块逐字对应。
+   * 老数据（改写散文式导读）没有该字段，前端整块跳过。
+   */
+  paragraphs?: GuideParagraph[];
+  /**
+   * 引证锚点：REF-SPEC v1 URN 列表（dc:<workKey>/c<chapNo>[/b<block>[/k<item>]]）。
+   * 由 scripts/migrate_citations.py 从导读正文确定性提取并在入库时校验，
+   * 保证每个 URN 都能落到真实章节（块级则落到真实块）。空数组表示该篇暂无锚点。
+   */
+  citations?: string[];
 }
 
 export interface BookMeta {

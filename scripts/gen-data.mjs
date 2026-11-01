@@ -42,6 +42,8 @@ const col = {
   note: has("quality_note") ? "c.quality_note" : "NULL AS quality_note",
   clean: has("clean_text") ? "c.clean_text" : "c.text AS clean_text",
   blocks: has("blocks") ? "c.blocks" : "NULL AS blocks",
+  // REF-SPEC v1 稳定引用（dc:<work-key>/c<chapNo>）；老库无该列时降级为 null
+  ref: has("ref") ? "c.ref" : "NULL AS ref",
 };
 const wCols = cols("works");
 const wQuality = wCols.includes("quality") ? "w.quality" : "'ok' AS quality";
@@ -105,9 +107,16 @@ for (const w of worksWithSlug) {
 // 3) AI 解读
 const worksGuides = {};
 try {
+  // citations（REF-SPEC v1 URN 列表）为 P0-5 引证式导读字段，老库可能没有该列
+  const hasCites = db
+    .prepare("PRAGMA table_info(ai_guides)")
+    .all()
+    .some((c) => c.name === "citations");
   const guides = db
     .prepare(
-      `SELECT work_id, method_id, result, generated_at, model_used
+      `SELECT work_id, method_id, result, generated_at, model_used${
+        hasCites ? ", citations" : ""
+      }
        FROM ai_guides ORDER BY work_id, method_id`,
     )
     .all();
@@ -119,11 +128,34 @@ try {
     } catch (_) {
       /* ignore */
     }
+    let cites = [];
+    if (hasCites && g.citations) {
+      try {
+        const v = JSON.parse(g.citations);
+        if (Array.isArray(v)) cites = v.filter((x) => typeof x === "string");
+      } catch (_) {
+        /* 脏值静默丢弃，不阻断构建 */
+      }
+    }
+    // 引证式导论的正文段落（P0-5）：每段自带 cites（REF-SPEC v1 URN），
+    // 老数据没有 paragraphs，留空数组，前端整块不渲染。
+    const paras = Array.isArray(parsed.paragraphs)
+      ? parsed.paragraphs
+          .filter((p) => p && typeof p.text === "string" && p.text.trim())
+          .map((p) => ({
+            text: String(p.text).trim(),
+            cites: Array.isArray(p.cites)
+              ? p.cites.filter((u) => typeof u === "string" && /^dc:[^/]+\/c\d+/.test(u))
+              : [],
+          }))
+      : [];
     worksGuides[g.work_id].push({
       method_id: g.method_id,
       generated_at: g.generated_at,
       model_used: g.model_used,
       content: parsed.content || parsed,
+      paragraphs: paras,
+      citations: cites,
     });
   }
 } catch (_) {
@@ -136,7 +168,7 @@ const ORDER = has("ord")
   : `ORDER BY c.id`;
 const chapterStmt = db.prepare(
   `SELECT c.id, c.title, c.chars, ${col.ord}, ${col.ordGroup},
-          ${col.quality}, ${col.note}, ${col.clean}, ${col.blocks}
+          ${col.quality}, ${col.note}, ${col.clean}, ${col.blocks}, ${col.ref}
    FROM chapters c WHERE c.work_id = ? ${ORDER}`,
 );
 
@@ -192,6 +224,7 @@ for (const w of worksWithSlug) {
       quality: c.quality || "ok",
       qualityNote: c.quality_note || null,
       blocks,
+      ref: c.ref || null,
     };
     fs.writeFileSync(
       path.join(CH_DIR, `${c.id}.json`),
@@ -207,6 +240,7 @@ for (const w of worksWithSlug) {
       quality: c.quality || "ok",
       qualityNote: c.quality_note || null,
       excerpt: (c.clean_text || "").replace(/\s+/g, " ").slice(0, 120),
+      ref: c.ref || null,
     };
   });
 }
@@ -239,6 +273,24 @@ for (const w of worksWithSlug) {
   );
 }
 
+// 5.1) 稳定引用索引（REF-SPEC v1）：workKey → {slug, 书名, 合法 chapNo 列表}
+//      供 /r 解析路由与短链页在纯静态环境下做 URN → 阅读页跳转，无需服务端
+const refIndex = {};
+for (const w of worksWithSlug) {
+  for (const c of workChapters[w.id] || []) {
+    const m = /^dc:([^/]+)\/c(\d+)$/.exec(c.ref || "");
+    if (!m) continue;
+    const wk = m[1];
+    refIndex[wk] ??= { s: w.slug, n: w.seed_title, c: [] };
+    refIndex[wk].c.push(Number(m[2]));
+  }
+}
+for (const v of Object.values(refIndex)) v.c.sort((a, b) => a - b);
+fs.writeFileSync(
+  path.join(OUT_DIR, "ref-index.json"),
+  JSON.stringify(refIndex),
+);
+
 // 6) 清理旧版残留（老 book-*.json 里内嵌全文的时代已过）
 const totalCh = Object.values(workChapters).reduce((s, a) => s + a.length, 0);
 
@@ -267,7 +319,17 @@ if (!indexJson.ok || totalCh === 0) {
   process.exit(1);
 }
 
+const totalRef = Object.values(workChapters)
+  .flat()
+  .filter((c) => !!c.ref).length;
+
 console.log(
   `[gen] ${worksWithSlug.length} 部书 · 有正文 ${indexJson.ok} · 可阅读 ${indexJson.readable} · ` +
     `${totalCh} 章 → ${CH_DIR}`,
+);
+console.log(
+  `[gen] 稳定引用 ref 覆盖 ${totalRef}/${totalCh} 章` +
+    (totalRef === 0
+      ? " —— 库中 chapters.ref 全空（未执行 migrate_ref.py），阅读页将退回旧锚 #ch-<id>"
+      : ""),
 );

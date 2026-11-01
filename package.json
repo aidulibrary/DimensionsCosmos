@@ -11,8 +11,14 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "postbuild": "node scripts/postbuild-seo.mjs",
-    "preview": "astro preview"
+    "postbuild": "node scripts/postbuild-ref-routes.mjs && node scripts/postbuild-seo.mjs",
+    "preview": "astro preview",
+    "test:ref": "node scripts/test-ref-resolver.mjs",
+    "citations": "python scripts/migrate_citations.py",
+    "citations:apply": "python scripts/migrate_citations.py --apply",
+    "citations:verify": "python scripts/migrate_citations.py --verify",
+    "guides:cited": "python pipeline/gen_guides_cited.py",
+    "guides:dry": "python pipeline/gen_guides_cited.py --work-id 1 --method zhuxi --dry-run"
   },
   "engines": {
     "node": ">=22"

@@ -1,0 +1,172 @@
+---
+/**
+ * 稳定引用解析路由 /r?urn=dc:Q276015/c002[/b003[/k001]]
+ *
+ * 纯静态站点没有服务端，这里用"一张页面 + 一份 ref 索引"完成 URN → 阅读页的解析：
+ *   1. 读取 ?urn= 或 hash 中的 URN；
+ *   2. 按 REF-SPEC v1 解析 work-key / chapNo / block / item；
+ *   3. 用 /data/ref-index.json 校验该书与章号确实存在（避免跳到死链）；
+ *   4. 跳转到 /books/<slug>/read/#<原 URN>（章内块级定位由阅读页处理）。
+ *
+ * 章级短链另有静态页 /<workKey>/c<chapNo>（构建期由 scripts/postbuild-ref-routes.mjs 生成），
+ * 本页负责任意粒度（含块级、句元级）以及带参数的通用解析。
+ */
+const SITE = "https://dimensionscosmos.pages.dev";
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>引用解析 · 维点图书馆</title>
+    <link rel="canonical" href={SITE + "/r"} />
+    <style>
+      :root {
+        --ink: #2c2620;
+        --muted: #8a7a63;
+        --line: #e6dccb;
+        --paper: #fbf7ef;
+        --accent: #9c6b30;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 32px 18px;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", Georgia, serif;
+        line-height: 1.8;
+      }
+      main {
+        width: min(680px, 100%);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fffdf8;
+        padding: 30px 28px;
+      }
+      h1 { font-size: 20px; letter-spacing: 3px; margin: 0 0 16px; }
+      .urn {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 14px;
+        word-break: break-all;
+        background: #f6efe2;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin: 0 0 14px;
+      }
+      p { margin: 0 0 10px; font-size: 15px; }
+      .muted { color: var(--muted); font-size: 13px; }
+      .err { color: #a33b2b; }
+      a { color: var(--accent); }
+      .actions { margin-top: 18px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>引用解析</h1>
+      <p class="urn" id="urn">未提供引用</p>
+      <p id="msg" class="muted">正在解析…</p>
+      <div class="actions">
+        <a id="jump" href="/" hidden>立即前往</a>
+        <a href="/books">全部书目</a>
+        <a href="/about">引用规范</a>
+      </div>
+    </main>
+
+    <script>
+      const SITE = "https://dimensionscosmos.pages.dev";
+      const urnEl = document.getElementById("urn") as HTMLElement;
+      const msgEl = document.getElementById("msg") as HTMLElement;
+      const jumpEl = document.getElementById("jump") as HTMLAnchorElement;
+
+      const PUNCT = /\s/g;
+
+      // REF-SPEC v1 解析（与 docs/REF-SPEC.md §4 的 JS 实现保持一致）
+      function parseRef(urn: string) {
+        if (typeof urn !== "string" || !urn.startsWith("dc:")) return null;
+        const segs = urn.slice(3).split("/");
+        const wk = segs.shift();
+        if (!wk) return null;
+        const out: { workKey: string; chapNo: number | null; block: number | null; item: number | null } = {
+          workKey: wk,
+          chapNo: null,
+          block: null,
+          item: null,
+        };
+        for (const s of segs) {
+          const m = /^([cbk])(\d+)$/.exec(s);
+          if (!m) return null;
+          if (m[1] === "c") out.chapNo = Number(m[2]);
+          if (m[1] === "b") out.block = Number(m[2]);
+          if (m[1] === "k") out.item = Number(m[2]);
+        }
+        // 顺序约束：b 只能在 c 之后，k 只能在 b 之后
+        const seq = segs.map((s) => s[0]).join("");
+        if (!/^c(k|b|bk)?$/.test(seq)) return null;
+        return out;
+      }
+
+      function fail(text: string) {
+        msgEl.className = "err";
+        msgEl.textContent = text;
+      }
+
+      async function resolve() {
+        const q = new URLSearchParams(location.search);
+        const raw = (q.get("urn") || q.get("ref") || decodeURIComponent(location.hash.replace(/^#/, "")))
+          .trim()
+          .replace(PUNCT, "");
+        if (!raw) {
+          urnEl.textContent = "未提供引用";
+          fail("缺少 urn 参数。用法：/r?urn=dc:Q276015/c002");
+          return;
+        }
+        urnEl.textContent = raw;
+
+        const ref = parseRef(raw);
+        if (!ref || ref.chapNo == null) {
+          fail("引用格式无法解析。正确形式：dc:<workKey>/c<章号>[/b<块>[/k<序号>]]");
+          return;
+        }
+
+        let index: Record<string, { s: string; n: string; c: number[] }> = {};
+        try {
+          const res = await fetch("/data/ref-index.json", { cache: "no-cache" });
+          if (!res.ok) throw new Error(String(res.status));
+          index = await res.json();
+        } catch {
+          fail("引用索引加载失败，请稍后重试。");
+          return;
+        }
+
+        const work = index[ref.workKey];
+        if (!work) {
+          fail(`未收录该书（work-key：${ref.workKey}）。`);
+          return;
+        }
+        if (!work.c.includes(ref.chapNo)) {
+          fail(`${work.n} 中没有第 ${ref.chapNo} 章（该章可能尚未上架或被合并）。`);
+          return;
+        }
+
+        const target = `/books/${work.s}/${encodeURIComponent("read")}/#${raw}`;
+        const abs = SITE + target;
+        const canon = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+        if (canon) canon.href = abs;
+        jumpEl.href = target;
+        jumpEl.hidden = false;
+        msgEl.textContent = `已定位：${work.n} · 第 ${ref.chapNo} 章${ref.block ? ` · 第 ${ref.block} 块` : ""}，正在跳转…`;
+        // 用 replaceState 保证返回键回到来源页而不是解析页
+        setTimeout(() => location.replace(target), 120);
+      }
+
+      resolve();
+    </script>
+  </body>
+</html>
