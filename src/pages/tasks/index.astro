@@ -264,7 +264,7 @@ const highlight = (ctx = '') =>
 
   .toolbar {
     position: sticky; top: var(--nav-h); z-index: 8;
-    background: rgba(247, 242, 232, .96);
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--line);
   }
@@ -397,7 +397,7 @@ const highlight = (ctx = '') =>
   .btn-solid:hover { background: var(--cinnabar-deep); }
   .err { color: var(--cinnabar); font-size: 12px; }
   .done { font-size: 13px; color: var(--success); background: var(--ok-bg); border: 1px solid var(--ok-line); border-radius: 8px; padding: 12px; }
-  .mask { position: fixed; inset: 0; background: rgba(30, 26, 20, .35); z-index: 20; }
+  .mask { position: fixed; inset: 0; background: color-mix(in srgb, #0b1014 42%, transparent); z-index: 20; }
 
   .toast {
     position: fixed; left: 50%; bottom: 40px; transform: translate(-50%, 20px);

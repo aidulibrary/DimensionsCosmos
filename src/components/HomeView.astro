@@ -8,6 +8,7 @@ import { getAllMethods } from '../lib/data';
 import { type Locale, href } from '../i18n/config';
 import { ui } from '../i18n/ui';
 import { home } from '../i18n/pages/home';
+import { book as bookDict } from '../i18n/pages/book';
 
 interface Props {
   lang: Locale;
@@ -65,7 +66,7 @@ const total = indexData?.ok ?? 0;
     <div class="filters" id="filters">
       <button class="active" data-bu="">{u.common.all}</button>
       {Object.keys(byBu).sort().map((bu) => (
-        <button data-bu={bu}>{bu}</button>
+        <button data-bu={bu}>{bookDict[lang].bu[bu] ?? bu}</button>
       ))}
     </div>
     <div class="book-grid">
