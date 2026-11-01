@@ -29,7 +29,7 @@
 
   /* 图标几何常量：L1 应用图标圆角 22.5%、图形占高 76%（maskable 另算 62%） */
   --brand-icon-radius: 22.5%;
-  --brand-glyph-inset: 12%;
+  --brand-glyph-inset: 0.12;   /* 图形四周留白 = 边长 x 0.12，即图形占高 76% */
   --brand-mark-size: 42px;
 }
 
@@ -85,11 +85,12 @@ nav {
 }
 /* 顶栏标识：内联 SVG（L0 母版矢量），几何与 /logo.svg 完全一致，
    圆角 22.5% 与图形占高 76% 由 --brand-icon-radius / --brand-glyph-inset 统一控制，
-   不再依赖位图，任意 DPR 下都不会发虚。 */
+   不再依赖位图，任意 DPR 下都不会发虚。
+   注意：内边距必须写成 calc(size × 0.12)，用百分比会按父容器宽度解析（实测吃掉整个内容区，图形消失）。 */
 .brand-mark {
   width: var(--brand-mark-size);
   height: var(--brand-mark-size);
-  padding: var(--brand-glyph-inset);
+  padding: calc(var(--brand-mark-size) * var(--brand-glyph-inset));
   box-sizing: border-box;
   border-radius: var(--brand-icon-radius);
   background: var(--brand-sky);
