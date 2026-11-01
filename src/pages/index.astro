@@ -208,11 +208,12 @@ const base = Astro.site?.pathname ?? '/';
   .strip-pill.more { color: var(--cinnabar); font-weight: 600; }
 
   .open-band {
-    background: var(--ink); color: var(--paper);
+    /* 结构面①：星穹蓝承载「开放数据」区，纸墨之外的唯一大色块 */
+    background: var(--accent); color: var(--brand-on-sky);
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px;
   }
-  .open-band h4 { color: var(--gold); font-size: 16px; margin-bottom: 8px; letter-spacing: 2px; }
-  .open-band p { font-size: 13.5px; color: #cfc8ba; line-height: 1.75; }
+  .open-band h4 { color: var(--brand-on-sky); font-size: 16px; margin-bottom: 8px; letter-spacing: 2px; }
+  .open-band p { font-size: 13.5px; color: var(--brand-on-sky-soft); line-height: 1.75; }
 
   @media (max-width: 900px) {
     .hero { grid-template-columns: 1fr; }

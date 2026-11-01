@@ -111,45 +111,49 @@ const guideList = guides as Guide[] ?? [];
   .breadcrumb a { color: var(--cinnabar); text-decoration: none; }
 
   .book-header {
-    text-align: center; margin-bottom: 36px; padding-bottom: 28px;
-    border-bottom: 1px solid var(--line);
+    /* 结构面②：以书为单位的深蓝卡，让「一本书」有独立的封面感 */
+    text-align: center; margin-bottom: 36px; padding: 40px 30px 30px;
+    background: var(--accent); color: var(--brand-on-sky);
+    border-radius: 18px;
+    box-shadow: 0 12px 34px rgba(0, 48, 72, 0.16);
   }
-  .book-header h1 { font-size: 40px; letter-spacing: 8px; margin-bottom: 12px; }
-  .meta { font-size: 17px; color: var(--ink-soft); }
+  .book-header h1 { font-size: 40px; letter-spacing: 8px; margin-bottom: 12px; color: var(--brand-on-sky); }
+  .meta { font-size: 17px; color: var(--brand-on-sky-soft); }
   .meta span { margin: 0 6px; }
   .bu-tag {
-    font-size: 12px; color: var(--gold); border: 1px solid var(--gold);
+    font-size: 12px; color: var(--brand-on-sky); border: 1px solid rgba(252, 252, 252, 0.5);
     padding: 1px 8px; border-radius: 4px;
   }
-  .stats { margin-top: 16px; font-size: 14px; color: var(--ink-soft); }
+  .stats { margin-top: 16px; font-size: 14px; color: var(--brand-on-sky-soft); }
   .stats span { margin: 0 14px; }
-  .stats a { color: var(--cinnabar); }
+  .stats a { color: var(--brand-on-sky); }
 
   .version-box {
     margin: 22px auto 0; max-width: 720px; text-align: left;
-    border: 1px solid var(--line); border-radius: 8px;
-    padding: 14px 18px; background: rgba(0, 0, 0, 0.02);
+    border: 1px solid transparent; border-radius: 10px;
+    padding: 14px 18px; background: var(--white);
   }
   .version-line { font-size: 14px; line-height: 1.85; color: var(--ink); }
   .version-sub { font-size: 13px; line-height: 1.85; color: var(--ink-soft); margin-top: 6px; }
   .version-note { font-size: 12px; color: var(--ink-soft); opacity: 0.85; margin-top: 8px; }
 
   .read-cta { margin-top: 22px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  /* 蓝底上的主按钮反色：白色实底 + 蓝字，是全页最亮一块 */
   .btn-read {
-    display: inline-block; background: var(--cinnabar); color: var(--white);
+    display: inline-block; background: var(--brand-on-sky); color: var(--accent);
     padding: 12px 34px; border-radius: 8px; font-size: 15px; font-weight: 700;
     letter-spacing: 2px; text-decoration: none; box-shadow: var(--shadow-sm);
     transition: background 0.18s, transform 0.18s;
   }
-  .btn-read:hover { background: var(--cinnabar-deep); transform: translateY(-1px); }
-  .read-hint { font-size: 12px; color: var(--ink-soft); }
+  .btn-read:hover { background: var(--white); color: var(--accent-deep); transform: translateY(-1px); }
+  .read-hint { font-size: 12px; color: var(--brand-on-sky-soft); }
 
   .read-blocked {
     margin: 20px auto 0; max-width: 620px; font-size: 13.5px; line-height: 1.8;
     color: #6b5a2a; background: #fdf6e3; border: 1px solid #e8d9a8;
     border-radius: 8px; padding: 12px 18px; text-align: left;
   }
-  .read-blocked.soft { background: none; border: none; color: var(--ink-soft); padding: 6px 0 0; }
+  .read-blocked.soft { background: none; border: none; color: var(--brand-on-sky-soft); padding: 6px 0 0; }
 
   .preview-box {
     background: var(--white); border: 1.5px solid var(--line); border-radius: 10px;
