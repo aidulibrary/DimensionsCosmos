@@ -24,6 +24,8 @@ export async function getStaticPaths() {
 
 const { slug, method } = Astro.params;
 const base = Astro.site?.pathname ?? '/';
+/** 与 scripts/postbuild-seo.mjs 的 SITE 保持一致；Astro.site 未配置时兜底 */
+const SITE = 'https://dimensionscosmos.pages.dev';
 
 let book: BookMeta | null = null;
 try {
@@ -48,12 +50,15 @@ const methodInfo = getMethodInfo(method ?? '');
 const allGuides = (book?.guides as Guide[] ?? []).map((g) => g.method_id);
 
 // 有内容就直出（当前全部免费）；无内容时按「未上架」展示，不出现任何价格或购买入口
-const showPaywall = !guide && !methodInfo.free;
+// COMMERCE_ENABLED=false：商业化开关。关闭时绝不展示付费墙——
+// 否则「这书根本没做这个视角」会被渲染成「请解锁」，既误导用户也可能引发合规问题。
+const COMMERCE_ENABLED = false;
+const showPaywall = COMMERCE_ENABLED && !guide && !methodInfo.free;
 const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书馆`;
 ---
 
 {showPaywall ? (
-  <BaseLayout title={paywallTitle}>
+  <BaseLayout title={paywallTitle} noindex>
     <section class="paywall-page">
       <PaywallGate
         methodId={method ?? ''}
@@ -64,7 +69,7 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
     </section>
   </BaseLayout>
 ) : !guide ? (
-  <BaseLayout title={`${book.seed_title} x ${methodInfo.name_zh} · 维点图书馆`}>
+  <BaseLayout title={`${book.seed_title} x ${methodInfo.name_zh} · 维点图书馆`} noindex>
     <section class="coming-soon-page">
       <nav class="breadcrumb">
         <a href={base}>首页</a> / <a href={`${base}books/${slug}`}>{book.seed_title}</a> / <span>{methodInfo.name_zh}</span>
@@ -118,6 +123,40 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
   </BaseLayout>
 ) : (
   <BaseLayout title={`${book.seed_title} x ${methodInfo.name_zh} - 维点图书馆`}>
+    {/* 结构化数据：把「某书的某视角解读」明确表达为 Book + Article + 面包屑，
+        搜索引擎才能把 5400+ 章节页与 36 个导读页区分开（导读是原创评述，不是原文） */}
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'Book',
+            name: book.seed_title,
+            author: { '@type': 'Person', name: book.author ?? '佚名' },
+            inLanguage: 'zh-Hant',
+            url: `${SITE}/books/${slug}`,
+          },
+          {
+            '@type': 'Article',
+            headline: `${book.seed_title} × ${methodInfo.name_zh}`,
+            about: { '@type': 'Book', name: book.seed_title },
+            inLanguage: 'zh-CN',
+            ...(guide?.generated_at ? { datePublished: guide.generated_at } : {}),
+            isPartOf: { '@type': 'WebSite', name: '维点图书馆', url: SITE },
+            publisher: { '@type': 'Organization', name: '维点图书馆' },
+          },
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: '首页', item: `${SITE}/` },
+              { '@type': 'ListItem', position: 2, name: book.seed_title, item: `${SITE}/books/${slug}` },
+              { '@type': 'ListItem', position: 3, name: methodInfo.name_zh, item: `${SITE}/read/${slug}/${method}` },
+            ],
+          },
+        ],
+      })}
+    />
     <section class="read-page">
       <nav class="breadcrumb">
         <a href={base}>首页</a> / <a href={`${base}books/${slug}`}>{book.seed_title}</a> / <span>{methodInfo.name_zh}</span>

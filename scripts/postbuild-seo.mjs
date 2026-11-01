@@ -39,6 +39,11 @@ function collect(dir, acc = []) {
       const loc = rel === "/" ? "/" : rel;
       if (EXCLUDE_PREFIX.some((x) => loc.startsWith(x))) continue;
       if (EXCLUDE_REF_ROUTE.test(loc)) continue;
+      // 页面自身声明 noindex 的（如「该视角未上架」占位页）不进 sitemap：
+      // 提交一堆 noindex URL 会让搜索引擎判定站点质量差，拖累整体收录。
+      // 只读首 4KB —— robots meta 一定在 head 前部，避免全量读 6000+ 文件拖慢构建。
+      const head = fs.readFileSync(p, "utf-8").slice(0, 4096);
+      if (/<meta[^>]+name="robots"[^>]+noindex/i.test(head)) continue;
       acc.push({ loc, mtime: fs.statSync(p).mtime });
     }
   }

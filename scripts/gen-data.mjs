@@ -105,7 +105,29 @@ for (const w of worksWithSlug) {
 }
 
 // 3) AI 解读
+// 质量闸门：由 `python pipeline/qa_guides.py --gate data/guide-qa-gate.json` 产出。
+// 未过闸（旧版 3 段短篇、论述不足、引文不在块内等）的导读不进前端数据，
+// 页面自动落到「筹备中/未上架」态（/read/[slug]/[method] 的路由与数据互相独立）。
+// 闸门文件缺失时 fail-open（全量放行 + 告警），避免一次漏跑把整站导读清空。
+const GATE_PATH = path.join(ROOT, "data", "guide-qa-gate.json");
+let guideGate = null;
+try {
+  const gate = JSON.parse(fs.readFileSync(GATE_PATH, "utf-8"));
+  guideGate = new Map(
+    (gate.items ?? []).map((it) => [`${it.work_id}:${it.method_id}`, !!it.pass]),
+  );
+  console.log(
+    `[guides] 质量闸门生效：放行 ${gate.passed}/${gate.total}（${gate.at ?? "未标注时间"}）`,
+  );
+} catch (_) {
+  console.warn(
+    "[guides] 未找到 data/guide-qa-gate.json，AI 导读不做质量过滤（全部发布）。" +
+      "建议先跑 pipeline/qa_guides.py --gate 再构建。",
+  );
+}
+
 const worksGuides = {};
+let guidesBlocked = 0;
 try {
   // citations（REF-SPEC v1 URN 列表）为 P0-5 引证式导读字段，老库可能没有该列
   const hasCites = db
@@ -121,6 +143,10 @@ try {
     )
     .all();
   for (const g of guides) {
+    if (guideGate && guideGate.get(`${g.work_id}:${g.method_id}`) === false) {
+      guidesBlocked += 1;
+      continue;
+    }
     worksGuides[g.work_id] ??= [];
     let parsed = {};
     try {
@@ -259,6 +285,14 @@ const indexJson = {
 fs.writeFileSync(
   path.join(OUT_DIR, "index.json"),
   JSON.stringify(indexJson, null, 2),
+);
+if (guidesBlocked > 0) {
+  console.warn(
+    `[guides] 质量闸门拦下 ${guidesBlocked} 篇（未过 QA，前端显示为筹备中）`,
+  );
+}
+console.log(
+  `[guides] 已发布 ${indexJson.guidesCount} 篇导读 / 拦截 ${guidesBlocked} 篇`,
 );
 
 for (const w of worksWithSlug) {

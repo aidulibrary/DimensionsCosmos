@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 0c5caf7145ca8876d640e5da87215fbf_a5366de9d5de11f19101525400de85a5
+    ReservedCode1: 25RslQe2A+4GlSVf8RbqQC9eu81k0uiD+aBbEfzfZukXU6VwKrJBcoQHbSbXyz3lrQnXFtnJeIJOWfTna4EoM7hvCi36NT/EzUc7zsS5nEdHh1YI5IH968a2NBXPunAtGNkb0hjqaN6hXsPQSqG3QdjWmBeKSRfE73bSkdbOWo+zOG0GS6omTebyBkQ=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 0c5caf7145ca8876d640e5da87215fbf_a5366de9d5de11f19101525400de85a5
+    ReservedCode2: 25RslQe2A+4GlSVf8RbqQC9eu81k0uiD+aBbEfzfZukXU6VwKrJBcoQHbSbXyz3lrQnXFtnJeIJOWfTna4EoM7hvCi36NT/EzUc7zsS5nEdHh1YI5IH968a2NBXPunAtGNkb0hjqaN6hXsPQSqG3QdjWmBeKSRfE73bSkdbOWo+zOG0GS6omTebyBkQ=
+---
+
 # 36 篇引证式导读：批量生成与跨机搬运手册
 
 > 配套：`docs/GUIDE-CITED.md`（导读的内容标准与校验规则）、`pipeline/gen_guides_cited.py`（单篇生成器）、`pipeline/batch_guides.py`（批量调度 + 打包 + 回传）。
@@ -117,3 +128,4 @@ git push                                         # Cloudflare 自动构建
 | 引证对不上原文 | 只用 `quote_mode=auto`：引文由程序从候选池按块绑定，不交给模型手抄 |
 | 单篇超时 | 先把 `--max-tokens` 降到 2400，或换 7B 以上模型；3B 单段约 150 秒属正常 |
 | 导入后页面没变化 | 前端读的是 `data/guji.db` 的 `ai_guides`；确认导入了主库而非 guidepack，再重新 `npm run build` |
+*（内容由AI生成，仅供参考）*

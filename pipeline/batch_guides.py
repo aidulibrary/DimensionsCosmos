@@ -52,8 +52,31 @@ def _fix_stdout() -> None:
             pass
 
 
-def load_matrix(conn):
-    """返回 {book: {method_id: row|None}}，row 取自 ai_guides。"""
+GATE_PATH = ROOT / "data" / "guide-qa-gate.json"
+
+
+def load_gate(path=None):
+    """读取体检闸门 {work_id:method_id → pass}。
+
+    没有闸门文件时返回 None，调用方退回「有记录即完成」的旧口径（并告警）。
+    """
+    p = Path(path) if path else GATE_PATH
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    gate = {}
+    for it in data.get("items") or []:
+        gate[f"{it.get('work_id')}:{it.get('method_id')}"] = bool(it.get("pass"))
+    return gate or None
+
+
+def load_matrix(conn, gate=None):
+    """返回 {book: {method_id: {"row": row|None, "gate": bool|None}}}。
+
+    gate 为 None 表示没有体检数据，此时以「有记录」为完成；
+    有 gate 时以「有记录且过闸」为完成，未过闸的旧篇会被重新排进生成队列。
+    """
     books = {}
     for title in PLAN_BOOKS:
         w = conn.execute("SELECT id, seed_title, author, dynasty FROM works WHERE seed_title=?",
@@ -65,42 +88,88 @@ def load_matrix(conn):
                 row = conn.execute(
                     "SELECT generated_at, model_used, citations, result FROM ai_guides "
                     "WHERE work_id=? AND method_id=?", (w[0], mid)).fetchone()
-            books[title]["methods"][mid] = row
+            gpass = None if gate is None else bool(gate.get(f"{w[0]}:{mid}")) if w else None
+            books[title]["methods"][mid] = {"row": row, "gate": gpass}
     return books
 
 
-def print_plan(conn) -> dict:
-    books = load_matrix(conn)
-    have = 0
-    print(f"36 篇导读矩阵（目标 {TARGET} 篇）\n")
-    head = f"{'书':<8}" + "".join(f"{mid[:10]:<12}" for mid in PLAN_METHODS)
-    print(head)
+def cell_state(cell) -> str:
+    """ok=过闸可用 / stale=有记录但未过闸（需重做）/ missing=完全没有"""
+    if not cell["row"]:
+        return "missing"
+    if cell["gate"] is False:
+        return "stale"
+    return "ok"
+
+
+def print_plan(conn, gate=None, out=None) -> dict:
+    books = load_matrix(conn, gate)
+    marks = {"ok": "✓", "stale": "~", "missing": "·"}
+    counts = {"ok": 0, "stale": 0, "missing": 0}
+    lines = [f"36 篇导读矩阵（目标 {TARGET} 篇）"]
+    if gate is None:
+        lines.append("⚠ 未找到 data/guide-qa-gate.json：按「有记录即完成」统计，"
+                     "未过闸的旧篇不会被计入待做")
+    else:
+        lines.append("标记：✓ 过闸可用　~ 有记录但未过闸需重做　· 缺失")
+    lines.append("")
+    lines.append(f"{'书':<8}" + "".join(f"{mid[:10]:<12}" for mid in PLAN_METHODS))
+    matrix_rows = []
     for title, info in books.items():
-        cells = []
+        cells, plain = [], []
         for mid in PLAN_METHODS:
-            row = info["methods"][mid]
-            if row:
-                have += 1
-                cells.append(f"{'✓':<12}")
-            else:
-                cells.append(f"{'·':<12}")
-        print(f"{title:<8}" + "".join(cells))
-    missing = []
+            st = cell_state(info["methods"][mid])
+            counts[st] += 1
+            cells.append(f"{marks[st]:<12}")
+            plain.append(marks[st])
+        lines.append(f"{title:<8}" + "".join(cells))
+        matrix_rows.append((title, plain))
+    lines.append(f"\n可用 {counts['ok']}/{TARGET}，需重做 {counts['stale']}，"
+                 f"缺失 {counts['missing']}")
+    todo = []
     for title, info in books.items():
         for mid in PLAN_METHODS:
-            if not info["methods"][mid]:
-                missing.append((title, mid))
-    print(f"\n已有 {have}/{TARGET}，缺 {len(missing)} 篇")
-    for title, mid in missing:
-        print(f"  - {title} × {METHODS[mid]['name_zh']}")
-    return {"have": have, "missing": missing}
+            st = cell_state(info["methods"][mid])
+            if st != "ok":
+                todo.append((title, mid, st))
+                lines.append(f"  - [{'重做' if st == 'stale' else '缺失'}] "
+                             f"{title} × {METHODS[mid]['name_zh']}")
+    text = "\n".join(lines)
+    print(text)
+    if out:
+        p = Path(out)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        md = [f"# 36 篇导读进度台账", "",
+              f"- 生成时间：{datetime.now().isoformat(timespec='seconds')}",
+              f"- 目标：{TARGET} 篇（4 部书 × 9 法）",
+              f"- 可用：{counts['ok']}　需重做：{counts['stale']}　缺失：{counts['missing']}",
+              f"- 闸门口径：{'体检通过' if gate is not None else '未启用（有记录即算）'}", "",
+              "## 覆盖矩阵", "",
+              "| 书 | " + " | ".join(mid for mid in PLAN_METHODS) + " |",
+              "|---|" + "---|" * len(PLAN_METHODS)]
+        for title, plain in matrix_rows:
+            md.append(f"| {title} | " + " | ".join(plain) + " |")
+        md += ["", "`✓` 过闸可用　`~` 有记录但未过闸需重做　`·` 缺失", "", "## 待生成工单", ""]
+        for tag, label in (("stale", "重做"), ("missing", "缺失")):
+            rows = [(t, m) for t, m, s in todo if s == tag]
+            if not rows:
+                continue
+            md.append(f"### {label}（{len(rows)} 篇）")
+            md.append("")
+            for t, m in rows:
+                md.append(f"- {t} × {METHODS[m]['name_zh']}")
+            md.append("")
+        p.write_text("\n".join(md) + "\n", encoding="utf-8")
+        print(f"\n台账 → {p}")
+    return {"ok": counts["ok"], "stale": counts["stale"],
+            "missing": counts["missing"], "todo": todo}
 
 
 def do_batch(conn, *, force=False, only_book=None, only_method=None,
-             max_seconds=None, max_tokens=3200, sleep=1.0) -> dict:
+             max_seconds=None, max_tokens=3200, sleep=1.0, gate=None) -> dict:
     from gen_guides_cited import generate_one  # 延迟导入，避免 --plan 也加载模型依赖
 
-    books = load_matrix(conn)
+    books = load_matrix(conn, gate)
     todo = []
     for title, info in books.items():
         if only_book and title != only_book:
@@ -112,7 +181,7 @@ def do_batch(conn, *, force=False, only_book=None, only_method=None,
         for mid in PLAN_METHODS:
             if only_method and mid != only_method:
                 continue
-            if info["methods"][mid] and not force:
+            if cell_state(info["methods"][mid]) == "ok" and not force:
                 continue
             todo.append({"id": w[0], "title": w[1], "author": w[2], "dynasty": w[3]}, )
             todo[-1]["method_id"] = mid
@@ -292,6 +361,8 @@ def main() -> None:
     _fix_stdout()
     ap = argparse.ArgumentParser(description="36 篇导读批量调度器")
     ap.add_argument("--plan", action="store_true", help="只打印覆盖矩阵")
+    ap.add_argument("--plan-out", type=str, default=None, metavar="PATH",
+                    help="配合 --plan：把矩阵与工单写成 Markdown 台账")
     ap.add_argument("--run", action="store_true", help="生成缺失项（默认动作）")
     ap.add_argument("--export", type=str, default=None, metavar="PATH")
     ap.add_argument("--export-pack", type=str, default=None, metavar="PATH",
@@ -305,13 +376,22 @@ def main() -> None:
     ap.add_argument("--max-tokens", type=int, default=3200)
     ap.add_argument("--sleep", type=float, default=1.0)
     ap.add_argument("--db", type=str, default=None, help="指定 guji.db 路径（默认 data/guji.db）")
+    ap.add_argument("--gate", type=str, default=None, metavar="PATH",
+                    help="体检闸门 JSON（默认 data/guide-qa-gate.json），"
+                         "未过闸的旧篇会被视作待重做")
+    ap.add_argument("--no-gate", action="store_true",
+                    help="忽略闸门，按「有记录即完成」的旧口径执行")
     args = ap.parse_args()
 
     db_path = Path(args.db) if args.db else DB
     conn = connect(db_path)
+    gate = None if args.no_gate else load_gate(args.gate)
+    if gate is None and not args.no_gate:
+        print("⚠ 未找到体检闸门，按「有记录即完成」统计；"
+              "建议先跑 python pipeline/qa_guides.py --gate data/guide-qa-gate.json")
 
     if args.plan:
-        print_plan(conn)
+        print_plan(conn, gate, args.plan_out)
     elif args.export_pack:
         do_export_pack(conn, Path(args.export_pack))
     elif args.export:
@@ -321,7 +401,7 @@ def main() -> None:
     else:
         do_batch(conn, force=args.force, only_book=args.only_book,
                  only_method=args.only_method, max_seconds=args.max_seconds,
-                 max_tokens=args.max_tokens, sleep=args.sleep)
+                 max_tokens=args.max_tokens, sleep=args.sleep, gate=gate)
     conn.close()
 
 
