@@ -117,21 +117,21 @@ const ctxParts = (ctx: string) => ctx.split('□');
   .cr-back {
     display: inline-block;
     font-size: 13px;
-    color: var(--muted, #6b7280);
+    color: var(--ink-soft);
     text-decoration: none;
     padding: 5px 12px 5px 10px;
     border-radius: 999px;
-    background: #eef0f3;
+    background: var(--paper-deep);
   }
-  .cr-back:hover { background: #e6e8ec; color: #111827; }
+  .cr-back:hover { background: var(--line); color: var(--ink); }
   .cr-head h1 {
     margin: 14px 0 6px;
     font-size: clamp(24px, 2.4vw, 32px);
     font-weight: 650;
     letter-spacing: .01em;
   }
-  .cr-sub { margin: 0; font-size: 13.5px; color: #6b7280; }
-  .cr-sub b { color: #111827; font-weight: 600; }
+  .cr-sub { margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+  .cr-sub b { color: var(--ink); font-weight: 600; }
 
   .cr-tools {
     position: sticky;
@@ -142,7 +142,7 @@ const ctxParts = (ctx: string) => ctx.split('□');
     align-items: center;
     padding: 8px;
     margin-bottom: 14px;
-    background: rgba(242, 243, 245, .86);
+    background: var(--nav-bg);
     backdrop-filter: saturate(180%) blur(14px);
     border-radius: 14px;
   }
@@ -151,7 +151,7 @@ const ctxParts = (ctx: string) => ctx.split('□');
     display: inline-flex;
     gap: 2px;
     padding: 3px;
-    background: #e8eaee;
+    background: var(--paper-deep);
     border-radius: 10px;
     flex: none;
   }
@@ -161,16 +161,16 @@ const ctxParts = (ctx: string) => ctx.split('□');
     background: transparent;
     font: inherit;
     font-size: 13px;
-    color: #4b5563;
+    color: var(--ink-soft);
     padding: 6px 13px;
     border-radius: 8px;
     cursor: pointer;
     transition: background .16s, color .16s, box-shadow .16s;
   }
-  .cr-seg button:hover { color: #111827; }
+  .cr-seg button:hover { color: var(--ink); }
   .cr-seg button.on {
     background: var(--white);
-    color: #111827;
+    color: var(--ink);
     font-weight: 600;
     box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
   }
@@ -181,12 +181,12 @@ const ctxParts = (ctx: string) => ctx.split('□');
     font: inherit;
     font-size: 13.5px;
     padding: 9px 14px;
-    border: 1px solid #d9dce1;
+    border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--white);
     outline: none;
   }
-  .cr-search:focus { border-color: #9aa3af; box-shadow: 0 0 0 3px rgba(0, 0, 0, .05); }
+  .cr-search:focus { border-color: var(--ink-soft); box-shadow: 0 0 0 3px rgba(0, 0, 0, .05); }
 
   .cr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 
@@ -196,15 +196,15 @@ const ctxParts = (ctx: string) => ctx.split('□');
     align-items: stretch;
     gap: 10px;
     background: var(--white);
-    border: 1px solid #e6e8ec;
+    border: 1px solid var(--line);
     border-radius: 14px;
     padding: 4px 6px 4px 0;
     transition: border-color .16s, box-shadow .16s, transform .16s;
   }
-  .cr-row:hover { border-color: #d3d7dd; box-shadow: 0 3px 12px rgba(16, 24, 40, .06); }
+  .cr-row:hover { border-color: var(--line); box-shadow: 0 3px 12px rgba(16, 24, 40, .06); }
   .cr-row:target,
   .cr-row.is-hit {
-    border-color: #f0b429;
+    border-color: var(--gold);
     box-shadow: 0 0 0 3px rgba(240, 180, 41, .18);
   }
 
@@ -221,8 +221,8 @@ const ctxParts = (ctx: string) => ctx.split('□');
   }
 
   .cr-meta { display: flex; flex-direction: column; gap: 5px; }
-  .cr-no { font-size: 12px; color: #9aa3af; font-variant-numeric: tabular-nums; }
-  .cr-vol { font-size: 13.5px; font-weight: 600; color: #111827; font-variant-numeric: tabular-nums; }
+  .cr-no { font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .cr-vol { font-size: 13.5px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
   .cr-grade {
     align-self: flex-start;
     font-size: 11px;
@@ -232,16 +232,16 @@ const ctxParts = (ctx: string) => ctx.split('□');
     border-radius: 6px;
     letter-spacing: .04em;
   }
-  .cr-grade.g-A { background: #e7f4ec; color: #1a7f45; }
-  .cr-grade.g-B { background: #fff4e0; color: #a86400; }
-  .cr-grade.g-C { background: #fdeaea; color: #b3261e; }
+  .cr-grade.g-A { background: var(--ok-bg); color: var(--success); }
+  .cr-grade.g-B { background: var(--note-bg); color: var(--note-ink); }
+  .cr-grade.g-C { background: var(--danger-bg); color: var(--point); }
 
   .cr-body { min-width: 0; }
   .cr-ctx {
     margin: 0;
     font-size: 15.5px;
     line-height: 1.75;
-    color: #1f2937;
+    color: var(--ink);
     letter-spacing: .01em;
     word-break: break-all;
   }
@@ -250,15 +250,15 @@ const ctxParts = (ctx: string) => ctx.split('□');
     display: inline-block;
     min-width: 1em;
     margin: 0 2px;
-    color: #b3261e;
-    background: #fdeaea;
+    color: var(--point);
+    background: var(--danger-bg);
     border-radius: 4px;
     text-align: center;
   }
   .cr-note {
     margin: 6px 0 0;
     font-size: 12.5px;
-    color: #6b7280;
+    color: var(--ink-soft);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -266,17 +266,17 @@ const ctxParts = (ctx: string) => ctx.split('□');
   }
   .cr-tag {
     font-size: 11px;
-    color: #6b7280;
-    background: #f1f2f4;
+    color: var(--ink-soft);
+    background: var(--paper-deep);
     border-radius: 5px;
     padding: 2px 6px;
   }
-  .cr-sug { font-size: 14px; color: #1f2937; font-weight: 600; }
-  .cr-sug.none { font-weight: 400; color: #9aa3af; }
-  .cr-sep { color: #d1d5db; }
-  .cr-src { color: #6b7280; }
+  .cr-sug { font-size: 14px; color: var(--ink); font-weight: 600; }
+  .cr-sug.none { font-weight: 400; color: var(--ink-soft); }
+  .cr-sep { color: var(--line); }
+  .cr-src { color: var(--ink-soft); }
 
-  .cr-go { font-size: 12.5px; color: #9aa3af; white-space: nowrap; }
+  .cr-go { font-size: 12.5px; color: var(--ink-soft); white-space: nowrap; }
 
   .cr-acts {
     flex: none;
@@ -288,9 +288,9 @@ const ctxParts = (ctx: string) => ctx.split('□');
   }
   .cr-copy, .cr-wiki {
     appearance: none;
-    border: 1px solid #e0e3e8;
-    background: #f7f8fa;
-    color: #4b5563;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink-soft);
     font: inherit;
     font-size: 12px;
     padding: 6px 10px;
@@ -301,9 +301,9 @@ const ctxParts = (ctx: string) => ctx.split('□');
     white-space: nowrap;
     transition: background .16s, color .16s;
   }
-  .cr-copy:hover, .cr-wiki:hover { background: #eef0f3; color: #111827; }
+  .cr-copy:hover, .cr-wiki:hover { background: var(--paper-deep); color: var(--ink); }
 
-  .cr-empty { text-align: center; color: #9aa3af; font-size: 13.5px; padding: 40px 0; }
+  .cr-empty { text-align: center; color: var(--ink-soft); font-size: 13.5px; padding: 40px 0; }
 
   @media (max-width: 860px) {
     .cr-tools { flex-direction: column; align-items: stretch; }

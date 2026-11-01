@@ -11,7 +11,7 @@
  *   非 GET 请求   不拦截（预留未来 AI 接口 POST）
  */
 
-const VERSION = 'v1.0.2';
+const VERSION = 'v1.0.3';
 const SHELL_CACHE = `dc-shell-${VERSION}`;
 const PAGE_CACHE = `dc-page-${VERSION}`;
 const DATA_CACHE = `dc-data-${VERSION}`;

@@ -51,6 +51,18 @@
   --note-ink: #6b5a2a;
   --warn-bg: #ffe3a3;      /* 校勘警示 */
   --warn-ink: #7a4a06;
+
+  /* ══ 语义槽位（P4）：后台工具页（/tasks、/collation/tj-review）归一 ══
+     这两页此前写的是 Tailwind 灰与纸色硬值，夜间会整块发白。
+     现在全部走槽位：中性灰→墨阶，浅底徽标→状态底色，蓝字→--accent-ink。 */
+  --surface-brand-deep: #063b52;  /* 结构面下缘渐变 */
+  --on-accent-soft: rgba(247, 242, 232, 0.72);
+  --line-strong: #cbbda1;         /* 强调边框（比 --line 深一档） */
+  --accent-ink: #33566a;          /* 浅底上的蓝字：白天压暗、夜间提亮 */
+  --ok-bg: #f1f7f1;
+  --ok-line: #cfe3d0;
+  --danger-bg: #fdf2f0;
+  --danger-line: #f3c9c3;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -92,6 +104,15 @@
   --note-ink: #d9c68f;
   --warn-bg: #3b2f14;
   --warn-ink: #e9c87d;
+
+  --surface-brand-deep: #0a141b;
+  --on-accent-soft: rgba(242, 245, 246, 0.66);
+  --line-strong: #38454d;
+  --accent-ink: #82bdd8;
+  --ok-bg: #16281a;
+  --ok-line: #2c4632;
+  --danger-bg: #2a1719;
+  --danger-line: #4a2529;
 
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.45);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
