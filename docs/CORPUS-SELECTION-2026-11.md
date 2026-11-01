@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 0c5caf7145ca8876d640e5da87215fbf_a141d72bd5f611f1b4e4525400cd780f
+    ReservedCode1: avPe3TXAta4F1ISPfrdhb54tNOYCipvuvjViyjSZriZ9c6idUa+/LZ0BsZAtcocnytebdhQay3V6pQ5Eb4Nx2gjvyx6XSGqybcLuc9+3AiufOSVo57Pfk/RimwEHyRVyHCn8uRuGdYjhakHX1Rnsz5d6pyWI8R8l0A25bL4RsinZcGknnnDFy6rm+1k=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 0c5caf7145ca8876d640e5da87215fbf_a141d72bd5f611f1b4e4525400cd780f
+    ReservedCode2: avPe3TXAta4F1ISPfrdhb54tNOYCipvuvjViyjSZriZ9c6idUa+/LZ0BsZAtcocnytebdhQay3V6pQ5Eb4Nx2gjvyx6XSGqybcLuc9+3AiufOSVo57Pfk/RimwEHyRVyHCn8uRuGdYjhakHX1Rnsz5d6pyWI8R8l0A25bL4RsinZcGknnnDFy6rm+1k=
+---
+
 # 古籍扩容筛选结论（2026-11）
 
 > 依据：`docs/CORPUS-SELECTION-MODEL.md` v1.0（先建模型后选书，模型为唯一规则来源）
@@ -109,3 +120,4 @@
 - 全部 33 部评分的 5 个分数与依据说明可在 `data/corpus_scores.csv` 逐行追溯。
 - 脚本校验项：分数区间、篇幅分级合法性、书目是否在候选池、可得性取值。当前 0 错误。
 - 本轮改动未推送远端，等指令。
+*（内容由AI生成，仅供参考）*
