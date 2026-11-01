@@ -37,8 +37,10 @@ from db import connect  # noqa: E402
 from method_plugins import METHODS  # noqa: E402
 from refpack import build_refpack, normalize, render_refpack  # noqa: E402
 
-AUTO_PARAGRAPHS = 3
+AUTO_PARAGRAPHS = 5   # v1.1：3 段 → 5 段（付费场景需要成篇厚度）
 MIN_PARAGRAPHS = 3
+QUOTE_LEN = 60        # v1.1：段首引文截取上限 40 → 60 字（引文过短撑不起论断）
+MIN_BODY_CHARS = 120  # v1.1：单段论述字数下界（原 40 只防"仅剩引文"，不足以成文）
 MIN_QUOTE_LEN = 4
 SUPPORT_THRESHOLD = 0.6
 FUZZY_FIX = 0.5  # 引文与被引块字面相似度达此值即用原文片段替换
@@ -85,7 +87,14 @@ def _simp(text: str) -> str:
 
 
 PLACEHOLDERS = ("原文引文", "此处引文", "此處引文", "引文在此", "……」", "⋯⋯")
-INNER_MARKS = str.maketrans({c: None for c in "「」『』“”\"'"})
+INNER_MARKS = str.maketrans({c: None for c in "「」『』“”\"'‘’‚‛‹›«»"})
+# v1.1：模型常把原文转成白话逐句翻译，出现这些说法即视为跑题（交由复核标记）
+_TRANS_HINTS = ("意思是", "指的是", "译为", "翻译", "大意是", "说的就是", "意思是说", "这句话说")
+_DICT_REF_RE = re.compile(
+    r"(?:在)?(?:此|这|本)段(?:话|原文|文字|论述)?(?:中|里|裏)?[，,]?"
+    r"|(?:此|这|本)段(?:话|原文|文字|论述)"
+    r"|上面的?原文"
+)
 _PLACEHOLDER_RE = re.compile(r"「(?:\.{2,}|…+|原文引文|此处引文|原文|引文)」")
 _SENT_MARKS = ("。", "！", "？", "；")
 _SOFT_MARKS = ("，", "、", "：")
@@ -95,7 +104,7 @@ def _strip_placeholders(text: str) -> str:
     return _PLACEHOLDER_RE.sub("", text or "")
 
 
-def _excerpt(text: str, limit: int = 40) -> str:
+def _excerpt(text: str, limit: int = QUOTE_LEN) -> str:
     """取原文的**连续**片段：尽量落在句末，其次落在逗顿处，绝不跳字拼接。"""
     t = (text or "").strip()
     if len(t) <= limit:
@@ -237,7 +246,8 @@ def build_prompt_auto(method, book_meta, blocks) -> str:
    也不要复述原文。读者只看到原文和你的论述，不知道你在跟哪份材料对话。
 3. **每一段的 text 里不得出现任何引号（「」『』“”"），也不得逐字复制原文句子**——
    原文由程序自动补在该段开头，你只写论述，不要代它引原文。
-4. 每段 150-220 字，一段成文，不分点列条，句子长短要有变化，不要套同一句式。
+4. 每段 200-280 字，一段成文，不分点列条，句子长短要有变化，不要套同一句式；
+   每段都要写足：先落字面训释，再讲义理，最后切到当代读者的处境，宁可深挖不要泛泛铺陈。
 5. 只依据给定材料说话；不得引入材料之外的典故、书目与原文。
 6. 不要输出解释性文字，不要 markdown 代码围栏。
 
@@ -340,6 +350,8 @@ def _strip_material_refs(text: str) -> str:
     t = re.sub(r"^(?:则|便|也|又|而)(?=[\u4e00-\u9fa5])", "", t)
     # 「材料2论述中，」这类残留：把「论述中，」也去掉
     t = re.sub(r"^(?:论述|描述|阐述|分析|解读|记载|说明)中[，,]", "", t)
+    # v1.1：「此段话」「这段原文」「本段」等指代一律清掉（读者看不到材料编号，也不该读到"这一段"）
+    t = _DICT_REF_RE.sub("", t)
     # 正文中段偶发的「材料还/材料也」一并清掉
     t = re.sub(r"材料(?=还|也|则|便)", "", t)
     # 删掉「材料1中，」后可能只剩无主语的谓语，补回一个主语
@@ -395,7 +407,7 @@ def assemble_auto(parsed, blocks):
         if not text:
             fixes.append(f"第 {i + 1} 段论述为空，已丢弃该材料（不产出无解读的残段）")
             continue
-        piece = _clean_piece(_excerpt(b["text"], 40))
+        piece = _clean_piece(_excerpt(b["text"], QUOTE_LEN))
         out.append({"text": f"「{piece}」{text}".strip(), "cites": [b["urn"]]})
     if len(paras) > len(blocks):
         fixes.append(f"模型多给了 {len(paras) - len(blocks)} 段，已丢弃（材料只有 {len(blocks)} 块）")
@@ -465,8 +477,15 @@ def validate(parsed, refpack, method):
 
     for i, p in enumerate(clean, 1):
         body = p["text"].split("」", 1)[-1].strip() if "」" in p["text"] else p["text"]
-        if len(body) < 40:
-            errors.append(f"第 {i} 段论述过短（{len(body)} 字，仅剩引文）")
+        if len(body) < MIN_BODY_CHARS:
+            errors.append(f"第 {i} 段论述过短（{len(body)} 字，下限 {MIN_BODY_CHARS} 字）")
+
+    total_body = sum(
+        len((p["text"].split("」", 1)[-1] if "」" in p["text"] else p["text"]).strip())
+        for p in clean
+    )
+    if clean and total_body < 800:
+        warnings.append(f"全篇论述合计仅 {total_body} 字（目标 ≥1000 字）")
 
     uniq = {u for p in clean for u in p["cites"]}
     if len(clean) >= 2 and len(uniq) < 2:
@@ -474,6 +493,10 @@ def validate(parsed, refpack, method):
     short = [i for i, p in enumerate(clean, 1) if len(p["text"]) < 60]
     if short:
         warnings.append(f"论述偏短的段落：{', '.join(map(str, short))}")
+    trans_paras = [i for i, p in enumerate(clean, 1)
+                   if any(h in p["text"] for h in _TRANS_HINTS)]
+    if trans_paras:
+        warnings.append(f"疑为白话翻译的段落：{', '.join(map(str, trans_paras))}（需复核）")
 
     content = parsed.get("content")
     if not isinstance(content, dict) or not content:
@@ -516,7 +539,120 @@ def backup_existing(conn, work_id, method_id):
     return path
 
 
-def generate_one(conn, work, method_id, *, max_blocks, max_tokens, dry_run, force, quote_mode="auto"):
+def write_segment(method, work, block, max_tokens=900, min_chars=MIN_BODY_CHARS):
+    """v1.1 分段生成：一次只让模型写一段，避免整篇 JSON 压垮小模型导致偷工减料。"""
+    prompt = f"""{method['system_prompt']}
+
+---
+你在为《{work['title']}》（{work.get('author') or '佚名'}，{work.get('dynasty') or ''}）写一篇引证式导读中的**一段**。
+只写这一段，不要写开头结尾，不要写别的段落。
+
+【这一段要谈的原文】
+{block['text'][:420]}
+
+【要求】
+1. 写 200-280 字，一段成文，不分点、不列条，句子长短要有变化。
+2. 三层推进：先解字面（这段话在说什么、关键字如何训释），再讲义理（为什么这样说、放在全书脉络里意味着什么），
+   最后切己（对今天的读者意味着什么，说透一层，不要泛泛感慨）。
+3. **不得引用原文**：不要出现任何引号（「」『』“”"‘’），不要把原句抄进来，也不要复述原句内容。
+4. **不要翻译原文、不要逐句讲白话**——读者眼前就有原文，不需要你替他翻译。你要回答的是：
+   为什么这样说、分寸在哪里、与全书其他处如何呼应、今天的人为何仍会被它击中。
+   一旦写出「孔子回答说……」「意思是……」「这句话是说……」，就是跑题，请改写为义理判断与切己之说。
+5. **不得出现「材料」「此段」「本段」「这段原文」「本文」「第X则」「第X章」之类指称**，
+   也不要用「朱子认为」「注家说」这类注释腔开场——直接讲道理。
+6. 不要引入这段原文之外的典故、书名、人名。
+7. 只输出一个 JSON 对象，不要解释、不要代码围栏：{{"text": "你的这段论述"}}"""
+    last, why = "", ""
+    for attempt in (1, 2):
+        if attempt == 1:
+            p = prompt
+        else:
+            p = prompt + f"\n\n【上一次的问题】{why}请重写这一段。"
+        raw = chat(p, max_tokens=max_tokens)
+        obj = extract_json(raw)
+        t = obj.get("text") if isinstance(obj, dict) else ""
+        t = _strip_placeholders(str(t or "")).translate(INNER_MARKS)
+        t = re.sub(r"\s+", " ", t).strip()
+        t = _strip_material_refs(t)
+        t = _dedup_lead(t, normalize(_simp(block["text"])))
+        last = t
+        trans = [h for h in _TRANS_HINTS if h in t]
+        if len(t) < min_chars:
+            why = (f"上一稿只有 {len(t)} 字，太短（要求 200-280 字），"
+                   f"请把义理层层剖开并落到读者的具体处境。")
+            continue
+        if trans:
+            why = (f"上一稿在用「{trans[0]}」这类句子替原文讲白话，等于翻译，不是论述。"
+                   f"请不要解释原文的字面意思（读者已看过原文），改为回答：这样说的道理在哪、"
+                   f"分寸如何把握、与全书何处呼应、今天为何仍成立。")
+            continue
+        return t
+    return last
+
+
+def _sanitize_content(content):
+    """v1.1：小模型输出 content 常带破损结构（keywords 里混入 } ]、单引号、缺字段），
+    这里做结构规范化，避免前端解析崩掉。"""
+    if not isinstance(content, dict):
+        return {}
+    out = {}
+    for k, v in content.items():
+        if k == "keywords":
+            items = v if isinstance(v, list) else []
+            clean = []
+            for it in items:
+                if isinstance(it, str):
+                    term, freq, meaning = it, 1, ""
+                elif isinstance(it, dict):
+                    term = it.get("term") or it.get("word") or it.get("name") or ""
+                    freq = it.get("frequency") or it.get("count") or 1
+                    meaning = it.get("meaning") or it.get("note") or ""
+                else:
+                    continue
+                term = re.sub(r"[\[\]{}<>\"'‘’“”,，。；;：:\s]", "", str(term))[:12]
+                if not term:
+                    continue
+                try:
+                    freq = int(re.sub(r"[^0-9]", "", str(freq)) or 1)
+                except Exception:
+                    freq = 1
+                clean.append({"term": term, "frequency": max(1, freq), "meaning": str(meaning).strip()})
+            out[k] = clean
+        elif isinstance(v, list):
+            out[k] = "；".join(str(x).strip() for x in v if str(x).strip())
+        elif v is None:
+            out[k] = ""
+        else:
+            out[k] = str(v).strip()
+    return out
+
+
+def write_content(method, work, blocks, max_tokens=1600):
+    """v1.1：content 解读字段单独一次调用，避免与正文抢输出预算。"""
+    schema = json.dumps(method.get("output_schema", {}), ensure_ascii=False)
+    mats = "\n\n".join(f"【{b['urn']}】（{b.get('chap_title') or ''}）\n{b['text'][:220]}" for b in blocks)
+    prompt = f"""{method['system_prompt']}
+
+---
+下面是《{work['title']}》导读所依据的几段原文，请为这篇导读写结构化的解读字段。
+
+{mats}
+
+【要求】
+1. 严格按给定 JSON 结构填 content，每个字段写到 60-120 字，不要留空。
+2. 只依据上面的原文说话，不得引入原文之外的典故、书名与内容。
+3. 不要出现「材料1」「第X则」之类指称；要像面向读者直接讲话。
+4. 只输出一个 JSON 对象，不要解释、不要代码围栏：{{"content": {schema}}}"""
+    raw = chat(prompt, max_tokens=max_tokens)
+    obj = extract_json(raw)
+    c = obj.get("content") if isinstance(obj, dict) else None
+    if isinstance(c, dict) and c:
+        return _sanitize_content(c)
+    return _sanitize_content(obj)
+
+
+def generate_one(conn, work, method_id, *, max_blocks, max_tokens, dry_run, force,
+                 quote_mode="auto", segmented=True):
     method = METHODS[method_id]
     refpack = build_refpack(conn, work["id"], method_id, max_blocks=max_blocks)
     if len(refpack["candidates"]) < 2:
@@ -544,6 +680,71 @@ def generate_one(conn, work, method_id, *, max_blocks, max_tokens, dry_run, forc
             return {"ok": False, "error": "已有导读（加 --force 才覆盖）"}
 
     t0 = time.time()
+    if segmented and quote_mode == "auto":
+        # v1.1 分段生成路径：逐块单独成段，原文引文与 URN 由程序直接绑定
+        pairs, seg_fixes = [], []
+        for k, b in enumerate(blocks, 1):
+            txt = write_segment(method, work, b, max_tokens=min(1000, max_tokens))
+            if not txt:
+                seg_fixes.append(f"第 {k} 段（{b['urn']}）生成失败，已跳过")
+                continue
+            pairs.append((b, txt))
+        content = write_content(method, work, blocks, max_tokens=max(1200, max_tokens // 2))
+        model_used = get_last_model() or "unknown"
+        paras = []
+        for b, txt in pairs:
+            piece = _clean_piece(_excerpt(b["text"], QUOTE_LEN))
+            paras.append({"text": f"「{piece}」{txt}".strip(), "cites": [b["urn"]]})
+        parsed = {
+            "method": method.get("name_zh"),
+            "book": work["title"],
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "paragraphs": paras,
+            "content": content,
+        }
+        fixes = seg_fixes
+        errors, warnings, paras_clean = validate(parsed, refpack, method)
+        repaired = False
+        if errors:
+            rej = ROOT / "temp" / f"rejected_{work['id']}_{method_id}.json"
+            rej.parent.mkdir(parents=True, exist_ok=True)
+            rej.write_text(json.dumps(
+                {"errors": errors, "warnings": warnings,
+                 "paras": [p["text"] for p in paras]},
+                ensure_ascii=False, indent=2), encoding="utf-8")
+            return {"ok": False, "error": "; ".join(errors[:3]), "rejected": str(rej)}
+        parsed["paragraphs"] = paras_clean
+        parsed["citation_check"] = {
+            "paragraphs": len(paras_clean),
+            "citations": len(collect_citations(paras_clean)),
+            "warnings": warnings,
+            "fixes": fixes,
+            "repaired": repaired,
+            "pool_blocks": refpack["stats"]["blocks"],
+            "pool_chars": refpack["stats"]["chars"],
+            "quote_mode": "auto/segmented",
+            "body_chars": sum(
+                len((p["text"].split("」", 1)[-1] if "」" in p["text"] else p["text"]).strip())
+                for p in paras_clean
+            ),
+            "checked_at": datetime.now(timezone.utc).isoformat(),
+        }
+        cites = collect_citations(paras_clean)
+        backup = backup_existing(conn, work["id"], method_id)
+        conn.execute(
+            "INSERT OR REPLACE INTO ai_guides (work_id, method_id, result, generated_at, model_used, citations) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (work["id"], method_id, json.dumps(parsed, ensure_ascii=False),
+             datetime.now(timezone.utc).isoformat(), model_used, json.dumps(cites, ensure_ascii=False)),
+        )
+        conn.commit()
+        return {
+            "ok": True, "model": model_used, "paragraphs": len(paras_clean), "citations": cites,
+            "warnings": warnings, "seconds": round(time.time() - t0, 1),
+            "body_chars": parsed["citation_check"]["body_chars"],
+            "backup": str(backup) if backup else None,
+        }
+
     raw = chat(prompt, max_tokens=max_tokens)
     model_used = get_last_model() or "unknown"
     parsed = extract_json(raw)
@@ -604,18 +805,27 @@ def generate_one(conn, work, method_id, *, max_blocks, max_tokens, dry_run, forc
 
 
 def main():
+    global AUTO_PARAGRAPHS
     ap = argparse.ArgumentParser(description="引证式导读生成器")
     ap.add_argument("--book", type=str, default=None)
     ap.add_argument("--work-id", type=int, default=None)
     ap.add_argument("--method", type=str, required=True)
     ap.add_argument("--max-blocks", type=int, default=30)
-    ap.add_argument("--max-tokens", type=int, default=2000)
+    ap.add_argument("--max-tokens", type=int, default=3200)
+    ap.add_argument("--paragraphs", type=int, default=AUTO_PARAGRAPHS,
+                    help=f"auto 模式下每篇段数（默认 {AUTO_PARAGRAPHS}，v1.1 标准）")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--quote-mode", choices=["auto", "model"], default="auto",
                     help="auto=程序按块补原文引文（默认）；model=要求模型自己逐字引原文")
+    ap.add_argument("--segmented", dest="segmented", action="store_true", default=True,
+                    help="v1.1 默认：逐段单独生成（小模型也能写足篇幅）")
+    ap.add_argument("--no-segmented", dest="segmented", action="store_false",
+                    help="退回整篇一次生成（v1.0 行为）")
     args = ap.parse_args()
+
+    AUTO_PARAGRAPHS = max(2, args.paragraphs)
 
     method_ids = [m.strip() for m in args.method.split(",")]
     bad = [m for m in method_ids if m not in METHODS]
@@ -642,11 +852,13 @@ def main():
             print(f"[{w['title']} × {METHODS[mid]['name_zh']}] ", end="", flush=True)
             res = generate_one(conn, w, mid, max_blocks=args.max_blocks,
                                max_tokens=args.max_tokens, dry_run=args.dry_run,
-                               force=args.force, quote_mode=args.quote_mode)
+                               force=args.force, quote_mode=args.quote_mode,
+                               segmented=args.segmented)
             if res.get("ok") and res.get("dry_run"):
                 print(f"dry-run → {res['prompt']} {res['stats']}")
             elif res.get("ok"):
-                print(f"✅ {res['paragraphs']} 段 / {len(res['citations'])} 引证 / {res['model']} / {res['seconds']}s")
+                print(f"✅ {res['paragraphs']} 段 / {res.get('body_chars', 0)} 字 / "
+                      f"{len(res['citations'])} 引证 / {res['model']} / {res['seconds']}s")
                 for warn in res["warnings"][:3]:
                     print(f"    ⚠ {warn}")
             else:

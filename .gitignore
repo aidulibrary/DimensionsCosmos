@@ -24,6 +24,8 @@ __pycache__/
 
 # 任务中间产物（脚本、体检报告、备份 JSON）
 temp/
+# 本地导出物（guidepack.db / guides.json 等，用来往别的机器搬运，不入库）
+output/
 
 # 环境变量
 .env

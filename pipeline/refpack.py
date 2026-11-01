@@ -92,27 +92,39 @@ def build_refpack(conn, work_id: int, method_id: str, *, max_blocks: int = 30,
                 continue
             picks.append({"i": i, "text": text})
 
-        # 每章先取：首块 + 最长块（跨章覆盖是导读可信度的第一顺位）
-        chosen = []
-        if picks:
-            chosen.append(picks[0])
-            longest = max(picks, key=lambda p: len(p["text"]))
-            if longest["i"] != picks[0]["i"]:
-                chosen.append(longest)
+        # v1.1：每章候选按「相关度层级」排序，避免预算轮转时每章永远只取首块 b001。
+        # rank 0 = 方法关键词命中最高块；1 = 章首块；2 = 最长块；3+ = 其余按得分。
+        hit = lambda p: sum(p["text"].count(t) for t in terms)
+        by_score = sorted(picks, key=lambda p: (-hit(p), -len(p["text"]), p["i"]))
+        rank, seen_i = {}, set()
 
+        def mark(p, r):
+            if p["i"] not in seen_i:
+                rank[p["i"]] = r
+                seen_i.add(p["i"])
+
+        if by_score:
+            mark(by_score[0], 0)
+        if picks:
+            mark(picks[0], 1)
+            mark(max(picks, key=lambda p: len(p["text"])), 2)
+        for p in by_score:
+            mark(p, 3)
+
+        chosen = sorted(
+            (p for p in picks if rank.get(p["i"], 9) < 3),
+            key=lambda p: (rank[p["i"]], p["i"]),
+        )[:max(per_chapter, 1)]
         # 关键词命中补足 per_chapter
-        scored = sorted(
-            picks,
-            key=lambda p: (-sum(p["text"].count(t) for t in terms), -len(p["text"]), p["i"]),
-        )
-        for p in scored:
+        for p in by_score:
             if len(chosen) >= max(per_chapter, 1):
                 break
             if all(p["i"] != c["i"] for c in chosen):
                 chosen.append(p)
+        chosen.sort(key=lambda p: (rank.get(p["i"], 9), p["i"]))
 
         chap_no = int(ch["ref"].rsplit("/c", 1)[-1]) if "/c" in ch["ref"] else 0
-        for p in sorted(chosen, key=lambda p: p["i"]):
+        for p in chosen:
             pool.append({
                 "urn": block_urn(ch["ref"], p["i"] + 1),
                 "chap": chap_no,
