@@ -13,11 +13,32 @@ interface Props {
   bookTitle: string;
   bookAuthor: string;
   bookDynasty: string;
+  /** 阅读页路径（如 /books/1-论语/read/），用于把引证 URN 变成可点跳转 */
+  readHref?: string;
+  /** 章级 URN → 章标题（如 dc:Q276015/c002 → 學而第一），用于把引证写成篇名而非序号 */
+  chapterTitles?: Record<string, string>;
 }
 
-const { guide, bookTitle, bookAuthor, bookDynasty } = Astro.props;
+const { guide, bookTitle, bookAuthor, bookDynasty, readHref = '', chapterTitles = {} } = Astro.props;
 const method = getMethodInfo(guide.method_id);
 const c = guide.content;
+
+/** REF-SPEC v1 URN → 中文定位文案（章级 / 块级 / 句元级） */
+const citeLabel = (urn: string) => {
+  const m = /^dc:[^/]+\/c(\d+)(?:\/b(\d+))?(?:\/k(\d+))?$/.exec(urn);
+  if (!m) return urn;
+  const chap = Number(m[1]);
+  const chapTitle = chapterTitles[urn.replace(/\/b\d+.*$/, '')]
+    ?.replace(/^.*\//, '')
+    .trim();
+  const head = chapTitle || `第 ${chap} 章`;
+  if (m[3]) return `${head} · 第 ${Number(m[2])} 块 · 第 ${Number(m[3])} 句`;
+  if (m[2]) return `${head} · 第 ${Number(m[2])} 块`;
+  return head;
+};
+const citations = (guide.citations || []).filter((u) => /^dc:[^/]+\/c\d+/.test(u));
+/** 引证式导读正文（P0-5）：老数据没有 paragraphs，整块不渲染 */
+const paragraphs = (guide.paragraphs || []).filter((p) => (p.text || '').trim());
 
 function notEmpty(v: unknown): boolean {
   if (v == null) return false;
@@ -92,6 +113,41 @@ function notEmpty(v: unknown): boolean {
     {c.emergent_insight && <Field label="💎 涌现洞见" value={c.emergent_insight} />}
   </div>
 
+  {paragraphs.length > 0 && (
+    <section class="guide-body">
+      <h2>精读正文</h2>
+      <p class="body-hint">「」内为逐字原文，段末标出该段引证的原文落点，可点击核对。</p>
+      {paragraphs.map((p) => (
+        <div class="guide-para">
+          <p>{p.text}</p>
+          {(p.cites || []).length > 0 && (
+            <p class="para-cites">
+              <span class="para-cites-label">本段引证</span>
+              {(p.cites || []).map((urn) => (
+                <a href={readHref ? `${readHref}#${urn}` : `#${urn}`}>{citeLabel(urn)}</a>
+              ))}
+            </p>
+          )}
+        </div>
+      ))}
+    </section>
+  )}
+
+  {citations.length > 0 && (
+    <section class="guide-citations">
+      <h2>引证 · 原文锚点</h2>
+      <p class="cite-hint">以下位置为本篇导读可复核的原文落点，点击直达章节对应位置。</p>
+      <ul>
+        {citations.map((urn) => (
+          <li>
+            <a href={readHref ? `${readHref}#${urn}` : `#${urn}`}>{citeLabel(urn)}</a>
+            <code>{urn}</code>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
   <footer class="guide-footer">
     <p><b>AI 辅助生成</b> · 生成日期 {new Date(guide.generated_at).toLocaleDateString('zh-CN')} · 模型 {guide.model_used || '语言模型'} · 仅供参考，不代表校勘结论，引用前请核对原典</p>
     <p>📖 原文来源：中文维基文库（CC BY-SA 4.0）· <a href={`https://zh.wikisource.org/wiki/${bookTitle}`}>查看原文 →</a></p>
@@ -125,6 +181,48 @@ function notEmpty(v: unknown): boolean {
   .method-era { color: #b8934a; font-size: 13px; margin-top: 6px; }
 
   .guide-content { margin-bottom: 36px; }
+
+  .guide-body { margin-bottom: 36px; }
+  .guide-body h2 {
+    font-size: 15px; letter-spacing: 2px; margin: 0 0 8px; color: #2b2926;
+    border-left: 3px solid #b8934a; padding-left: 8px;
+  }
+  .body-hint { font-size: 12px; color: #8a7a63; margin: 0 0 16px; }
+  .guide-para { margin-bottom: 22px; }
+  .guide-para p {
+    font-size: 16px; line-height: 1.95; color: #2b2926;
+    text-align: justify; margin: 0;
+  }
+  .para-cites {
+    margin-top: 8px; font-size: 12px; color: #8a7a63;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+  }
+  .para-cites-label { color: #b8934a; letter-spacing: 1px; }
+  .para-cites a {
+    color: #9c6b30; text-decoration: none; border-bottom: 1px dotted #cbb08a;
+  }
+  .para-cites a:hover { color: #7a4f1f; }
+
+  .guide-citations {
+    border: 1px solid #e0d4bd; border-radius: 10px;
+    background: #fbf7ef; padding: 18px 20px; margin-bottom: 32px;
+  }
+  .guide-citations h2 {
+    font-size: 15px; letter-spacing: 2px; margin: 0 0 8px; color: #2b2926;
+  }
+  .cite-hint { font-size: 12px; color: #8a7a63; margin: 0 0 12px; }
+  .guide-citations ul { list-style: none; margin: 0; padding: 0; }
+  .guide-citations li {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 6px 0; border-top: 1px dashed #e6dccb; font-size: 14px;
+  }
+  .guide-citations li:first-child { border-top: none; }
+  .guide-citations a { color: #9c6b30; text-decoration: none; }
+  .guide-citations a:hover { text-decoration: underline; }
+  .guide-citations code {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11px; color: #a4977f; word-break: break-all;
+  }
 
   .guide-footer {
     text-align: center; padding-top: 24px;

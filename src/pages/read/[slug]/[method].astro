@@ -39,6 +39,11 @@ if (!book) {
 }
 
 const guide = (book?.guides as Guide[] ?? []).find((g) => g.method_id === method);
+/** 章级 URN → 章标题，供导引用「篇名 · 第 n 块」标注引证落点 */
+const chapterTitles: Record<string, string> = {};
+for (const ch of ((book?.chapters ?? []) as { title?: string; ref?: string }[])) {
+  if (ch?.ref && ch?.title) chapterTitles[ch.ref] = ch.title;
+}
 const methodInfo = getMethodInfo(method ?? '');
 const allGuides = (book?.guides as Guide[] ?? []).map((g) => g.method_id);
 
@@ -123,6 +128,8 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
         bookTitle={book.seed_title}
         bookAuthor={book.author ?? '佚名'}
         bookDynasty={book.dynasty ?? ''}
+        readHref={`${base}books/${slug}/read/`}
+        chapterTitles={chapterTitles}
       />
 
       <div class="switch-section">
