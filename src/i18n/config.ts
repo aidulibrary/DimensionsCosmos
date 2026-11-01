@@ -9,7 +9,7 @@
  * 3. dir 字段预留：ar（阿拉伯语）、he、fa 在 B4 阶段接 RTL，届时只加 dir='rtl' 即可。
  */
 
-export type Locale = 'zh' | 'zh-TW' | 'en';
+export type Locale = 'zh' | 'zh-TW' | 'en' | 'es';
 
 export interface LocaleMeta {
   /** URL 前缀，默认语言为空串 */
@@ -31,10 +31,11 @@ export const LOCALES: Record<Locale, LocaleMeta> = {
   zh: { prefix: '', htmlLang: 'zh-Hans', ogLocale: 'zh_CN', label: '简体中文', dateLocale: 'zh-CN', dir: 'ltr' },
   'zh-TW': { prefix: '/zh-TW', htmlLang: 'zh-Hant', ogLocale: 'zh_TW', label: '繁體中文', dateLocale: 'zh-TW', dir: 'ltr' },
   en: { prefix: '/en', htmlLang: 'en', ogLocale: 'en_US', label: 'English', dateLocale: 'en-US', dir: 'ltr' },
+  es: { prefix: '/es', htmlLang: 'es', ogLocale: 'es_ES', label: 'Español', dateLocale: 'es-ES', dir: 'ltr' },
 };
 
 /** 已上线的语言（顺序即切换器顺序） */
-export const ACTIVE_LOCALES: Locale[] = ['zh', 'zh-TW', 'en'];
+export const ACTIVE_LOCALES: Locale[] = ['zh', 'zh-TW', 'en', 'es'];
 
 /** 给站内路径加上语言前缀：localePath('en', '/pricing') → '/en/pricing' */
 export function localePath(locale: Locale, path: string): string {
@@ -52,6 +53,7 @@ export const TRANSLATED_PAGES: Record<Locale, string[]> = {
   // B1 已上线：首页。其余页在 B2 逐页补齐（补一页就往这里加一条，切换器自动生效）
   'zh-TW': ['/'],
   en: ['/'],
+  es: ['/'],
 };
 
 /** 解析某语言下某个路径的最终 href */

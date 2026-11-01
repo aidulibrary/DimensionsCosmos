@@ -28,6 +28,17 @@ const dynastyEn: Record<string, string> = {
   元: 'Yuan', 明: 'Ming', 清: 'Qing', 近现代: 'Modern', 佚名: 'Anonymous',
 };
 
+// 西语朝代名沿用汉学界通行译法（Primaveras y Otoños / Reinos Combatientes 等），
+// 比音译更易被西语读者识别；卡片宽度有限，一律取短形式。
+const dynastyEs: Record<string, string> = {
+  先秦: 'Pre-Qin', 春秋: 'Primaveras y Otoños', 战国: 'Reinos Combatientes', 秦: 'Qin',
+  西汉: 'Han Occidental', 东汉: 'Han Oriental', 三国: 'Tres Reinos',
+  西晋: 'Jin Occidental', 东晋: 'Jin Oriental', 南朝宋: 'Liu Song',
+  北齐: 'Qi del Norte', 北魏: 'Wei del Norte', 隋: 'Sui', 唐: 'Tang',
+  五代: 'Cinco Dinastías', 北宋: 'Song del Norte', 南宋: 'Song del Sur',
+  元: 'Yuan', 明: 'Ming', 清: 'Qing', 近现代: 'Época moderna', 佚名: 'Anónimo',
+};
+
 export const bookDict: Record<Locale, BookDict> = {
   zh: {
     bu: { 经部: '经部', 史部: '史部', 子部: '子部', 集部: '集部' },
@@ -55,5 +66,14 @@ export const bookDict: Record<Locale, BookDict> = {
     readAria: (t) => `Read the source text of ${t}`,
     fallback: 'AI commentary available',
     all: 'All',
+  },
+  es: {
+    bu: { 经部: 'Clásicos', 史部: 'Historia', 子部: 'Maestros', 集部: 'Obras reunidas' },
+    dynasty: dynastyEs,
+    guides: (n) => (n === 1 ? '1 lectura' : `${n} lecturas`),
+    read: 'Leer el original',
+    readAria: (t) => `Leer el texto original de ${t}`,
+    fallback: 'Comentario de IA disponible',
+    all: 'Todos',
   },
 };

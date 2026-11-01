@@ -117,4 +117,35 @@ export const home: Record<Locale, HomeDict> = {
       { title: '🔌 Methods are plugins', desc: 'Each master\u2019s method is a standalone AI plugin — composable, reusable, and exportable as Markdown or JSON.' },
     ],
   },
+
+  // B2：西班牙语首页。西语语序与中文差异最大的是 h1 与副标题，故同样用 HTML 片段/整句重写，
+  // 不做逐字直译——直译会译出明显的"译文腔"，这是翻译质量的第一道分水岭。
+  es: {
+    title: 'Biblioteca DimensionsCosmos · Lee cualquier libro con los ojos de un maestro',
+    description:
+      'Un sistema operativo de lectura para grandes mentes: lee a Zhuangzi como lo haría Sócrates, la relatividad como lo haría Feynman, el Corán como lo haría Zhu Xi.',
+    kicker: 'GRANDES MENTES · UN SO DE LECTURA',
+    h1Html: 'Lee <em>cualquier</em> libro<br>con los ojos de un <em>maestro</em>',
+    motto: 'Regar una civilización que crece en libertad',
+    sub: 'Un mismo texto se ve distinto para cada gran mente. Elige un clásico y después el punto de vista de un maestro: Zhu Xi lee contigo verso a verso, Feynman lo explica en palabras llanas y Sócrates no deja de preguntar por qué.',
+    searchPlaceholder: 'Busca un título: Analectas / Memorias del gran historiador / Zhuangzi…',
+    searchBtn: 'Buscar',
+    statBooks: 'clásicos por leer',
+    statMethods: 'perspectivas de maestros',
+    statFree: 'gratis para probar',
+    heroArt: ['Zhu Xi × Feynman × Sócrates', 'Su Shi × Qian Zhongshu × Wang Yangming', 'Arendt × Ibn Jaldún × Adler'],
+    verticalNote: 'FILTRAR · ORGANIZAR · GUIAR',
+    libTitle: 'La biblioteca de clásicos',
+    libSub: 'Clásicos, historia, maestros y obras reunidas · primeros {n} títulos · textos originales de Wikisource en chino (CC BY-SA)',
+    browseAll: 'Ver toda la biblioteca →',
+    stripTitle: '🧠 ¿Ya tienes tu libro? Elige el punto de vista de un maestro',
+    stripSub: 'Cada título incluye {n} métodos de interpretación: de Zhu Xi a Sócrates, de Feynman a Arendt',
+    stripMore: '+{n} métodos más →',
+    band: [
+      { title: '📖 Primero el libro, después el método', desc: 'La ruta principal: explora la biblioteca → encuentra un título que te atraiga → elige el punto de vista de un maestro → empieza a leer.' },
+      { title: '🧪 Crea tu propio método de lectura', desc: 'Muy pronto: sube tu metodología (prompt de sistema + plantilla de salida), publícala como complemento de pago y comparte los ingresos.' },
+      { title: '📤 Sube tu propia colección', desc: 'Muy pronto: organiza y sube tus textos como hacen las plataformas de clásicos. La IA se encarga de la colación, la puntuación y los párrafos.' },
+      { title: '🔌 Los métodos son complementos', desc: 'Cada método de un maestro es un complemento de IA independiente: se puede combinar, reutilizar y exportar como Markdown o JSON.' },
+    ],
+  },
 };

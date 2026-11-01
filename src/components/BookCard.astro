@@ -1,6 +1,6 @@
 ---
 import type { BookMeta } from '../lib/data';
-import { type Locale } from '../i18n/config';
+import { type Locale, href as i18nHref } from '../i18n/config';
 import { bookDict } from '../i18n/pages/book';
 
 interface Props {
@@ -15,12 +15,12 @@ const buLabel = book.bu ? (bd.bu[book.bu] ?? book.bu) : null;
 const dynastyLabel = book.dynasty ? (bd.dynasty[book.dynasty] ?? book.dynasty) : null;
 const guideCount = book.guides?.length ?? 0;
 const freeGuide = book.guides?.find((g) => g.method_id === 'zhuxi');
-const base = Astro.site?.pathname ?? '/';
-const href = minimal ? '#' : `${base}books/${book.slug}`;
+// 详情页链接交给 i18n 的 href() 统一裁决：该语言已译则带前缀，未译则回落中文原文页
+const cardHref = minimal ? '#' : i18nHref(lang, `/books/${book.slug}`);
 ---
 
 <div class="book-card" data-bu={book.bu}>
-  <a href={href} class="card-link">
+  <a href={cardHref} class="card-link">
     <header class="card-header">
       <h3>{book.seed_title}</h3>
       {guideCount > 0 && <span class="badge">{bd.guides(guideCount)}</span>}
@@ -39,7 +39,7 @@ const href = minimal ? '#' : `${base}books/${book.slug}`;
     )}
   </a>
   {book.readable && (
-    <a class="card-read" href={`${base}books/${book.slug}/read`} aria-label={bd.readAria(book.seed_title)}>
+    <a class="card-read" href={i18nHref(lang, `/books/${book.slug}/read`)} aria-label={bd.readAria(book.seed_title)}>
       {bd.read} <span aria-hidden="true">→</span>
     </a>
   )}

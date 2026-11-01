@@ -28,14 +28,15 @@ const {
 // ── 国际化上下文 ──
 const meta = LOCALES[lang];
 const t = ui[lang];
-// 品牌名与标语：三语各自惯用写法，英文版不夹中文
-const brandName = lang === 'en' ? 'DimensionsCosmos Library' : lang === 'zh-TW' ? '維點圖書館' : '维点图书馆';
-const brandTag =
-  lang === 'en'
-    ? 'Read any book through a master\u2019s eyes'
-    : lang === 'zh-TW'
-      ? '用大師的方法讀一切書'
-      : '用大师的方法读一切书';
+// 品牌名与标语：一律取自 ui 词典，禁止在此硬编码三元链
+//（每新增一种语言都要回来改一次，是上一轮 B1 的遗留隐患，B2 一并消掉）
+const brandName = t.brand;
+const brandTag = t.tagline;
+// 中英文混排标点与昼/夜字模：CJK 用汉字与全角标点，拉丁语系用拉丁字符
+const isCJK = lang === 'zh' || lang === 'zh-TW';
+const colon = isCJK ? '：' : ': ';
+const dayMark = isCJK ? '昼' : lang === 'es' ? 'D' : 'L';
+const nightMark = isCJK ? '夜' : lang === 'es' ? 'N' : 'D';
 // 当前路径去掉语言前缀，供语言切换器换算出其他语言的同一页地址
 const rawPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 const curPrefix = meta.prefix;
@@ -68,7 +69,7 @@ try {
   const idx = file ? JSON.parse(fs.readFileSync(file, 'utf8')) : null;
   const d = new Date(idx?.generatedAt);
   if (!Number.isNaN(d.getTime())) {
-    dataUpdated = new Intl.DateTimeFormat('zh-CN', {
+    dataUpdated = new Intl.DateTimeFormat(meta.dateLocale, {
       timeZone: 'Asia/Shanghai',
       year: 'numeric',
       month: '2-digit',
@@ -238,11 +239,11 @@ try {
         id="themeToggle"
         type="button"
         aria-label={t.a11y.themeToggle}
-        data-day-text={lang === 'en' ? 'L' : '昼'}
-        data-night-text={lang === 'en' ? 'D' : '夜'}
+        data-day-text={dayMark}
+        data-night-text={nightMark}
         data-to-dark={t.a11y.themeToDark}
         data-to-light={t.a11y.themeToLight}
-      >{lang === 'en' ? 'D' : '夜'}</button>
+      >{nightMark}</button>
     </div>
   </nav>
   <main>
@@ -260,7 +261,7 @@ try {
     </div>
     <p>{t.footer.motto}</p>
     <p style="margin-top:4px">{t.footer.source}</p>
-    <p style="margin-top:4px"><strong>{t.footer.aiNotice}</strong>：{t.footer.aiNoticeDetail} <a href={href(lang, '/about')}>{t.footer.aiNoticeLink}</a></p>
+    <p style="margin-top:4px"><strong>{t.footer.aiNotice}</strong>{colon}{t.footer.aiNoticeDetail} <a href={href(lang, '/about')}>{t.footer.aiNoticeLink}</a></p>
     <p style="margin-top:4px">{t.footer.slogan} · v1.0 MVP · <a href="https://github.com/aidulibrary/DimensionsCosmos">GitHub</a></p>
     <p style="margin-top:4px">
       <a href={href(lang, '/about')}>{t.footer.about}</a> ·
@@ -268,7 +269,7 @@ try {
       <a href={href(lang, '/refund')}>{t.footer.refund}</a> ·
       <a href={href(lang, '/privacy')}>{t.footer.privacy}</a>
     </p>
-    {dataUpdated && <p style="margin-top:4px;opacity:.72">{t.footer.updated} {dataUpdated}（UTC+8）</p>}
+    {dataUpdated && <p style="margin-top:4px;opacity:.72">{t.footer.updated} {dataUpdated}{t.utcNote}</p>}
   </footer>
 
   <script is:inline>

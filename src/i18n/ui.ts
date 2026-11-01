@@ -7,6 +7,10 @@ import type { Locale } from './config';
 export interface UiDict {
   brand: string;
   brandSub: string;
+  /** 品牌标语：用于分享卡 og:image:alt。各语言惯用写法，不做直译 */
+  tagline: string;
+  /** 页脚数据时间的时区注记 */
+  utcNote: string;
   nav: { books: string; tasks: string; methods: string; pricing: string; cta: string };
   a11y: { themeToggle: string; themeToDark: string; themeToLight: string; langSwitch: string };
   footer: {
@@ -29,6 +33,8 @@ export const ui: Record<Locale, UiDict> = {
   zh: {
     brand: '维点图书馆',
     brandSub: 'DimensionsCosmos',
+    tagline: '用大师的方法读一切书',
+    utcNote: '（UTC+8）',
     nav: { books: '书库', tasks: '任务中心', methods: '方法', pricing: '定价', cta: '解锁全部' },
     a11y: { themeToggle: '切换夜间模式', themeToDark: '切换到夜间模式', themeToLight: '切换到日间模式', langSwitch: '切换语言' },
     footer: {
@@ -50,6 +56,8 @@ export const ui: Record<Locale, UiDict> = {
   'zh-TW': {
     brand: '維點圖書館',
     brandSub: 'DimensionsCosmos',
+    tagline: '用大師的方法讀一切書',
+    utcNote: '（UTC+8）',
     nav: { books: '書庫', tasks: '任務中心', methods: '方法', pricing: '定價', cta: '解鎖全部' },
     a11y: { themeToggle: '切換夜間模式', themeToDark: '切換到夜間模式', themeToLight: '切換到日間模式', langSwitch: '切換語言' },
     footer: {
@@ -71,6 +79,8 @@ export const ui: Record<Locale, UiDict> = {
   en: {
     brand: 'DimensionsCosmos Library',
     brandSub: '维点图书馆',
+    tagline: 'Read any book through a master\u2019s eyes',
+    utcNote: '(UTC+8)',
     nav: { books: 'Library', tasks: 'Tasks', methods: 'Methods', pricing: 'Pricing', cta: 'Unlock all' },
     a11y: { themeToggle: 'Toggle dark mode', themeToDark: 'Switch to dark mode', themeToLight: 'Switch to light mode', langSwitch: 'Change language' },
     footer: {
@@ -87,5 +97,36 @@ export const ui: Record<Locale, UiDict> = {
       updated: 'Data updated',
     },
     common: { search: 'Search', all: 'All', more: 'more methods', free: 'Free', back: 'Back' },
+  },
+
+  // B2：西班牙语。用国际通用西语（es-ES 拼写习惯），避免拉美/西班牙地区俚语，
+  // 以便一次覆盖西班牙与拉美两大市场；专名（书名、人名、朝代）保留汉字原文。
+  es: {
+    brand: 'Biblioteca DimensionsCosmos',
+    brandSub: '维点图书馆',
+    tagline: 'Lee cualquier libro con los ojos de un maestro',
+    utcNote: '(UTC+8)',
+    nav: { books: 'Biblioteca', tasks: 'Tareas', methods: 'Métodos', pricing: 'Precios', cta: 'Desbloquear todo' },
+    a11y: {
+      themeToggle: 'Cambiar el modo nocturno',
+      themeToDark: 'Cambiar al modo nocturno',
+      themeToLight: 'Cambiar al modo diurno',
+      langSwitch: 'Cambiar de idioma',
+    },
+    footer: {
+      motto: 'Un sistema operativo de lectura para grandes mentes',
+      source: 'Textos originales © Wikisource en chino (CC BY-SA 4.0) y otras fuentes abiertas',
+      aiNotice: 'Aviso de contenido generado por IA',
+      aiNoticeDetail:
+        'Los comentarios se elaboran con ayuda de modelos de lenguaje. Son solo orientativos y no constituyen una conclusión de crítica textual. Más información en',
+      aiNoticeLink: 'Acerca de',
+      slogan: 'Regar una civilización que crece en libertad',
+      about: 'Acerca de',
+      terms: 'Términos del servicio',
+      refund: 'Reembolsos',
+      privacy: 'Privacidad',
+      updated: 'Datos actualizados',
+    },
+    common: { search: 'Buscar', all: 'Todos', more: 'métodos más', free: 'Gratis', back: 'Volver' },
   },
 };

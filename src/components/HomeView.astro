@@ -40,7 +40,7 @@ const total = indexData?.ok ?? 0;
       <p class="sub">{t.sub}</p>
       <div class="hero-search">
         <input id="q" type="text" placeholder={t.searchPlaceholder} autocomplete="off">
-        <button onclick={`const q=document.getElementById('q').value;if(q)location.href='/books?q='+encodeURIComponent(q)`}>{t.searchBtn}</button>
+        <button onclick={`const q=document.getElementById('q').value;if(q)location.href='${href(lang, '/books')}?q='+encodeURIComponent(q)`}>{t.searchBtn}</button>
       </div>
       <div class="hero-stats">
         <a href={href(lang, '/books')} class="stat-link"><b>{total}</b><span>{t.statBooks}</span></a>
@@ -87,11 +87,11 @@ const total = indexData?.ok ?? 0;
       </div>
       <div class="strip-pills">
         {methods.slice(0, 5).map((m) => (
-          <a href={`/methods#${m.id}`} class="strip-pill">
-            {m.icon} {lang === 'en' ? m.name_en : m.name_zh}
+          <a href={`${href(lang, '/methods')}#${m.id}`} class="strip-pill">
+            {m.icon} {lang === 'zh' || lang === 'zh-TW' ? m.name_zh : m.name_en}
           </a>
         ))}
-        <a href="/methods" class="strip-pill more">{t.stripMore.replace('{n}', String(methods.length - 5))}</a>
+        <a href={href(lang, '/methods')} class="strip-pill more">{t.stripMore.replace('{n}', String(methods.length - 5))}</a>
       </div>
     </div>
   </section>
