@@ -12,7 +12,9 @@ AIGC:
 # 古籍扩容筛选结论（2026-11）
 
 > 依据：`docs/CORPUS-SELECTION-MODEL.md` v1.0（先建模型后选书，模型为唯一规则来源）
-> 数据：`data/corpus_candidates.csv`（候选池 128 部）、`data/corpus_scores.csv`（评分 33 部）、`data/corpus_scores_ranked.csv`（排名输出）
+> 现行治理标准：`docs/CORPUS-ACQUISITION-STANDARD-v1.1.md`（P1–P10 原则 / 六 Gate+三技术闸 / 分档决序 / 七步运行秩序 / 六项验收）
+> 执行状态：batch1–3（38 部）+ batch4（7 部）已完成，全库 95 部 / 9118 章；逐批留痕见 `docs/CORPUS-EXPANSION-2026-11-batch4.md`，下一批为 batch5。
+> 数据：`data/corpus_candidates.csv`（候选池 128 部）、`data/corpus_scores.csv`（已评分 122 部）、`data/corpus_scores_ranked.csv`（排名输出）
 > 复算：`.venv\Scripts\python.exe pipeline\score_corpus.py --report`
 
 ---

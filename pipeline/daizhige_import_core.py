@@ -304,13 +304,15 @@ def build_chapters(lines: list[str], hits: list[tuple[int, str, str]], cfg: dict
             name = re.sub(tc, "", name).strip() or name
         end = hits[k + 1][0] if k + 1 < len(hits) else len(lines)
         start = i + 1
-        if cfg["mode"] == "hui":
+        if cfg["mode"] == "hui" or cfg.get("join_next"):
             parts = [title]
             j = i + 1
-            while j < end and j < i + 3 and lines[j] and len(lines[j]) <= MAXT:
+            while j < end and j < i + 3 and lines[j] and len(lines[j]) <= cfg.get("join_max", MAXT):
                 parts.append(lines[j])
                 j += 1
             name = " ".join(parts).strip()
+            if cfg.get("title_clean"):
+                name = re.sub(cfg["title_clean"], "", name).strip() or name
             start = j
         sep = cfg.get("sep", "/")
         grp = group.strip(SYM).strip()
@@ -369,6 +371,9 @@ def prep(title: str, cfg: dict) -> tuple[list[dict], dict]:
             q, note = "incomplete", f"{chars}字"
         else:
             q, note = "ok", ""
+        if cfg.get("index_prefix"):
+            _pre, _, _last = c["title"].partition("/")
+            c["title"] = f"{_pre}/{len(rows) + 1:02d} {_last}"
         rows.append({"title": c["title"], "text": c["raw"], "clean": cleaned, "blocks": blocks,
                      "chars": chars, "quality": q, "note": note, "group": c["group"]})
         total += chars

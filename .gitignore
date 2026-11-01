@@ -41,3 +41,6 @@ data/tmp/
 .idea/
 .vscode/
 *.log
+
+# 本地整库快照（不入库）
+.backups/

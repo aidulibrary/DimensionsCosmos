@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 0c5caf7145ca8876d640e5da87215fbf_5a006361d60d11f19101525400de85a5
+    ReservedCode1: 1UHbD1RKnibiSWwTCiEt5BKEk54cfzR89KZAawDCY2Yik21skGJ1kIyB2pVD7uoZW6tGnkH/mWcegcCbsA1cw9zAAALGWBQz1qaXDn41+HBMtWail8Uz9laXg8fjCX4/1a61Goiym4/7TGRbvApBOgIMD5mv76FdwcpVCz1rb7V5TGMFC39qvtiwcLE=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 0c5caf7145ca8876d640e5da87215fbf_5a006361d60d11f19101525400de85a5
+    ReservedCode2: 1UHbD1RKnibiSWwTCiEt5BKEk54cfzR89KZAawDCY2Yik21skGJ1kIyB2pVD7uoZW6tGnkH/mWcegcCbsA1cw9zAAALGWBQz1qaXDn41+HBMtWail8Uz9laXg8fjCX4/1a61Goiym4/7TGRbvApBOgIMD5mv76FdwcpVCz1rb7V5TGMFC39qvtiwcLE=
+---
+
 # 全库交付标准对齐报告（2026-11-01）
 
 > 对象：原 50 部（work_id 1–100）+ 本次新增 38 部（work_id 101–138），合计 **88 部 / 8992 章 / 2412 万字**。
@@ -70,3 +81,4 @@
 ## 六、结论
 
 新增 38 部在「入库完整、稳定引用、元数据、版本说明、站点可读、可发现性」六项上与既有 50 部**完全同口径**，全库 88 部统一以 8992 条稳定引用对外；未对齐项（Wikidata 实体号、成书系年、AI 导读）属旧库同样存在的可选增强项，已记录待办，不影响本次推送。
+*（内容由AI生成，仅供参考）*

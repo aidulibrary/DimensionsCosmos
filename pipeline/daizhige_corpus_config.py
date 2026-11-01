@@ -180,6 +180,46 @@ CONFIG: dict[str, dict] = {
     "金刚经": dict(batch=3, file="金刚般若波罗蜜经_1.md", bu="子", mode="single",
                 prefix="金刚般若波罗蜜经", min_chars=300,
                 note="元魏 菩提流支译本，一卷，底本无品目，未分章。" + DZG),
+
+    # ---------------- batch 4 ----------------
+    # 依《新增古籍筛选及入选顺序标准 v1.0》第 2.5 节排序取前 7 部：
+    # 抱朴子(道教理论断线)/桃花扇·窦娥冤·西厢记(戏曲断线)/大唐西域记(域外行记)/大戴礼记(礼学)/园冶(造园美学)
+    "抱朴子": dict(batch=4, file="抱朴子内篇.md", bu="子", mode="re",
+               re=r"^抱朴子内篇卷之[一二三四五六七八九十]+$", prefix="抱朴子",
+               join_next=True, join_max=6,
+               title_clean=r"^抱朴子内篇卷之[一二三四五六七八九十]+", sep="·",
+               skip=HDR + [r"^抱朴子内篇$", r"^經名", r"^目录", r"^序$"], min_chars=500,
+               note="东晋 葛洪撰，内篇二十卷（畅玄第一至遐览第二十）。底本为内篇单行本；"
+                    "外篇属政论五十卷，本库暂不入，见版本说明。" + DZG),
+    "桃花扇": dict(batch=4, file="桃花扇.md", bu="集", mode="re",
+               re=r"^第[一二三四五六七八九十]+出", prefix="桃花扇",
+               title_clean=r"\s+", skip=HDR + [r"^桃花扇$", r"^清 ?孔尚任$"], min_chars=300,
+               note="清 孔尚任撰，四卷四十四出（试一出先声至续四十出余韵）。" + DZG),
+    "窦娥冤": dict(batch=4, file="窦娥冤.md", bu="集", mode="re",
+               re=r"^《[^》]{1,6}》", prefix="窦娥冤",
+               title_clean=r"[《》]", skip=[r"^窦娥冤$", r"^作者：关汉卿$"], min_chars=150,
+               note="元 关汉卿撰，楔子一、四折（感天动地窦娥冤）。" + DZG),
+    "大唐西域记": dict(batch=4, file="大唐西域记.md", bu="史", mode="re",
+                  re=r"^大唐西域记卷第?[一二三四五六七八九十]+", prefix="大唐西域记",
+                  title_clean=r"^大唐西域记|\\", sep="·",
+                  skip=HDR + [r"^大唐西域记十二卷$", r"^唐三藏法师玄奘奉　诏译", r"^大总持寺沙门辩机撰$"],
+                  min_chars=800,
+                  note="唐 玄奘述、辩机撰，十二卷，一百三十八国。括号内为国数，随标题保留。" + DZG),
+    "大戴礼记": dict(batch=4, file="大戴礼记.md", bu="经", mode="re",
+                 re=r"^(大戴礼记)?卷[一二三四五六七八九十]+$", prefix="大戴礼记",
+                 title_clean=r"^大戴礼记",
+                 skip=HDR + [r"^大戴礼记$", r"^汉 ?戴德$"], min_chars=300,
+                 note="汉 戴德撰，十三卷三十九篇（今存四十篇，明堂、投壶等有阙）。"
+                      "底本卷前有目录区，导入时按重复标题块切除。" + DZG),
+    "园冶": dict(batch=4, file="园冶.md", bu="子", mode="re",
+               re=r"^(自序|卷[一二三][　 ]?[^\s]{0,6}$|[一二三四五六]、[^\s]{1,4}$)",
+               prefix="园冶", title_clean=r"\s+|。$", skip=HDR + [r"^园冶 ?明 ?计成$"], min_chars=180,
+               note="明 计成撰，三卷：兴造论、园说、相地、立基、屋宇、装折、栏杆、门窗、墙垣、铺地、"
+                    "掇山、选石、借景，另附图式二篇。" + DZG),
+    "西厢记": dict(batch=4, file="西厢记.md", bu="集", mode="re",
+                re=r"^○(楔子|第[一二三四五]折)", index_prefix=True, prefix="西厢记",
+                title_clean=r"^○", skip=[r"^西厢记 ?元 ?王实甫$"], min_chars=200,
+                note="元 王实甫撰，五本二十折（第一本张君瑞闹道场至第五本张君瑞庆团圆），每本附楔子。" + DZG),
 }
 
 SKIP_SRC = {"人物志": "本地归档缺该文本（corpus_local_match 未命中），需另行取源"}
