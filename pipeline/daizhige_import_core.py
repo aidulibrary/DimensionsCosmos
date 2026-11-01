@@ -124,9 +124,19 @@ def pre_clean(lines: list[str], cfg: dict) -> list[str]:
             break
         out.append(l)
     out = [l for l in out if not (l and any(s.search(l) for s in skip))]
+    if cfg.get("start_re"):
+        sp = re.compile(cfg["start_re"])
+        for i, l in enumerate(out):
+            if l and sp.search(l):
+                if i:
+                    print(f"   [toc] 正文起点 {i}（{l[:20]}），前置区切除")
+                    out = out[i:]
+                break
     out = cut_toc(out)
-    if cfg["mode"] in ("pian_num", "pian_in", "juan", "mark", "re", "hui", "chu", "yinyan", "pin"):
-        out = strip_dup_block(out, 40 if cfg["mode"] in ("hui", "chu") else MAXT)
+    if cfg["mode"] in ("pian_num", "pian_in", "juan", "mark", "re", "hui", "chu", "yinyan", "pin",
+                       "shortline"):
+        if not cfg.get("no_strip_dup"):
+            out = strip_dup_block(out, 40 if cfg["mode"] in ("hui", "chu") else MAXT)
         out = remove_toc_block(out, cfg)
         out = dedup_same(out, cfg)
     return out
