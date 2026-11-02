@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-02T03:57:02.622Z",
-  "total": 111,
-  "ok": 111,
-  "readable": 111,
+  "generatedAt": "2026-11-02T06:40:48.554Z",
+  "total": 112,
+  "ok": 112,
+  "readable": 112,
   "taxonomy": [
     {
       "name": "乐类",
@@ -1731,6 +1731,30 @@
         "readable": true,
         "version": {
           "text": "汉 扬雄撰，二卷八十一首（中至养），首各具首辞、次赞与测，前有玄首序、玄测序；底本「粹」首作「睟」、首题以半角冒号分隔，已按底本原字保留并按首名归并。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "structure": null,
+          "readingTip": null,
+          "grade": null,
+          "score": null
+        }
+      },
+      {
+        "id": 162,
+        "seed_title": "朱子语类选本",
+        "ws_title": "朱子語類選本",
+        "bu": "子部",
+        "author": "朱熹",
+        "dynasty": "南宋",
+        "status": "ok",
+        "wikidata_qid": null,
+        "fetched_at": "2026-11-02T06:36:30+00:00",
+        "quality": "ok",
+        "chapter_count": 13,
+        "total_chars": 135717,
+        "slug": "162-朱子语类选本",
+        "ok": true,
+        "readable": true,
+        "version": {
+          "text": "宋 朱熹撰、门人辑录，通行本一百四十卷。本库取「理学纲领」十三卷选本：卷一至卷二理气、卷三鬼神、卷四至卷六性理、卷七至卷十三学（含卷十、卷十一读书法上下），共 13 章 13.6 万字；余一百二十七卷（论语、孟子、易、诗、礼、朱子自述、吕陆陈诸家、释老、本朝及历代、杂类、作文等）未收，属选本，非全本。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
           "structure": null,
           "readingTip": null,
           "grade": null,
@@ -4465,6 +4489,31 @@
       "readable": true,
       "version": {
         "text": "汉 扬雄撰，二卷八十一首（中至养），首各具首辞、次赞与测，前有玄首序、玄测序；底本「粹」首作「睟」、首题以半角冒号分隔，已按底本原字保留并按首名归并。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "structure": null,
+        "readingTip": null,
+        "grade": null,
+        "score": null
+      },
+      "guides": []
+    },
+    {
+      "id": 162,
+      "seed_title": "朱子语类选本",
+      "ws_title": "朱子語類選本",
+      "bu": "子部",
+      "author": "朱熹",
+      "dynasty": "南宋",
+      "status": "ok",
+      "wikidata_qid": null,
+      "fetched_at": "2026-11-02T06:36:30+00:00",
+      "quality": "ok",
+      "chapter_count": 13,
+      "total_chars": 135717,
+      "slug": "162-朱子语类选本",
+      "ok": true,
+      "readable": true,
+      "version": {
+        "text": "宋 朱熹撰、门人辑录，通行本一百四十卷。本库取「理学纲领」十三卷选本：卷一至卷二理气、卷三鬼神、卷四至卷六性理、卷七至卷十三学（含卷十、卷十一读书法上下），共 13 章 13.6 万字；余一百二十七卷（论语、孟子、易、诗、礼、朱子自述、吕陆陈诸家、释老、本朝及历代、杂类、作文等）未收，属选本，非全本。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
         "structure": null,
         "readingTip": null,
         "grade": null,
