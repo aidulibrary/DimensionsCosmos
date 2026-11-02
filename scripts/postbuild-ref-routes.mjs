@@ -1,12 +1,14 @@
 /**
- * 构建后生成"稳定引用短链"静态页（REF-SPEC v1 · P0-1 第二阶段）
+ * 构建后处理"稳定引用短链"（REF-SPEC v1 · P0-1 第二阶段）
  *
- * 为每一章输出 <dist>/<workKey>/c<chapNo>/index.html：
- *   /Q276015/c002  →  /books/1-论语/read/#dc:Q276015/c002
+ * 目标：/Q276015/c002 → /books/1-论语/read/#dc:Q276015/c002
  *
- * 为什么放在构建后而不是 Astro 页面：
- *   5531 章若走 getStaticPaths 要过一遍组件编译（构建时间与内存双增），
- *   而短链页内容固定、无组件依赖，直接写 HTML 更快更省，也不进 sitemap。
+ * 三种模式（REF_ROUTE_MODE）：
+ *   dynamic（默认）：不生成静态页，只输出 <dist>/data/ref-index/works.json（workKey → slug），
+ *                    由 functions/_middleware.js 在边缘 302 重定向。
+ *                    用途：Cloudflare Pages 单次部署上限 20000 文件，9874 个短链页会撑爆配额。
+ *   static         ：旧行为，为每章写 <dist>/<workKey>/c<chapNo>/index.html（仅本地/回滚使用）。
+ *   off            ：什么都不做。
  *
  * 数据源：public/data/book-*.json 内每章的 ref 字段（gen-data 已导出）。
  * 用法：npm run build 之后自动执行（见 package.json 的 postbuild）。
@@ -19,12 +21,18 @@ const DATA = path.join(ROOT, "public", "data");
 const DIST = path.join(ROOT, "dist");
 const SITE = "https://dimensionscosmos.pages.dev";
 
+const MODE = (process.env.REF_ROUTE_MODE || "dynamic").toLowerCase();
+
 if (!fs.existsSync(DIST)) {
   console.error("[ref-routes] 未找到 dist 目录，请先执行 astro build");
   process.exit(0);
 }
 if (!fs.existsSync(DATA)) {
   console.warn("[ref-routes] 未找到 public/data，跳过");
+  process.exit(0);
+}
+if (MODE === "off") {
+  console.log("[ref-routes] REF_ROUTE_MODE=off，跳过短链输出");
   process.exit(0);
 }
 
@@ -66,45 +74,83 @@ const page = ({ urn, slug, book, chapter }) => `<!doctype html>
 </html>
 `;
 
-let books = 0;
-let pages = 0;
-const refs = new Set();
+/** 扫描 book-*.json，收集 workKey → slug 映射与可生成短链的章节 */
+function collect() {
+  const workMap = new Map(); // workKey → slug
+  const entries = []; // { urn, workKey, chapNo, slug, book, chapter }
+  const seenRef = new Set();
+  let books = 0;
 
-for (const f of fs.readdirSync(DATA)) {
-  const m = /^book-(\d+)\.json$/.exec(f);
-  if (!m) continue;
-  let book;
-  try {
-    book = JSON.parse(fs.readFileSync(path.join(DATA, f), "utf8"));
-  } catch {
-    continue;
+  for (const f of fs.readdirSync(DATA)) {
+    const m = /^book-(\d+)\.json$/.exec(f);
+    if (!m) continue;
+    let book;
+    try {
+      book = JSON.parse(fs.readFileSync(path.join(DATA, f), "utf8"));
+    } catch {
+      continue;
+    }
+    if (!book?.slug) continue;
+    books++;
+    for (const ch of book.chapters || []) {
+      const rm = /^dc:([^/]+)\/c(\d+)$/.exec(ch.ref || "");
+      if (!rm) continue;
+      const [, workKey, chapNoRaw] = rm;
+      // 只有 3 位以上零填充的章号才配短链，避免 c1 与 c001 两套写法
+      if (chapNoRaw.length < 3) continue;
+      const urn = ch.ref;
+      if (seenRef.has(urn)) continue;
+      seenRef.add(urn);
+      const prev = workMap.get(workKey);
+      if (prev && prev !== book.slug) {
+        console.warn(`[ref-routes] workKey ${workKey} 指向多部书（${prev} / ${book.slug}），保留前者`);
+      } else {
+        workMap.set(workKey, book.slug);
+      }
+      entries.push({
+        urn,
+        workKey,
+        chapNo: chapNoRaw,
+        slug: prev || book.slug,
+        book: book.seed_title || book.ws_title || book.slug,
+        chapter: String(ch.title || "").split("/").pop() || urn,
+      });
+    }
   }
-  if (!book?.slug) continue;
-  books++;
-  for (const ch of book.chapters || []) {
-    const rm = /^dc:([^/]+)\/c(\d+)$/.exec(ch.ref || "");
-    if (!rm) continue;
-    const [, workKey, chapNoRaw] = rm;
-    // 只有 3 位以上零填充的章号才配短链，避免 c1 与 c001 两套写法
-    if (chapNoRaw.length < 3) continue;
-    const urn = ch.ref;
-    if (refs.has(urn)) continue;
-    refs.add(urn);
-    const dir = path.join(DIST, workKey, `c${chapNoRaw}`);
+  return { books, workMap, entries, urnCount: seenRef.size };
+}
+
+const { books, workMap, entries, urnCount } = collect();
+
+if (MODE === "static") {
+  let pages = 0;
+  for (const e of entries) {
+    const dir = path.join(DIST, e.workKey, `c${e.chapNo}`);
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(
       path.join(dir, "index.html"),
-      page({
-        urn,
-        slug: book.slug,
-        book: book.seed_title || book.ws_title || book.slug,
-        chapter: String(ch.title || "").split("/").pop() || urn,
-      }),
+      page({ urn: e.urn, slug: e.slug, book: e.book, chapter: e.chapter }),
     );
     pages++;
   }
+  console.log(
+    `[ref-routes] static：已生成 ${pages} 个稳定引用短链页（覆盖 ${books} 部书，去重 ${urnCount} 条 URN）`,
+  );
+  process.exit(0);
 }
 
+// dynamic：只落一份 workKey → slug 索引，交给边缘函数 302
+const outDir = path.join(DIST, "data", "ref-index");
+fs.mkdirSync(outDir, { recursive: true });
+const index = {};
+for (const [wk, slug] of [...workMap.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+  index[wk] = slug;
+}
+const outFile = path.join(outDir, "works.json");
+fs.writeFileSync(outFile, JSON.stringify(index), "utf-8");
+
 console.log(
-  `[ref-routes] 已生成 ${pages} 个稳定引用短链页（覆盖 ${books} 部书，去重 ${refs.size} 条 URN）`,
+  `[ref-routes] dynamic：已输出 ${Object.keys(index).length} 条 workKey 索引（${(
+    fs.statSync(outFile).size / 1024
+  ).toFixed(1)} KB），覆盖 ${urnCount} 条 URN / ${books} 部书；静态短链页已停用（节省 ${urnCount} 个部署文件）`,
 );
