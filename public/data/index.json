@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-01T18:52:44.861Z",
-  "total": 108,
-  "ok": 108,
-  "readable": 108,
+  "generatedAt": "2026-11-02T03:57:02.622Z",
+  "total": 111,
+  "ok": 111,
+  "readable": 111,
   "taxonomy": [
     {
       "name": "乐类",
@@ -1688,6 +1688,54 @@
           "grade": null,
           "score": null
         }
+      },
+      {
+        "id": 159,
+        "seed_title": "周髀算经",
+        "ws_title": "周髀算經",
+        "bu": "子部",
+        "author": "佚名，赵君卿注",
+        "dynasty": "西汉",
+        "status": "ok",
+        "wikidata_qid": null,
+        "fetched_at": "2026-11-02T03:54:41+00:00",
+        "quality": "ok",
+        "chapter_count": 5,
+        "total_chars": 35408,
+        "slug": "159-周髀算经",
+        "ok": true,
+        "readable": true,
+        "version": {
+          "text": "汉 赵君卿注、北周 甄鸾重述、唐 李淳风注释，四库本二卷六节（卷上之一至卷下之三），经文与赵爽注合刻；底本卷下之一栏仅存卷题、其正文阙，已按 §P9 显式声明。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "structure": null,
+          "readingTip": null,
+          "grade": null,
+          "score": null
+        }
+      },
+      {
+        "id": 160,
+        "seed_title": "太玄经",
+        "ws_title": "太玄經",
+        "bu": "子部",
+        "author": "扬雄",
+        "dynasty": "西汉",
+        "status": "ok",
+        "wikidata_qid": null,
+        "fetched_at": "2026-11-02T03:54:42+00:00",
+        "quality": "ok",
+        "chapter_count": 83,
+        "total_chars": 20197,
+        "slug": "160-太玄经",
+        "ok": true,
+        "readable": true,
+        "version": {
+          "text": "汉 扬雄撰，二卷八十一首（中至养），首各具首辞、次赞与测，前有玄首序、玄测序；底本「粹」首作「睟」、首题以半角冒号分隔，已按底本原字保留并按首名归并。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "structure": null,
+          "readingTip": null,
+          "grade": null,
+          "score": null
+        }
       }
     ],
     "经部": [
@@ -2791,6 +2839,30 @@
         "readable": true,
         "version": {
           "text": "明 张岱撰，八卷一百二十余篇，记晚明江浙风物见闻；底本卷前有目录区，导入时按重复标题块切除。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+          "structure": null,
+          "readingTip": null,
+          "grade": null,
+          "score": null
+        }
+      },
+      {
+        "id": 161,
+        "seed_title": "西游记",
+        "ws_title": "西遊記",
+        "bu": "集部",
+        "author": "吴承恩",
+        "dynasty": "明",
+        "status": "ok",
+        "wikidata_qid": null,
+        "fetched_at": "2026-11-02T03:54:43+00:00",
+        "quality": "ok",
+        "chapter_count": 100,
+        "total_chars": 713474,
+        "slug": "161-西游记",
+        "ok": true,
+        "readable": true,
+        "version": {
+          "text": "明 吴承恩撰，一百回，回目「第X回 双句对」体例（世德堂本系统通行本）。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
           "structure": null,
           "readingTip": null,
           "grade": null,
@@ -4351,6 +4423,56 @@
       "guides": []
     },
     {
+      "id": 159,
+      "seed_title": "周髀算经",
+      "ws_title": "周髀算經",
+      "bu": "子部",
+      "author": "佚名，赵君卿注",
+      "dynasty": "西汉",
+      "status": "ok",
+      "wikidata_qid": null,
+      "fetched_at": "2026-11-02T03:54:41+00:00",
+      "quality": "ok",
+      "chapter_count": 5,
+      "total_chars": 35408,
+      "slug": "159-周髀算经",
+      "ok": true,
+      "readable": true,
+      "version": {
+        "text": "汉 赵君卿注、北周 甄鸾重述、唐 李淳风注释，四库本二卷六节（卷上之一至卷下之三），经文与赵爽注合刻；底本卷下之一栏仅存卷题、其正文阙，已按 §P9 显式声明。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "structure": null,
+        "readingTip": null,
+        "grade": null,
+        "score": null
+      },
+      "guides": []
+    },
+    {
+      "id": 160,
+      "seed_title": "太玄经",
+      "ws_title": "太玄經",
+      "bu": "子部",
+      "author": "扬雄",
+      "dynasty": "西汉",
+      "status": "ok",
+      "wikidata_qid": null,
+      "fetched_at": "2026-11-02T03:54:42+00:00",
+      "quality": "ok",
+      "chapter_count": 83,
+      "total_chars": 20197,
+      "slug": "160-太玄经",
+      "ok": true,
+      "readable": true,
+      "version": {
+        "text": "汉 扬雄撰，二卷八十一首（中至养），首各具首辞、次赞与测，前有玄首序、玄测序；底本「粹」首作「睟」、首题以半角冒号分隔，已按底本原字保留并按首名归并。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "structure": null,
+        "readingTip": null,
+        "grade": null,
+        "score": null
+      },
+      "guides": []
+    },
+    {
       "id": 1,
       "seed_title": "论语",
       "ws_title": "論語",
@@ -5544,6 +5666,31 @@
       "readable": true,
       "version": {
         "text": "明 张岱撰，八卷一百二十余篇，记晚明江浙风物见闻；底本卷前有目录区，导入时按重复标题块切除。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
+        "structure": null,
+        "readingTip": null,
+        "grade": null,
+        "score": null
+      },
+      "guides": []
+    },
+    {
+      "id": 161,
+      "seed_title": "西游记",
+      "ws_title": "西遊記",
+      "bu": "集部",
+      "author": "吴承恩",
+      "dynasty": "明",
+      "status": "ok",
+      "wikidata_qid": null,
+      "fetched_at": "2026-11-02T03:54:43+00:00",
+      "quality": "ok",
+      "chapter_count": 100,
+      "total_chars": 713474,
+      "slug": "161-西游记",
+      "ok": true,
+      "readable": true,
+      "version": {
+        "text": "明 吴承恩撰，一百回，回目「第X回 双句对」体例（世德堂本系统通行本）。底本：殆知阁归档 data/sources/daizhige（源自漢籍リポジトリ/四库），许可 CC BY-SA 4.0",
         "structure": null,
         "readingTip": null,
         "grade": null,
