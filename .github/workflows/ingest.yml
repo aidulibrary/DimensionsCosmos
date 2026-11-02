@@ -47,8 +47,14 @@ jobs:
           python pipeline/run_ai.py --method zhuxi,feynman,socratic,adler,qianzhongshu || echo "AI processing skipped (no key or rate limited)"
 
       # 阶段 3: 生成前端数据
+      #   导出为空或章节骤降时脚本会保留已提交的 public/data 并正常退出，
+      #   保证后面仍能构建上线（站点降级而非断线）。
       - name: generate frontend data
         run: node scripts/gen-data.mjs
+
+      # 阶段 3.5: 词典覆盖率自检（未映射的部类/朝代显式告警，不阻断）
+      - name: check i18n coverage
+        run: node scripts/check-i18n-coverage.mjs
 
       # 阶段 4: Astro 构建
       - name: build Astro site
