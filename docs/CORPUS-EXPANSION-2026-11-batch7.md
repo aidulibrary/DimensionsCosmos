@@ -115,6 +115,9 @@
 5. **幼学琼林 / 海国图志 补章**，及 **朱子语类「选本二」**（卷 14–40）：各立新 batch（batch8 起，work_id 163 起），复用本批脚本与条款。
 6. **四条 C 档主线**：先补 D3 或走 §3.7 仲裁，未过闸不得放行（§2.4 硬约束）。
 7. **收尾**：`npm run build` → 校验 `dist/data/index.json` 的 `total`/`generatedAt` → `git add -A && git commit && git push` → CI success → 线上 `data/index.json` 复验（线上以 `index.json` 为唯一验收口径）。
+8. **线上验收（本机未完成，必须由外网设备补做）**
+   - 本机 `git push` 走 SSH 正常（`e3825a63..4fdf01b2` 已推，本地与 `origin/main` 0/0 同步），但 HTTPS/DNS 全部不可达：`urllib` → `getaddrinfo failed`、`curl.exe` 无输出、`web_fetch` 浏览器启动失败，故 pages.dev 拉取与 GitHub Actions 轮询均无法在本机完成。
+   - 补做方式：`curl -s https://dimensions-cosmos.pages.dev/data/index.json` 校验 `total=112`、`generatedAt` 晚于 `2026-11-02T06:40:48Z`；抽查 `/read/162-朱子语类选本/`、`/books/162-朱子语类选本/`、`/data/ch/19080.json`、短链 302 与 sitemap（应含 238 URL）；GitHub Actions 确认该 commit 的 CI success。
 
 ## 七、复算与回滚
 
