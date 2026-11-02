@@ -1,0 +1,162 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getAllMethods } from '../lib/data';
+import { PAY_ENABLED } from '../config/commerce';
+import { type Locale } from '../i18n/config';
+import { href } from '../i18n/config';
+import { methodsDict } from '../i18n/pages/methods';
+
+interface Props {
+  lang?: Locale;
+}
+
+const { lang = 'zh' } = Astro.props;
+const ml = methodsDict[lang];
+
+/* 子路径部署时补上 base，与 BaseLayout 的 base 口径保持一致 */
+const rawBase = import.meta.env.BASE_URL || '/';
+const base = rawBase === '/' ? '' : rawBase.replace(/\/$/, '');
+const pricingHref = `${base}${href(lang, '/pricing')}`;
+
+const methods = getAllMethods();
+const nameOf = (m: { name_zh: string; name_en?: string }) =>
+  ml.preferEnName && m.name_en ? m.name_en : m.name_zh;
+const altNameOf = (m: { name_zh: string; name_en?: string }) =>
+  ml.preferEnName ? m.name_zh : (m.name_en ?? '');
+---
+
+<BaseLayout lang={lang} title={ml.title}>
+  <section>
+    <div class="sec-head">
+      <h2>{ml.heading(methods.length)}</h2>
+      <p>{ml.sub}</p>
+      <div class="rule"></div>
+    </div>
+
+    <!-- 免费方法 -->
+    <div class="method-block">
+      <h3>{ml.freeHeading}</h3>
+      <p class="block-desc">{ml.freeDesc}</p>
+      <div class="method-detail-grid">
+        {methods.filter((m) => m.free).map((m) => (
+          <div class="method-detail" id={m.id}>
+            <div class="md-header">
+              <span class="md-icon">{m.icon}</span>
+              <div>
+                <h4>{nameOf(m)}</h4>
+                <small>{altNameOf(m)}</small>
+              </div>
+            </div>
+            <p class="md-era">{m.era}</p>
+            <p class="md-summary">{m.summary}</p>
+            <div class="md-tags">
+              {m.tags.map((t) => <span class="tag">{t}</span>)}
+            </div>
+            <p class="md-price free">{ml.priceFree}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- 付费方法 -->
+    <div class="method-block">
+      <h3>{ml.paidHeading}</h3>
+      <p class="block-desc">{ml.paidDesc}</p>
+      <div class="method-detail-grid">
+        {methods.filter((m) => !m.free).map((m) => (
+          <div class="method-detail" id={m.id}>
+            <div class="md-header">
+              <span class="md-icon">{m.icon}</span>
+              <div>
+                <h4>{nameOf(m)}</h4>
+                <small>{altNameOf(m)}</small>
+              </div>
+            </div>
+            <p class="md-era">{m.era}</p>
+            <p class="md-summary">{m.summary}</p>
+            <div class="md-tags">
+              {m.tags.map((t) => <span class="tag">{t}</span>)}
+            </div>
+            <p class="md-price">{PAY_ENABLED ? ml.pricePaid(m.price) : ml.pricePromo}</p>
+            <a href={`${pricingHref}?method=${m.id}`} class="md-cta">{PAY_ENABLED ? ml.cta : ml.ctaPlain}</a>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- 未来规划 -->
+    <div class="coming-soon">
+      <h3>{ml.comingHeading}</h3>
+      <ul>
+        {ml.coming.map((c) => (
+          <li><strong>{c.name}</strong>（{c.meta}）——{c.desc}</li>
+        ))}
+      </ul>
+    </div>
+
+    {ml.dataNote && <p class="data-note">{ml.dataNote}</p>}
+  </section>
+</BaseLayout>
+
+<style>
+  section { padding: 60px 6vw; max-width: 1060px; margin: 0 auto; }
+  .sec-head { text-align: center; margin-bottom: 48px; }
+  .sec-head h2 { font-size: 30px; letter-spacing: 6px; }
+  .sec-head p { color: var(--ink-soft); margin-top: 8px; }
+  .sec-head .rule { width: 56px; height: 3px; background: var(--cinnabar); margin: 16px auto 0; border-radius: 2px; }
+
+  .method-block { margin-bottom: 50px; }
+  .method-block h3 { font-size: 20px; letter-spacing: 3px; margin-bottom: 6px; }
+  .block-desc { color: var(--ink-soft); font-size: 14px; margin-bottom: 24px; }
+
+  .method-detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+
+  .method-detail {
+    background: var(--white); border: 1px solid var(--line); border-radius: 12px;
+    padding: 26px; position: relative;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .method-detail:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(43,41,38,.1); }
+
+  .md-header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  .md-icon { font-size: 32px; }
+  .md-header h4 { font-size: 18px; letter-spacing: 2px; }
+  .md-header small { font-size: 12px; color: var(--ink-soft); }
+
+  .md-era { font-size: 13px; color: var(--gold); margin-bottom: 10px; }
+  .md-summary { font-size: 14px; color: var(--ink-soft); line-height: 1.65; margin-bottom: 14px; }
+
+  .md-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tag {
+    font-size: 11px; background: var(--paper-deep); color: var(--ink-soft);
+    padding: 2px 10px; border-radius: 999px;
+  }
+
+  .md-price {
+    font-size: 18px; font-weight: 700; color: var(--cinnabar);
+  }
+  .md-price.free { color: #2d8a56; }
+
+  .md-cta {
+    display: inline-block; margin-top: 8px; font-size: 14px;
+    color: var(--cinnabar); text-decoration: none; font-weight: 600;
+  }
+  .md-cta:hover { text-decoration: underline; }
+
+  .coming-soon {
+    background: var(--paper-deep); border: 1px dashed var(--line);
+    border-radius: 12px; padding: 32px;
+  }
+  .coming-soon h3 { font-size: 18px; letter-spacing: 2px; margin-bottom: 14px; }
+  .coming-soon ul { list-style: none; }
+  .coming-soon li {
+    font-size: 14px; color: var(--ink-soft); padding: 8px 0;
+    border-bottom: 1px dotted var(--line);
+  }
+  .coming-soon li:last-child { border-bottom: none; }
+  .coming-soon li strong { color: var(--ink); }
+
+  .data-note {
+    margin-top: 24px; font-size: 12px; color: var(--ink-soft); opacity: .8;
+  }
+</style>

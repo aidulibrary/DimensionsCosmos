@@ -1,0 +1,201 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCard from '../components/BookCard.astro';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import type { IndexData } from '../lib/data';
+import { type Locale } from '../i18n/config';
+import { href } from '../i18n/config';
+import { booksDict } from '../i18n/pages/books';
+import { bookDict } from '../i18n/pages/book';
+
+interface Props {
+  lang?: Locale;
+}
+
+const { lang = 'zh' } = Astro.props;
+const bl = booksDict[lang];
+const bd = bookDict[lang];
+
+/* 子路径部署（GitHub Pages 预览）时 Astro.site 带 base，拼到站内链接前面 */
+const rawBase = import.meta.env.BASE_URL || '/';
+const base = rawBase === '/' ? '' : rawBase.replace(/\/$/, '');
+const withBase = (p: string) => `${base}${p}`;
+
+/* 站内链接统一走 i18n 的 href()：该语言已译则带前缀，未译则回落中文页 */
+const booksHref = withBase(href(lang, '/books'));
+
+/* 构建期读取索引；缺文件时静默降级为空库，不中断整站构建 */
+let indexData: IndexData | null = null;
+try {
+  indexData = JSON.parse(readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8')) as IndexData;
+} catch (e) {
+  console.warn('[books] public/data/index.json 读取失败，按空库渲染：', e);
+}
+
+const url = new URL(Astro.request.url);
+const q = url.searchParams.get('q')?.toLowerCase() ?? '';
+const bu = url.searchParams.get('bu') ?? '';
+
+let books = (indexData?.works ?? []).filter((w) => w.ok);
+
+if (bu) {
+  books = books.filter((b) => b.bu === bu);
+}
+if (q) {
+  books = books.filter((b) =>
+    b.seed_title.toLowerCase().includes(q) ||
+    (b.author ?? '').toLowerCase().includes(q)
+  );
+}
+
+const buSet = [...new Set((indexData?.works ?? []).map((w) => w.bu).filter(Boolean))].sort();
+const buLabel = (b: string) => bd.bu[b] ?? b;
+
+/* 客户端重算计数用的模板：把 0 换成 {n} 占位，脚本里 replace 回去 */
+const countTpl = bl.countShort(0).replace('0', '{n}');
+const countQTpl = bl.countQ(0, '{q}').replace('0', '{n}');
+---
+
+<BaseLayout lang={lang} title={bl.title(q)}>
+  <section>
+    <div class="sec-head">
+      <h2>{bl.heading}</h2>
+      <p>{bl.sub(indexData?.ok ?? books.length)}</p>
+      <div class="rule"></div>
+    </div>
+
+    <!-- 搜索 -->
+    <!-- 搜索跳转在客户端拼 URL：必须继承当前查询串里的 store=1，否则商店版一搜就掉出商店模式 -->
+    <form class="search-bar" data-books-href={booksHref} onsubmit="event.preventDefault();const u=new URL(this.dataset.booksHref,location.origin);const v=this.q.value.trim();if(v){u.searchParams.set('q',v)}else{u.searchParams.delete('q')};const st=new URLSearchParams(location.search).get('store');if(st){u.searchParams.set('store',st)};location.href=u.pathname+u.search">
+      <input name="q" type="text" placeholder={bl.searchPlaceholder} aria-label={bl.searchAria} value={q} autocomplete="off">
+      <button type="submit" aria-label={bl.searchAria}>🔍</button>
+      {q && <a href={booksHref} class="clear-btn">✕ {bl.clear}</a>}
+    </form>
+
+    <!-- 分类过滤 -->
+    <div class="filters">
+      <a href={booksHref} class={`filter-chip ${!bu ? 'active' : ''}`}>{bd.all}</a>
+      {buSet.map((b) => (
+        <a href={`${booksHref}?bu=${encodeURIComponent(b)}`}
+           class={`filter-chip ${bu === b ? 'active' : ''}`}>{buLabel(b)}</a>
+      ))}
+    </div>
+
+    <!-- 结果 -->
+    <p class="result-count">{bl.count(books.length, q, bu ? buLabel(bu) : '')}</p>
+
+    <div
+      class="book-grid"
+      data-count-tpl={countTpl}
+      data-countq-tpl={countQTpl}
+      data-empty-short={bl.emptyShort}
+    >
+      {books.map((book) => <BookCard book={book} lang={lang} />)}
+    </div>
+
+    {books.length === 0 && (
+      <div class="empty">
+        <p>{bl.emptyTitle}</p>
+        <p>{bl.emptyHint}</p>
+      </div>
+    )}
+  </section>
+
+  <script>
+    // 静态站客户端过滤：让 ?bu= / ?q= 真正生效
+    (function () {
+      const sp = new URLSearchParams(location.search);
+      const bu = sp.get('bu') || '';
+      const qRaw = sp.get('q') || '';
+      const q = qRaw.toLowerCase();
+      if (!bu && !q) return;
+
+      const cards = Array.from(document.querySelectorAll('.book-grid .book-card'));
+      let shown = 0;
+      cards.forEach((c) => {
+        const okBu = !bu || (c.dataset.bu || '') === bu;
+        const okQ = !q || (c.innerText || '').toLowerCase().includes(q);
+        const on = okBu && okQ;
+        c.style.display = on ? '' : 'none';
+        if (on) shown += 1;
+      });
+
+      document.querySelectorAll('.filter-chip').forEach((a) => {
+        const href = a.getAttribute('href') || '';
+        const abu = new URLSearchParams((href.split('?')[1] || '')).get('bu') || '';
+        a.classList.toggle('active', abu === bu);
+      });
+
+      /* 计数文案来自字典模板（{n}/{q}/{bu}），避免在这里硬编码中文 */
+      const grid = document.querySelector('.book-grid');
+      const rc = document.querySelector('.result-count');
+      if (rc && grid) {
+        const tpl = qRaw ? (grid.dataset.countqTpl || '') : (grid.dataset.countTpl || '');
+        rc.textContent = tpl
+          .replace('{n}', String(shown))
+          .replace('{q}', qRaw)
+          .replace('{bu}', bu)
+          .replace(/\s+·\s*$/, '');
+      }
+
+      let empty = document.querySelector('.empty');
+      if (!empty && grid) {
+        empty = document.createElement('div');
+        empty.className = 'empty';
+        const p = document.createElement('p');
+        p.textContent = grid.dataset.emptyShort || '';
+        empty.appendChild(p);
+        grid.after(empty);
+      }
+      if (empty) empty.style.display = shown ? 'none' : '';
+    })();
+  </script>
+</BaseLayout>
+
+<style>
+  section { padding: 60px 6vw; }
+  .sec-head { text-align: center; margin-bottom: 36px; }
+  .sec-head h2 { font-size: 30px; letter-spacing: 6px; }
+  .sec-head p { color: var(--ink-soft); margin-top: 8px; }
+  .sec-head .rule { width: 56px; height: 3px; background: var(--cinnabar); margin: 16px auto 0; border-radius: 2px; }
+
+  .search-bar {
+    display: flex; max-width: 520px; margin: 0 auto 24px;
+    border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden; background: var(--white);
+  }
+  .search-bar input {
+    flex: 1; border: 0; outline: 0; padding: 12px 16px;
+    font-size: 15px; font-family: inherit;
+  }
+  .search-bar button {
+    border: 0; background: var(--accent); color: var(--on-accent);
+    padding: 0 18px; font-size: 16px; cursor: pointer;
+  }
+  .clear-btn {
+    display: flex; align-items: center; padding: 0 12px;
+    color: var(--ink-soft); text-decoration: none; font-size: 12px;
+  }
+
+  .filters { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .filter-chip {
+    font-size: 14px; text-decoration: none; color: var(--ink-soft);
+    border: 1px solid var(--line); padding: 6px 16px; border-radius: 999px;
+    background: var(--white); transition: all .2s;
+  }
+  .filter-chip:hover { border-color: var(--cinnabar); }
+  .filter-chip.active { background: var(--brand-sky-tint); color: var(--accent-deep); border-color: var(--accent); }
+
+  .result-count {
+    text-align: center; font-size: 13px; color: var(--ink-soft); margin-bottom: 24px;
+  }
+
+  .book-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;
+  }
+
+  .empty {
+    text-align: center; padding: 60px 0; color: var(--ink-soft);
+  }
+  .empty p { margin: 8px 0; }
+</style>

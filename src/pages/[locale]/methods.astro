@@ -1,0 +1,14 @@
+---
+import MethodsView from '../../components/MethodsView.astro';
+import { ACTIVE_LOCALES, DEFAULT_LOCALE, TRANSLATED_PAGES, type Locale } from '../../i18n/config';
+
+export function getStaticPaths() {
+  return ACTIVE_LOCALES
+    .filter((l) => l !== DEFAULT_LOCALE && TRANSLATED_PAGES[l].includes('/methods'))
+    .map((locale) => ({ params: { locale } }));
+}
+
+const { locale } = Astro.params as { locale: Locale };
+---
+
+<MethodsView lang={locale} />

@@ -1,0 +1,123 @@
+---
+/**
+ * 「关于本站」视图：about.astro 与 [locale]/about.astro 共用同一份结构与样式，
+ * 差异只在传入的 lang。站点统计数值仍取自构建数据，文案取自 aboutDict。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { type Locale, href } from '../i18n/config';
+import { aboutDict } from '../i18n/pages/about';
+import { OPERATOR, PAY_ENABLED } from '../config/commerce';
+
+interface Props {
+  lang?: Locale;
+}
+
+const { lang = 'zh' } = Astro.props;
+const t = aboutDict[lang];
+
+/* 运营主体/邮箱未填时是「（待补充…）」中文占位；非中文语言下改显 —— ，避免中文占位串出现在英文页 */
+const isPlaceholder = (v: string) => /^[（(]/.test((v || '').trim());
+const pending = '—';
+
+/* 子路径部署时 Astro.site 带 base，拼到站内链接前面 */
+const rawBase = import.meta.env.BASE_URL || '/';
+const base = rawBase === '/' ? '' : rawBase.replace(/\/$/, '');
+const withBase = (p: string) => `${base}${p}`;
+
+/* 站内链接统一走 href()：该语言已译则带前缀，未译则回落中文页，不断链 */
+const link = (p: string) => withBase(href(lang, p));
+
+/* 统计数值：索引缺失时按 0 渲染，不中断整站构建 */
+let idx: { generatedAt: string; guidesCount: number; works: any[] } = {
+  generatedAt: new Date().toISOString(),
+  guidesCount: 0,
+  works: [],
+};
+try {
+  idx = JSON.parse(readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8'));
+} catch (e) {
+  console.warn('[about] public/data/index.json 读取失败，按空数据渲染：', e);
+}
+
+const works = (idx.works ?? []).filter((w: any) => w.ok);
+const chapters = works.reduce((s: number, w: any) => s + (w.chapter_count || 0), 0);
+const chars = works.reduce((s: number, w: any) => s + (w.total_chars || 0), 0);
+const generatedAt = new Date(idx.generatedAt).toLocaleString(
+  lang === 'zh' ? 'zh-CN' : lang === 'zh-TW' ? 'zh-TW' : lang === 'es' ? 'es-ES' : 'en-US',
+  { timeZone: 'Asia/Shanghai' },
+);
+---
+
+<BaseLayout title={t.pageTitle} lang={lang}>
+  <section class="doc">
+    <h1>{t.h1}</h1>
+    <p class="meta">{t.meta}</p>
+
+    <h2>{t.whatTitle}</h2>
+    <p>{t.whatBody}</p>
+
+    <h2>{t.scaleTitle}</h2>
+    <div class="stat-grid">
+      <div><b>{works.length}</b><span>{t.statBooks}</span></div>
+      <div><b>{chapters.toLocaleString()}</b><span>{t.statChapters}</span></div>
+      <div><b>{(chars / 10000).toFixed(0)}</b><span>{t.statChars}</span></div>
+      <div><b>{idx.guidesCount}</b><span>{t.statGuides}</span></div>
+    </div>
+    <p class="small">{t.generatedAt}{generatedAt}{t.timezoneNote}</p>
+
+    <h2>{t.sourceTitle}</h2>
+    <ul>
+      {t.sourceItems.map((item) => <li>{item}</li>)}
+    </ul>
+
+    <h2>{t.aiTitle}</h2>
+    <ul>
+      {t.aiItems.map((item) => <li>{item}</li>)}
+    </ul>
+
+    <h2>{t.priceTitle}</h2>
+    <p>{PAY_ENABLED ? t.priceOn : t.priceOff}</p>
+
+    <h2>{t.operatorTitle}</h2>
+    <ul>
+      <li>{t.labelOperator}{isPlaceholder(OPERATOR.legalName) ? pending : OPERATOR.legalName}</li>
+      <li>
+        {t.labelEmail}
+        {/^[^\s@（(]+@[^\s@]+$/.test(OPERATOR.email)
+          ? <a href={`mailto:${OPERATOR.email}`}>{OPERATOR.email}</a>
+          : (isPlaceholder(OPERATOR.email) ? pending : OPERATOR.email)}
+      </li>
+      <li>{t.labelRepo}<a href={OPERATOR.repo}>{OPERATOR.repo.replace('https://', '')}</a></li>
+      <li>{t.labelRegion}{OPERATOR.region}</li>
+      <li>
+        {t.labelDocs}
+        <a href={link('/terms')}>{t.docTerms}</a> · <a href={link('/refund')}>{t.docRefund}</a> · <a href={link('/privacy')}>{t.docPrivacy}</a>
+      </li>
+    </ul>
+
+    <p class="hint">{t.hint}</p>
+  </section>
+</BaseLayout>
+
+<style>
+  .doc { max-width: 780px; margin: 0 auto; padding: 56px 6vw 90px; }
+  .doc h1 { font-size: 30px; letter-spacing: 5px; margin-bottom: 6px; }
+  .doc .meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 30px; letter-spacing: 1px; }
+  .doc h2 { font-size: 17px; letter-spacing: 2px; margin: 32px 0 12px; padding-left: 12px; border-left: 3px solid var(--cinnabar); }
+  .doc p, .doc li { font-size: 14.5px; line-height: 1.95; color: var(--ink); }
+  .doc p { margin-bottom: 12px; }
+  .doc ul { padding-left: 20px; margin-bottom: 12px; }
+  .doc li { margin-bottom: 6px; }
+  .doc a { color: var(--cinnabar); }
+  .doc b { color: var(--cinnabar-deep); }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0 8px; }
+  .stat-grid div { background: var(--brand-sky-tint); border: 1px solid #d5e0e6; border-radius: 10px; padding: 14px 8px; text-align: center; }
+  .stat-grid b { display: block; font-size: 22px; color: var(--cinnabar); }
+  .stat-grid span { font-size: 12px; color: var(--ink-soft); }
+  .small { font-size: 12.5px !important; color: var(--ink-soft) !important; }
+  .hint { font-size: 12.5px !important; color: var(--ink-soft) !important; background: var(--paper-deep); padding: 12px 14px; border-radius: 8px; }
+  .hint code { font-size: 12px; background: rgba(0,0,0,.05); padding: 1px 5px; border-radius: 3px; }
+  @media (max-width: 640px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>

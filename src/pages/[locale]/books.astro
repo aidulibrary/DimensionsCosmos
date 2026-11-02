@@ -1,0 +1,16 @@
+---
+import BooksView from '../../components/BooksView.astro';
+import { ACTIVE_LOCALES, DEFAULT_LOCALE, TRANSLATED_PAGES, type Locale } from '../../i18n/config';
+
+/* 只为「该语言确实有这一页译文」的语言生成静态路由，
+   否则会出现 /en/books 空壳或 404；未译语言由 href() 回落中文页。 */
+export function getStaticPaths() {
+  return ACTIVE_LOCALES
+    .filter((l) => l !== DEFAULT_LOCALE && TRANSLATED_PAGES[l].includes('/books'))
+    .map((locale) => ({ params: { locale } }));
+}
+
+const { locale } = Astro.params as { locale: Locale };
+---
+
+<BooksView lang={locale} />

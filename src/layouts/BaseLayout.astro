@@ -287,17 +287,83 @@ try {
   </script>
 
   <script is:inline>
-    // 语言切换要保留商店标记：MSIX 版从 /?store=1 切到 /en/ 时若无 ?store=1，
-    // 会重新露出站外付费入口（display-mode 兜底仍在，这里做双保险）。
+    // 商店标记（store=1）必须在整站浏览中一路携带：
+    // 只在语言切换器上补参数是不够的——切完语言点「书库」仍会掉出商店模式，
+    // 露出站外付费入口（display-mode 兜底对浏览器预览、部分外壳不生效，这里做全量保险）。
     (function () {
       try {
         if (!/(^|[?&])store=1(&|$)/.test(location.search)) return;
-        document.querySelectorAll('.lang-switch a').forEach(function (a) {
-          var u = new URL(a.getAttribute('href'), location.origin);
+        var origin = location.origin;
+        function withStore(href) {
+          if (!href || /^(#|mailto:|tel:|javascript:)/i.test(href)) return href;
+          var u;
+          try { u = new URL(href, origin); } catch (e) { return href; }
+          if (u.origin !== origin) return href;                       // 站外链不碰
+          if (/(^|[?&])store=1(&|$)/.test(u.search)) return href;     // 已带则跳过
           u.searchParams.set('store', '1');
-          a.setAttribute('href', u.pathname + u.search);
-        });
+          return u.pathname + u.search + u.hash;
+        }
+        // 1) 全部站内链接：导航、页脚、书卡、语言切换、分类筛选
+        var links = document.querySelectorAll('a[href]');
+        for (var i = 0; i < links.length; i++) {
+          var a = links[i];
+          var raw = a.getAttribute('href');
+          var next = withStore(raw);
+          if (next && next !== raw) a.setAttribute('href', next);
+        }
+        // 2) GET 表单（站内搜索等）提交会丢弃查询串，补一个隐藏字段
+        var forms = document.querySelectorAll('form');
+        for (var j = 0; j < forms.length; j++) {
+          var f = forms[j];
+          if (f.method && f.method.toLowerCase() === 'post') continue;
+          if (f.querySelector('input[name="store"]')) continue;
+          var hid = document.createElement('input');
+          hid.type = 'hidden';
+          hid.name = 'store';
+          hid.value = '1';
+          f.appendChild(hid);
+        }
       } catch (e) { /* 失败按普通网页处理 */ }
+    })();
+  </script>
+
+  <script is:inline>
+    // 语言偏好记忆：切换器点过哪种语言，下次直接进站时就用哪种。
+    // 三重保险，避免误伤：① 只对「本站有这一页译文」的路径生效（靠 hreflang
+    // alternate 的真实前缀判断，未译页不跳、不会 404）；② 来自站内的跳转不改写，
+    // 否则读者点中文链接会被弹回外语；③ location.replace 不留历史记录，不污染后退键。
+    (function () {
+      try {
+        var codeOf = { 'zh-Hans': 'zh', 'zh-Hant': 'zh-TW', en: 'en', es: 'es' };
+        var cur = codeOf[document.documentElement.lang];
+        if (!cur) return;
+
+        var switches = document.querySelectorAll('.lang-switch a');
+        for (var i = 0; i < switches.length; i++) {
+          switches[i].addEventListener('click', (function (a) {
+            return function () {
+              try {
+                var u = new URL(a.getAttribute('href'), location.origin);
+                var seg = u.pathname.split('/')[1] || '';
+                var map = { 'zh-TW': 'zh-TW', en: 'en', es: 'es' };
+                localStorage.setItem('lang', map[seg] || 'zh');
+              } catch (e) { /* 隐私模式忽略 */ }
+            };
+          })(switches[i]));
+        }
+
+        var saved = localStorage.getItem('lang');
+        if (!saved || saved === cur) return;
+        if (document.referrer && document.referrer.indexOf(location.origin) === 0) return;
+
+        var hreflang = { zh: 'zh-Hans', 'zh-TW': 'zh-Hant' }[saved] || saved;
+        var alt = document.querySelector('link[rel="alternate"][hreflang="' + hreflang + '"]');
+        if (!alt) return;
+        var target = new URL(alt.getAttribute('href'), location.origin);
+        if (target.origin !== location.origin) return;
+        if (target.pathname === location.pathname) return;  // 该页无译文，保持原样
+        location.replace(target.pathname + location.search); // search 里含 store=1 则一并带过去
+      } catch (e) { /* 任何异常一律按当前语言渲染 */ }
     })();
   </script>
 

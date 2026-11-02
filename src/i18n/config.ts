@@ -50,10 +50,11 @@ export function localePath(locale: Locale, path: string): string {
  */
 export const TRANSLATED_PAGES: Record<Locale, string[]> = {
   zh: ['*'],
-  // B1 已上线：首页。其余页在 B2 逐页补齐（补一页就往这里加一条，切换器自动生效）
-  'zh-TW': ['/'],
-  en: ['/'],
-  es: ['/'],
+  // 已上线页面（补一页就往这里加一条，导航 href、hreflang 与静态路由自动生效）：
+  // B1 首页 → B3 批一：书库 / 方法库 → B3 批二：关于 / 定价
+  'zh-TW': ['/', '/books', '/methods', '/about', '/pricing'],
+  en: ['/', '/books', '/methods', '/about', '/pricing'],
+  es: ['/', '/books', '/methods', '/about', '/pricing'],
 };
 
 /** 解析某语言下某个路径的最终 href */
