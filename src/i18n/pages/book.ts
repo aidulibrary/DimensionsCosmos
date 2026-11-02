@@ -26,6 +26,11 @@ const dynastyEn: Record<string, string> = {
   北齐: 'Northern Qi', 北魏: 'Northern Wei', 隋: 'Sui', 唐: 'Tang',
   五代: 'Five Dynasties', 北宋: 'Northern Song', 南宋: 'Southern Song',
   元: 'Yuan', 明: 'Ming', 清: 'Qing', 近现代: 'Modern', 佚名: 'Anonymous',
+  // 以下为批量新增古籍带来的朝代（此前缺映射，书卡会回落汉字）
+  汉: 'Han', 宋: 'Song', 三国魏: 'Cao Wei', 三国吴: 'Eastern Wu',
+  后秦: 'Later Qin', 南朝梁: 'Liang',
+  // 预置：后续批次大概率出现，避免再次回落
+  南朝齐: 'Southern Qi', 南朝陈: 'Chen', 辽: 'Liao', 金: 'Jurchen Jin',
 };
 
 // 西语朝代名沿用汉学界通行译法（Primaveras y Otoños / Reinos Combatientes 等），
@@ -37,6 +42,11 @@ const dynastyEs: Record<string, string> = {
   北齐: 'Qi del Norte', 北魏: 'Wei del Norte', 隋: 'Sui', 唐: 'Tang',
   五代: 'Cinco Dinastías', 北宋: 'Song del Norte', 南宋: 'Song del Sur',
   元: 'Yuan', 明: 'Ming', 清: 'Qing', 近现代: 'Época moderna', 佚名: 'Anónimo',
+  // 以下为批量新增古籍带来的朝代（此前缺映射，书卡会回落汉字）
+  汉: 'Han', 宋: 'Song', 三国魏: 'Wei de Cao', 三国吴: 'Wu Oriental',
+  后秦: 'Qin Posterior', 南朝梁: 'Liang',
+  // 预置：后续批次大概率出现，避免再次回落
+  南朝齐: 'Qi del Sur', 南朝陈: 'Chen', 辽: 'Liao', 金: 'Jin (yurchen)',
 };
 
 export const bookDict: Record<Locale, BookDict> = {

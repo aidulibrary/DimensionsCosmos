@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "gen": "node --experimental-sqlite scripts/gen-data.mjs",
-    "prebuild": "node scripts/gen.mjs",
-    "predev": "node scripts/gen.mjs",
+    "prebuild": "node scripts/gen.mjs && node scripts/check-i18n-coverage.mjs",
+    "predev": "node scripts/gen.mjs && node scripts/check-i18n-coverage.mjs",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
@@ -18,7 +18,8 @@
     "citations:apply": "python scripts/migrate_citations.py --apply",
     "citations:verify": "python scripts/migrate_citations.py --verify",
     "guides:cited": "python pipeline/gen_guides_cited.py",
-    "guides:dry": "python pipeline/gen_guides_cited.py --work-id 1 --method zhuxi --dry-run"
+    "guides:dry": "python pipeline/gen_guides_cited.py --work-id 1 --method zhuxi --dry-run",
+    "check:i18n": "node scripts/check-i18n-coverage.mjs"
   },
   "engines": {
     "node": ">=22"

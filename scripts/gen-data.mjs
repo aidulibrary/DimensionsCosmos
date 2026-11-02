@@ -282,6 +282,37 @@ const indexJson = {
   works: worksWithSlug.map((w) => ({ ...w, guides: worksGuides[w.id] || [] })),
   guidesCount: Object.values(worksGuides).reduce((s, g) => s + g.length, 0),
 };
+// 5.0) 写出前的数据健康守卫：防误删 + 防空产物上线
+//   背景：CI 侧抓取源失效曾导出 0 部 0 章，脚本先把 9874 个章节文件清空再 exit 1，
+//         造成「数据被删 + 部署被阻断」双重损失。改为：异常时一律不动 public/data，
+//         保留已提交的上一版数据继续构建——页面降级，但站点不断。
+const totalCh = Object.values(workChapters).reduce((s, a) => s + a.length, 0);
+const existingCh = fs
+  .readdirSync(CH_DIR)
+  .filter((f) => f.endsWith(".json")).length;
+const shrinkRatio = existingCh > 0 ? totalCh / existingCh : 1;
+const emptyExport = indexJson.ok === 0 || totalCh === 0;
+const forceWrite = process.env.GEN_PRUNE_FORCE === "1";
+const shrunk = !forceWrite && existingCh >= 200 && shrinkRatio < 0.5;
+
+if (emptyExport || shrunk) {
+  console.error(
+    emptyExport
+      ? `[gen] 导出为空：可读 ${indexJson.ok} 部 · ${totalCh} 章 —— 疑似数据库/抓取异常`
+      : `[gen] 章节数骤降：本次 ${totalCh} 章 vs 现有 ${existingCh} 章（保留率 ${(
+          shrinkRatio * 100
+        ).toFixed(1)}%）`,
+  );
+  console.error(
+    "[gen] 已跳过本轮写盘：public/data 保持上一版原样，构建继续（不阻断部署），站点使用已提交的数据。",
+  );
+  console.error(
+    "[gen] 排查方向：抓取是否 0 部入库 / DB 是否为空或字段异常；确属正常删减时，设 GEN_PRUNE_FORCE=1 强制写出。",
+  );
+  db.close();
+  process.exit(0);
+}
+
 fs.writeFileSync(
   path.join(OUT_DIR, "index.json"),
   JSON.stringify(indexJson, null, 2),
@@ -326,7 +357,6 @@ fs.writeFileSync(
 );
 
 // 6) 清理旧版残留（老 book-*.json 里内嵌全文的时代已过）
-const totalCh = Object.values(workChapters).reduce((s, a) => s + a.length, 0);
 
 // 6.1) 删除库中已不存在的章节文件：避免陈旧正文被一并部署上线
 const keep = new Set();
@@ -345,13 +375,7 @@ if (removed) console.log(`[gen] 已清理 ${removed} 个陈旧章节文件`);
 
 db.close();
 
-// 7) 零数据门禁：导出结果为空说明库/字段异常，必须硬失败，禁止空产物上线
-if (!indexJson.ok || totalCh === 0) {
-  console.error(
-    `[gen] 导出结果异常：可读 ${indexJson.ok} 部 · ${totalCh} 章 —— 疑似数据库或字段异常，终止构建`,
-  );
-  process.exit(1);
-}
+// 7) 零数据门禁已上移至 5.0（写出前拦截，且改成"保数据不阻断"而非硬失败）
 
 const totalRef = Object.values(workChapters)
   .flat()
