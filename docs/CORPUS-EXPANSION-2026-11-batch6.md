@@ -100,6 +100,36 @@ D3 全部为 `UNVERIFIED`，按 §2.2 走 provisional 归一化，未用印象�
 | 质量缺口 | `incomplete` 章 92 条（全在旧库）；《幼学琼林》仅存卷一、二；《海国图志》单章 | 换底本重做 or 版本说明加固 |
 | 发布通道 | `git push` 成功但 pages.dev 仍返回旧索引（108 部 → 实测 95 部批次更早数据），仓库 `ingest.yml` 的 `wrangler deploy` 步骤 `if:false` 停用，本地 wrangler token 过期 | 本批改为借另一台主机已可用的推送通道重推，并以线上 `data/index.json` 的 `generatedAt` 与 work 数作为唯一验收口径 |
 
+### 五之补 · 发布通道复验（2026-11-02）
+
+batch5 之后出现的「push 成功但线上仍旧」在本批定位清楚：仓库 `ingest.yml` 的第 13 步 `deploy to Cloudflare Pages` 自 batch4 起为 `if:false`（skipped），实际发布走 Cloudflare Pages 的 Git 集成构建；两次链路均可正常触发，线上滞后是部署构建耗时（约 3–5 分钟）而非通道断裂。本地 `npx wrangler whoami` token 过期不影响该路径。
+
+本次推送顺序与结果：
+
+| 步骤 | 命令 / 动作 | 结果 |
+|---|---|---|
+| 提交 | `git add -A` + `git commit` | `45aa058c`，197 files changed，+497 / −21 |
+| 推送 | `git push origin main`（SSH，`GIT_TERMINAL_PROMPT=0` 非交互） | `c92bfd1a..45aa058c main -> main`，退出码 0 |
+| CI | GitHub Actions `ingest-deploy`（run on `45aa058c`） | 全过程 success：前端数据生成 ✓ / i18n 覆盖 ✓ / Astro 构建 ✓ / 提交变更 ✓ / `deploy to Cloudflare Pages` **skipped**（`if:false`，即设计内跳过） |
+| 发布 | Cloudflare Pages Git 集成构建 | `data/index.json` 的 `generatedAt` 由 `2026-11-01T18:52:44Z` 变为 `2026-11-02T03:57:02Z`，work 数 108 → **111** |
+| 同步 | `git fetch` + `rev-list --left-right --count` | `0 0`，本地与远端完全同步，CI 未产生额外提交 |
+
+**线上验收（生产域名 `https://dimensionscosmos.pages.dev`，逐项实测）**
+
+| 验收项 | 请求 | 实测 |
+|---|---|---|
+| 索引口径 | `GET /data/index.json` | total 111 / ok 111 / readable 111；`generatedAt` 2026-11-02T03:57:02.622Z |
+| 三新书在索引内 | 同上 | 159 周髀算经 5 章 35408 字、160 太玄经 83 章 20197 字、161 西游记 100 章 713474 字，`ok`/`readable` 均 true |
+| 书籍页 | `GET /books/159-周髀算经/`、`/books/160-太玄经/`、`/books/161-西游记/` | 均 200，页面标题与正文含书名（24.9 KB / 24.8 KB / 24.8 KB） |
+| 阅读页（SPA） | `GET /books/161-西游记/read/` | 200，73.7 KB |
+| 章节数据 | `GET /data/ch/18892.json`（周髀首章）、`/data/ch/18991.json`（西游第十二回） | 均 200，`title` 分别「周髀算经/周髀算经卷上之一」「西游记/第十二回 玄奘秉诚建大会 观音显象化金蝉」 |
+| 稳定短链 | `GET /x4f2191b5/c001`、`/x1554dae1/c001`、`/x56494d13/c001` | 均 302 → `/books/<slug>/read/#dc:<workKey>/c001`（边缘函数生效） |
+| 短链索引 | `GET /data/ref-index/works.json` | 111 条 workKey → slug（batch4 时 108，三新书 key 为 `x4f2191b5` / `x1554dae1` / `x56494d13`） |
+| 引用索引 | `GET /data/ref-index.json` | 111 部（按 workKey 聚合） |
+| SEO | `GET /sitemap.xml` | 236 URL = 111 书籍页 + 111 阅读页 + 14 站级页；`159-` / `160-` / `161-` 均在列 |
+
+结论：**push → CI → Pages 发布链路已复通，线上口径 111 部 / 10062 章，与本地构建完全一致**。此前「线上 95 部」的成因是几次推送未真正落到主分支（以及部署竞态），本次以 `generatedAt` 与 work 数作为唯一验收口径后不再有歧义。
+
 ## 六、留痕
 
 - 数据库快照：`.backups/guji.db.before-batch6-20261102-115439`（仓库外，已入 `.gitignore`）
