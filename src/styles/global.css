@@ -1073,6 +1073,19 @@ footer a:hover {
   .nav-primary {
     gap: 14px;
   }
+  /* 窄屏隐藏品牌副标（英文/西语站名较长会把 .brand 撑到三行，
+     实测 375px 下顶栏 143px vs 中文 109px，白占首屏 34px；
+     品牌名与标识仍在，副标属重复信息） */
+  .brand small {
+    display: none;
+  }
+  /* 品牌名原本 20px + letter-spacing 4px：中文 5 字无碍，英文
+     「DimensionsCosmos Library」22 字符要 ~330px，窄屏被迫折两行、顶栏再涨 32px。
+     窄屏改为字号随视口收缩、字距归零，中/英/西三语顶栏高度一致 */
+  .brand b {
+    font-size: clamp(15px, 4.8vw, 20px);
+    letter-spacing: 0;
+  }
   .nav-primary a {
     font-size: 13px !important;
     letter-spacing: 0;

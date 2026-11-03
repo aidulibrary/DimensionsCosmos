@@ -83,3 +83,37 @@ Edge 148 + puppeteer-core，构建产物直测：
 3. 页脚是否补一个「全部解锁 / 定价」链接，作为顶栏撤下 CTA 后的常驻兜底？
 
 拍板后改动量：`BaseLayout.astro` 2 行、`tasks/index.astro` 1 行、`global.css` 可选清理 3 行、页脚 1 行；构建 + 顶栏一致性复测一次。
+
+---
+
+## 8. 决策与落地（2026-11-04，负责人已拍板）
+
+三问全部通过：① 导航只放导航项、转化按钮由支付开关门控；② 删除任务中心 `hideCommercial`；③ 页脚补「全部解锁」常驻兜底。
+
+### 8.1 改动
+
+| 文件 | 改动 |
+|---|---|
+| `src/layouts/BaseLayout.astro` | 顶栏 CTA 条件 `!hideCommercial` → `PAY_ENABLED`；「定价」项去掉 `hideCommercial` 包裹（全站常驻）；`hideCommercial` prop 与解构一并退役；页脚末行新增 `t.nav.cta` → `/pricing`（带 `data-store-hide`） |
+| `src/pages/tasks/index.astro` | 移除 `hideCommercial={true}` |
+| `src/styles/global.css` | 附带修复：≤600px 隐藏品牌副标 `.brand small`；`.brand b` 改 `clamp(15px,4.8vw,20px)` + `letter-spacing:0` |
+
+### 8.2 附带修复的实测依据
+
+窄屏顶栏此前高度被品牌名撑开：中文 375px 下 109–143px 波动，英文/西语 `/en/` 143px（中文 109px）。根因两条——
+1. 副标 `DimensionsCosmos` 在英文页与主名重复，且把 `.brand` 撑成三行；
+2. 主名 20px + `letter-spacing:4px`，英文 22 字符需 ~330px，窄屏被迫折两行。
+
+修复后 375px 三语顶栏统一 **93px**（原 109/143），桌面三语统一 **82px**。
+
+### 8.3 验收（`temp/verify7.mjs`，117/117 通过）
+
+- 8 个页面/语言（`/`、`/books/`、`/tasks/`、`/methods/`、`/pricing/`、`/en/`、`/es/`、`/zh-TW/`）× 2 视口（1280、375）
+- 每页断言：导航 5 项且同语言内文案/顺序一致、工具区宽度一致、顶栏高度一致、`PAY_ENABLED=false` 时无 `.nav-cta`、页脚兜底链接唯一且指向本语言 `/pricing`、无横向溢出
+- 跨语言断言：桌面 82/82/82、移动 93/93/93
+- 开关双向验证：`PAY_ENABLED=true` 构建 → `dist/index.html` 含 1 个 `nav-cta`（`href="/pricing"`）；`false` → 0 个。**支付开通当天 CTA 自动回归，无需再改代码。**
+
+### 8.4 遗留
+
+- `global.css` 中小屏 `.nav-cta { display:none }` 规则保留：支付开启后仍让位给导航项（与本次「导航只放导航项」同义）。
+- 商业转化后续靠上下文承载（作品页锁定卡、方法页「去解锁」、定价页 SKU、页脚兜底），归入 UX-4 / UX-7 迭代。

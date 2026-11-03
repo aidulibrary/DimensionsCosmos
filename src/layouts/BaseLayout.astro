@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Locale, DEFAULT_LOCALE, LOCALES, ACTIVE_LOCALES, href, localePath } from '../i18n/config';
 import { ui } from '../i18n/ui';
+import { PAY_ENABLED } from '../config/commerce';
 
 interface Props {
   /** 页面语言；默认简体中文 */
@@ -13,15 +14,12 @@ interface Props {
   description?: string;
   /** 站点内页/错误页设为 true，避免被搜索引擎收录 */
   noindex?: boolean;
-  /** 纯功能页设为 true，隐藏导航中的定价/解锁等商业入口 */
-  hideCommercial?: boolean;
 }
 
 const {
   title = '维点图书馆 · DimensionsCosmos Library',
   description = '伟大心智的阅读操作系统：用苏格拉底的方法读庄子，用费曼的方法读相对论，用朱熹的方法读古兰经。',
   noindex = false,
-  hideCommercial = false,
   lang = DEFAULT_LOCALE,
 } = Astro.props;
 
@@ -291,17 +289,16 @@ try {
             aria-current={isActive(it.path) ? 'page' : undefined}
           >{it.label}</a>
         ))}
-        {!hideCommercial && (
-          <a
-            href={href(lang, '/pricing')}
-            class:list={[{ on: isActive('/pricing') }]}
-            aria-current={isActive('/pricing') ? 'page' : undefined}
-            data-store-hide
-          >{t.nav.pricing}</a>
-        )}
+        <a
+          href={href(lang, '/pricing')}
+          class:list={[{ on: isActive('/pricing') }]}
+          aria-current={isActive('/pricing') ? 'page' : undefined}
+          data-store-hide
+        >{t.nav.pricing}</a>
       </div>
       <div class="nav-tools">
-        {!hideCommercial && <a class="nav-cta" href={href(lang, '/pricing')} data-store-hide>{t.nav.cta}</a>}
+        {/* 转化按钮由支付开关门控：支付未开启时导航不承诺落地页给不出的东西 */}
+        {PAY_ENABLED && <a class="nav-cta" href={href(lang, '/pricing')} data-store-hide>{t.nav.cta}</a>}
         <details class="lang-menu" id="langMenu">
           <summary aria-label={`${t.a11y.langSwitch}：${meta.label}`} title={t.a11y.langSwitch}>
             <span class="lang-cur">{meta.label}</span>
@@ -356,6 +353,10 @@ try {
       <a href={href(lang, '/terms')}>{t.footer.terms}</a> ·
       <a href={href(lang, '/refund')}>{t.footer.refund}</a> ·
       <a href={href(lang, '/privacy')}>{t.footer.privacy}</a>
+    </p>
+    {/* 顶栏不再常驻转化按钮，商业入口在页脚保留一个低干扰兜底 */}
+    <p style="margin-top:4px">
+      <a href={href(lang, '/pricing')} data-store-hide>{t.nav.cta}</a>
     </p>
     {dataUpdated && <p style="margin-top:4px;opacity:.72">{t.footer.updated} {dataUpdated}{t.utcNote}</p>}
   </footer>
