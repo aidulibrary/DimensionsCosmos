@@ -311,8 +311,40 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
             </span>
           </div>
           <div class="tb-right">
-            <button id="fontMinus" title="字号减小">A−</button>
-            <button id="fontPlus" title="字号增大">A+</button>
+            <details class="reader-prefs" id="readerPrefs">
+              <summary title="阅读设置：字号 / 行距 / 纸色" aria-label="阅读设置">Aa</summary>
+              <div class="rp-panel" role="group" aria-label="阅读设置">
+                <div class="rp-row">
+                  <span class="rp-label">字号</span>
+                  <div class="rp-seg" id="rpFont" role="group" aria-label="字号">
+                    <button type="button" data-font="16" aria-pressed="false">小</button>
+                    <button type="button" data-font="18" aria-pressed="false">标准</button>
+                    <button type="button" data-font="20" aria-pressed="false">大</button>
+                    <button type="button" data-font="22" aria-pressed="false">特大</button>
+                    <button type="button" data-font="26" aria-pressed="false">超大</button>
+                  </div>
+                </div>
+                <div class="rp-row">
+                  <span class="rp-label">行距</span>
+                  <div class="rp-seg" id="rpLh" role="group" aria-label="行距">
+                    <button type="button" data-lh="1.8" aria-pressed="false">紧凑</button>
+                    <button type="button" data-lh="2" aria-pressed="false">标准</button>
+                    <button type="button" data-lh="2.2" aria-pressed="false">宽松</button>
+                  </div>
+                </div>
+                <div class="rp-row">
+                  <span class="rp-label">纸色</span>
+                  <div class="rp-seg rp-paper" id="rpPaper" role="group" aria-label="纸色">
+                    <button type="button" data-paper="xuan" title="宣纸（默认）" aria-pressed="false"><i class="sw sw-xuan"></i>宣纸</button>
+                    <button type="button" data-paper="white" title="纯白" aria-pressed="false"><i class="sw sw-white"></i>纯白</button>
+                    <button type="button" data-paper="amber" title="米黄" aria-pressed="false"><i class="sw sw-amber"></i>米黄</button>
+                    <button type="button" data-paper="dark" title="夜间" aria-pressed="false"><i class="sw sw-dark"></i>夜间</button>
+                  </div>
+                </div>
+                <p class="rp-preview">天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。</p>
+                <p class="rp-tip" id="rpTip">设置只存本机。</p>
+              </div>
+            </details>
             {collation && (
               <a class="tb-collation" href={collationHref} title={collation.summary ?? '查看校勘待考清单'}>
                 {collation.label ?? '校勘'}
@@ -972,25 +1004,128 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     if (e.key === 'ArrowRight' && currentIndex < toc.length - 1) go(toc[currentIndex + 1].id);
   });
 
-  // 字号
-  const applyFont = (px: number) => {
-    document.documentElement.style.setProperty('--reader-font', px + 'px');
+  // ── 阅读排版设置（UX-3）：字号档位 / 行距 / 纸色 ──────────────
+  // 设计取舍：不做「A−/A+ 逐级加减」，改五档位直选——老花读者要的是
+  // 一次到位的目标字号，而不是连点八次；档位按钮本身就是刻度。
+  // 纸色只换 CSS 变量（--paper 一组），夜间档直接复用站内 data-theme，
+  // 不另造第二套暗色 token，否则两套暗色必然随迭代漂移。
+  const FONT_STEPS = [16, 18, 20, 22, 26];
+  const LH_STEPS = [1.8, 2, 2.2];
+  const PREF_KEY = 'dc:reader:v1';
+  const paperNames: Record<string, string> = { xuan: '宣纸', white: '纯白', amber: '米黄', dark: '夜间' };
+  const rootEl = document.documentElement;
+  const prefsPanel = document.getElementById('readerPrefs') as HTMLDetailsElement | null;
+  const rpTip = document.getElementById('rpTip');
+  const nearest = (n: number, arr: number[]) =>
+    arr.reduce((a, b) => (Math.abs(b - n) < Math.abs(a - n) ? b : a), arr[0]);
+
+  const prefs = { font: 20, lh: 2, paper: 'xuan' };
+  try {
+    const raw = localStorage.getItem(PREF_KEY);
+    const p = raw ? JSON.parse(raw) : null;
+    if (p && typeof p === 'object') {
+      if (Number(p.font)) prefs.font = nearest(Number(p.font), FONT_STEPS);
+      if (Number(p.lh)) prefs.lh = nearest(Number(p.lh), LH_STEPS);
+      if (paperNames[p.paper]) prefs.paper = p.paper;
+    } else {
+      // 兼容旧键 dc:font（15–28 的逐像素记忆）：迁移到最近档位，老用户不丢设置
+      const legacy = Number(localStorage.getItem('dc:font'));
+      if (legacy) prefs.font = nearest(legacy, FONT_STEPS);
+    }
+  } catch { /* 隐私模式：按默认渲染 */ }
+
+  const setTheme = (v: 'light' | 'dark') => {
+    // 同值不改写：否则 MutationObserver 会因为重复 setAttribute 自激
+    if (rootEl.getAttribute('data-theme') !== v) rootEl.setAttribute('data-theme', v);
+  };
+
+  const syncThemeButton = () => {
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    const dark = rootEl.getAttribute('data-theme') === 'dark';
+    btn.textContent = dark ? (btn.dataset.dayText || '昼') : (btn.dataset.nightText || '夜');
+    btn.setAttribute(
+      'aria-label',
+      dark ? (btn.dataset.toLight || '切换到日间模式') : (btn.dataset.toDark || '切换到夜间模式'),
+    );
+  };
+
+  const paintPaper = () => {
+    if (prefs.paper === 'dark') {
+      rootEl.removeAttribute('data-reader-paper');
+      setTheme('dark');
+    } else {
+      rootEl.setAttribute('data-reader-paper', prefs.paper);
+      setTheme('light');
+    }
+  };
+
+  const paint = () => {
+    rootEl.style.setProperty('--reader-font', prefs.font + 'px');
+    rootEl.style.setProperty('--reader-lh', String(prefs.lh));
+    paintPaper();
+    // 纸色会连带改主题：头部昼夜按钮的文案与 aria 必须跟着走，否则按钮在说谎
+    syncThemeButton();
+    document.querySelectorAll('#rpFont button').forEach((b) => {
+      b.setAttribute('aria-pressed', String(Number((b as HTMLElement).dataset.font) === prefs.font));
+    });
+    document.querySelectorAll('#rpLh button').forEach((b) => {
+      b.setAttribute('aria-pressed', String(Number((b as HTMLElement).dataset.lh) === prefs.lh));
+    });
+    document.querySelectorAll('#rpPaper button').forEach((b) => {
+      b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.paper === prefs.paper));
+    });
+    if (rpTip) {
+      rpTip.textContent = `当前：字号 ${prefs.font}px · 行距 ${prefs.lh.toFixed(1)} · ${paperNames[prefs.paper]}。设置只存本机。`;
+    }
     try {
-      localStorage.setItem('dc:font', String(px));
+      localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
+      // 主题也落盘：否则下次从首页进阅读页会先闪一帧米色底再变暗
+      localStorage.setItem('theme', prefs.paper === 'dark' ? 'dark' : 'light');
     } catch { /* ignore */ }
   };
-  let font = 19;
-  try {
-    font = Number(localStorage.getItem('dc:font')) || 19;
-  } catch { /* ignore */ }
-  applyFont(font);
-  document.getElementById('fontPlus')?.addEventListener('click', () => {
-    font = Math.min(28, font + 1);
-    applyFont(font);
+
+  document.getElementById('rpFont')?.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('button');
+    if (!b) return;
+    prefs.font = nearest(Number((b as HTMLElement).dataset.font), FONT_STEPS);
+    paint();
   });
-  document.getElementById('fontMinus')?.addEventListener('click', () => {
-    font = Math.max(15, font - 1);
-    applyFont(font);
+  document.getElementById('rpLh')?.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('button');
+    if (!b) return;
+    prefs.lh = nearest(Number((b as HTMLElement).dataset.lh), LH_STEPS);
+    paint();
+  });
+  document.getElementById('rpPaper')?.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('button');
+    if (!b) return;
+    prefs.paper = (b as HTMLElement).dataset.paper || 'xuan';
+    paint();
+  });
+  paint();
+
+  // 用户若点顶部昼夜按钮，纸色档必须跟着改（否则面板里亮着「宣纸」而页面是暗的）
+  new MutationObserver(() => {
+    const dark = rootEl.getAttribute('data-theme') === 'dark';
+    if (dark !== (prefs.paper === 'dark')) {
+      prefs.paper = dark ? 'dark' : 'xuan';
+      paint();
+    } else {
+      syncThemeButton();
+    }
+  }).observe(rootEl, { attributes: true, attributeFilter: ['data-theme'] });
+
+  // details 原生不提供「点外面关闭」，键盘用户还需要 Esc 回焦
+  document.addEventListener('click', (e) => {
+    if (!prefsPanel?.open) return;
+    if (!prefsPanel.contains(e.target as Node)) prefsPanel.open = false;
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && prefsPanel?.open) {
+      prefsPanel.open = false;
+      (prefsPanel.querySelector('summary') as HTMLElement | null)?.focus();
+    }
   });
 
   // 初始：hash 优先（支持稳定引用 #dc:... 与旧式 #ch-<id> 深链），其次上次阅读位置
@@ -1490,7 +1625,32 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   }
 
   :root {
-    --reader-font: 19px;
+    --reader-font: 20px;
+    --reader-lh: 2;
+  }
+
+  /* ── 阅读纸色（UX-3 适老排版）────────────────────────────────
+     纸色只在日间主题下接管配色：夜间主题由 global.css 的
+     :root[data-theme="dark"] 承载，两者互不越界（选择器已用
+     [data-theme="light"] 锁死），避免出现「夜间+纯白」这种瞎组合。
+     四组配色的正文对比度均 ≥ 10:1（AAA 正文要求 7:1）。 */
+  :root[data-theme="light"][data-reader-paper="white"] {
+    --paper: #fffdf9;
+    --paper-deep: #f4f1ea;
+    --white: #ffffff;
+    --ink: #22201d;
+    --ink-soft: #5f5a52;
+    --line: #e4ded2;
+    --line-strong: #cfc6b4;
+  }
+  :root[data-theme="light"][data-reader-paper="amber"] {
+    --paper: #f6ecd4;
+    --paper-deep: #efe2c4;
+    --white: #fffdf6;
+    --ink: #2a2620;
+    --ink-soft: #675f50;
+    --line: #ddcfab;
+    --line-strong: #c9b88d;
   }
 </style>
 
@@ -1728,6 +1888,131 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     border-color: var(--cinnabar);
     color: var(--cinnabar);
   }
+
+  /* ---------- 阅读设置（UX-3：字号档位 / 行距 / 纸色） ----------
+     为什么不用一排 A− / A+：老花读者需要的是「看得见的档位」而不是
+     连点 8 次才到目标的加号；档位按钮本身即进度指示。触控目标 ≥ 34px
+     高（移动端 ≥ 44px，见 900px 断点），符合适老与 WCAG 2.5.5。 */
+  .reader-prefs {
+    position: relative;
+  }
+  .reader-prefs > summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .reader-prefs > summary::-webkit-details-marker {
+    display: none;
+  }
+  .reader-prefs > summary:hover,
+  .reader-prefs[open] > summary {
+    border-color: var(--cinnabar);
+    color: var(--cinnabar);
+  }
+  .rp-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 40;
+    width: min(340px, calc(100vw - 36px));
+    padding: 14px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 14px 34px rgba(43, 41, 38, 0.16);
+    font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
+  }
+  .rp-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .rp-label {
+    flex: none;
+    width: 32px;
+    padding-top: 9px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .rp-seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+  }
+  .rp-seg button {
+    min-height: 34px;
+    padding: 0 10px;
+    font: inherit;
+    font-size: 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1.2;
+  }
+  .rp-seg button:hover {
+    border-color: var(--line-strong);
+  }
+  .rp-seg button[aria-pressed='true'] {
+    border-color: var(--cinnabar);
+    color: var(--cinnabar);
+    background: color-mix(in srgb, var(--cinnabar) 9%, var(--white));
+    font-weight: 700;
+  }
+  .sw {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--line-strong);
+    display: inline-block;
+    flex: none;
+  }
+  .sw-xuan {
+    background: #f7f2e8;
+  }
+  .sw-white {
+    background: #fffdf9;
+  }
+  .sw-amber {
+    background: #f6ecd4;
+  }
+  .sw-dark {
+    background: #12171a;
+  }
+  .rp-preview {
+    margin: 4px 0 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: var(--paper);
+    border: 1px dashed var(--line);
+    font-family: 'Noto Serif SC', 'Songti SC', serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+  .rp-tip {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
   .tb-guide {
     font-size: 13px;
     color: var(--cinnabar);
@@ -1847,7 +2132,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   .article {
     font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
     font-size: var(--reader-font);
-    line-height: 1.9;
+    line-height: var(--reader-lh, 2);
     color: var(--ink);
     letter-spacing: 0.015em;
     transition: opacity 0.18s ease;
@@ -1963,6 +2248,33 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     .toolbar {
       position: static;
       background: none;
+    }
+    /* 触屏：所有档位按钮与入口放大到 44px（WCAG 2.5.5 / 适老最小触控） */
+    .reader-prefs > summary,
+    .rp-seg button {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    /* 触屏窄屏：absolute 右对齐会以 Aa 按钮右边界为锚点向左生长，
+       375px 下实测面板左边界溢出到 -132px（被屏幕裁掉三分之一）。
+       改为贴底弹层：left/right 同时距边 12px，宽度自适应视口，
+       既不溢出，也落在单手持机的拇指区内。 */
+    .rp-panel {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      top: auto;
+      bottom: 12px;
+      width: auto;
+      max-width: none;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding: 16px;
+      border-radius: 14px;
+      box-shadow: 0 -8px 30px rgba(43, 41, 38, 0.22);
+    }
+    .rp-seg {
+      gap: 8px;
     }
     :global(.article .ch-title) {
       font-size: 21px;
