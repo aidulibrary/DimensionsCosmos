@@ -37,15 +37,38 @@ const isCJK = lang === 'zh' || lang === 'zh-TW';
 const colon = isCJK ? '：' : ': ';
 const dayMark = isCJK ? '昼' : lang === 'es' ? 'D' : 'L';
 const nightMark = isCJK ? '夜' : lang === 'es' ? 'N' : 'D';
+// 跳过导航直达正文：键盘/读屏用户不必每次穿过整条导航
+const skipLabel = isCJK ? '跳到主内容' : lang === 'es' ? 'Ir al contenido' : 'Skip to content';
 // 当前路径去掉语言前缀，供语言切换器换算出其他语言的同一页地址
 const rawPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 const curPrefix = meta.prefix;
 const barePath = curPrefix && rawPath.startsWith(curPrefix) ? rawPath.slice(curPrefix.length) || '/' : rawPath;
-const langLinks = ACTIVE_LOCALES.map((l) => ({ code: l, label: LOCALES[l].label, url: href(l, barePath), current: l === lang }));
+// 该语言尚未翻译当前页时，href() 会回落到中文原文（同一个 URL）——切换器点了等于没反应。
+// 这种情形改为落到该语言首页，至少语言真的切过去了，不会让人以为按钮坏了。
+const langLinks = ACTIVE_LOCALES.map((l) => {
+  const raw = href(l, barePath);
+  const samePath = raw === rawPath || `${raw}/` === rawPath;
+  return {
+    code: l,
+    label: LOCALES[l].label,
+    url: samePath && l !== lang ? localePath(l, '/') : raw,
+    current: l === lang,
+  };
+});
 
 // 保证尾斜杠，`${base}books` 才能拼成 `/books`
 const rawBase = import.meta.env.BASE_URL || '/';
 const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+
+// ── 导航项与"当前所在页"判定 ──
+// barePath 已剥掉语言前缀，可直接与站内路径比较；/books/xxx 视为仍在书库内
+const isActive = (p: string) => (p === '/' ? barePath === '/' : barePath === p || barePath.startsWith(`${p}/`));
+const navItems: { path: string; label: string }[] = [
+  { path: '/', label: t.nav.home },
+  { path: '/books', label: t.nav.books },
+  { path: '/tasks', label: t.nav.tasks },
+  { path: '/methods', label: t.nav.methods },
+];
 
 // ── 品牌标识几何（L0 母版，与 public/logo.svg 完全同源）──
 // 由标识矢量母版导出：viewBox 569×735（比例 0.774），一次书写、四处复用
@@ -172,15 +195,50 @@ try {
   -->
 
   <style is:inline>
-    /* 语言切换器：三个字的胶囊，当前语言反色。刻意不用下拉，避免多一次点击 */
-    .lang-switch { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 999px; }
-    .lang-switch a {
-      font-size: 12px; line-height: 1; padding: 5px 9px; border-radius: 999px;
-      color: var(--ink-soft); text-decoration: none; white-space: nowrap;
+    /* 语言切换：折叠为一个下拉，导航栏不再被 4 个语言标签占满。
+       用原生 <details>：无需 JS 即可键盘展开/收起，且被搜索引擎索引（<a hreflang> 仍在）。 */
+    .lang-menu { position: relative; }
+    .lang-menu > summary {
+      list-style: none; cursor: pointer; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; line-height: 1; padding: 7px 10px;
+      color: var(--ink-soft); border: 1px solid var(--line); border-radius: 999px;
+      transition: color .2s, border-color .2s;
     }
-    .lang-switch a:hover { color: var(--ink); }
-    .lang-switch a.on { background: var(--surface-brand); color: var(--on-accent); }
-    @media (max-width: 720px) { .lang-switch a { padding: 4px 7px; font-size: 11px; } }
+    .lang-menu > summary::-webkit-details-marker { display: none; }
+    .lang-menu > summary:hover,
+    .lang-menu[open] > summary { color: var(--ink); border-color: var(--accent); }
+    .lang-menu > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .lang-chev {
+      width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent;
+      border-top: 5px solid currentColor; transition: transform .18s;
+    }
+    .lang-menu[open] .lang-chev { transform: rotate(180deg); }
+    .lang-list {
+      position: absolute; right: 0; top: calc(100% + 8px); z-index: 30;
+      min-width: 150px; margin: 0; padding: 6px; list-style: none;
+      background: var(--white); border: 1px solid var(--line); border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(0, 48, 72, .18);
+    }
+    .lang-list a {
+      display: block; padding: 8px 10px; border-radius: 6px;
+      font-size: 13.5px; color: var(--ink-soft); text-decoration: none; white-space: nowrap;
+    }
+    .lang-list a:hover { background: var(--brand-sky-tint); color: var(--ink); }
+    .lang-list a.on { background: var(--brand-sky-tint); color: var(--accent-deep); font-weight: 700; }
+    @media (max-width: 720px) {
+      .lang-menu > summary { font-size: 11.5px; padding: 6px 8px; }
+      .lang-menu > summary .lang-cur { max-width: 4.6em; overflow: hidden; text-overflow: ellipsis; }
+    }
+
+    /* 跳转链接：仅键盘聚焦时出现 */
+    .skip-link {
+      position: fixed; left: 12px; top: -64px; z-index: 100;
+      padding: 10px 16px; border-radius: 8px; font-size: 14px;
+      background: var(--accent); color: var(--on-accent); text-decoration: none;
+      transition: top .18s;
+    }
+    .skip-link:focus { top: 12px; }
 
     /* 站点顶栏高度：供各页 sticky 元素（目录、校勘栏、工具条）对齐 */
     :root {
@@ -211,6 +269,7 @@ try {
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main">{skipLabel}</a>
   <nav>
     <a class="brand" href={base}>
       <svg
@@ -224,29 +283,58 @@ try {
       <span><b>{t.brand}</b><small>DimensionsCosmos</small></span>
     </a>
     <div class="nav-links">
-      <a href={href(lang, '/books')}>{t.nav.books}</a>
-      <a href={href(lang, '/tasks')}>{t.nav.tasks}</a>
-      <a href={href(lang, '/methods')}>{t.nav.methods}</a>
-      {!hideCommercial && <a href={href(lang, '/pricing')} data-store-hide>{t.nav.pricing}</a>}
-      {!hideCommercial && <a class="nav-cta" href={href(lang, '/pricing')} data-store-hide>{t.nav.cta}</a>}
-      <div class="lang-switch" role="group" aria-label={t.a11y.langSwitch}>
-        {langLinks.map((l) => (
-          <a href={l.url} hreflang={LOCALES[l.code].htmlLang} class:list={[{ on: l.current }]}>{l.label}</a>
+      <div class="nav-primary">
+        {navItems.map((it) => (
+          <a
+            href={href(lang, it.path)}
+            class:list={[{ on: isActive(it.path) }]}
+            aria-current={isActive(it.path) ? 'page' : undefined}
+          >{it.label}</a>
         ))}
+        {!hideCommercial && (
+          <a
+            href={href(lang, '/pricing')}
+            class:list={[{ on: isActive('/pricing') }]}
+            aria-current={isActive('/pricing') ? 'page' : undefined}
+            data-store-hide
+          >{t.nav.pricing}</a>
+        )}
       </div>
-      <button
-        class="theme-toggle"
-        id="themeToggle"
-        type="button"
-        aria-label={t.a11y.themeToggle}
-        data-day-text={dayMark}
-        data-night-text={nightMark}
-        data-to-dark={t.a11y.themeToDark}
-        data-to-light={t.a11y.themeToLight}
-      >{nightMark}</button>
+      <div class="nav-tools">
+        {!hideCommercial && <a class="nav-cta" href={href(lang, '/pricing')} data-store-hide>{t.nav.cta}</a>}
+        <details class="lang-menu" id="langMenu">
+          <summary aria-label={`${t.a11y.langSwitch}：${meta.label}`} title={t.a11y.langSwitch}>
+            <span class="lang-cur">{meta.label}</span>
+            <span class="lang-chev" aria-hidden="true"></span>
+          </summary>
+          <ul class="lang-list">
+            {langLinks.map((l) => (
+              <li>
+                <a
+                  href={l.url}
+                  hreflang={LOCALES[l.code].htmlLang}
+                  lang={LOCALES[l.code].htmlLang}
+                  class:list={[{ on: l.current }]}
+                  aria-current={l.current ? 'true' : undefined}
+                >{l.label}</a>
+              </li>
+            ))}
+          </ul>
+        </details>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          type="button"
+          aria-label={t.a11y.themeToggle}
+          data-day-text={dayMark}
+          data-night-text={nightMark}
+          data-to-dark={t.a11y.themeToDark}
+          data-to-light={t.a11y.themeToLight}
+        >{nightMark}</button>
+      </div>
     </div>
   </nav>
-  <main>
+  <main id="main" tabindex="-1">
     <slot />
   </main>
   <footer>
@@ -338,7 +426,7 @@ try {
         var cur = codeOf[document.documentElement.lang];
         if (!cur) return;
 
-        var switches = document.querySelectorAll('.lang-switch a');
+        var switches = document.querySelectorAll('.lang-list a');
         for (var i = 0; i < switches.length; i++) {
           switches[i].addEventListener('click', (function (a) {
             return function () {
@@ -364,6 +452,27 @@ try {
         if (target.pathname === location.pathname) return;  // 该页无译文，保持原样
         location.replace(target.pathname + location.search); // search 里含 store=1 则一并带过去
       } catch (e) { /* 任何异常一律按当前语言渲染 */ }
+    })();
+  </script>
+
+  <script is:inline>
+    // 语言下拉：原生 <details> 只负责展开，不会自动收起——点空白处、按 Esc、选完语言都要关掉
+    (function () {
+      var d = document.getElementById('langMenu');
+      if (!d) return;
+      document.addEventListener('click', function (e) {
+        if (d.open && !d.contains(e.target)) d.open = false;
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && d.open) {
+          d.open = false;
+          var s = d.querySelector('summary');
+          if (s) s.focus();
+        }
+      });
+      d.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () { d.open = false; });
+      });
     })();
   </script>
 

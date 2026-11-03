@@ -19,7 +19,11 @@ const freeGuide = book.guides?.find((g) => g.method_id === 'zhuxi');
 const cardHref = minimal ? '#' : i18nHref(lang, `/books/${book.slug}`);
 ---
 
-<div class="book-card" data-bu={book.bu}>
+<div
+  class="book-card"
+  data-bu={book.bu}
+  data-search={[book.seed_title, book.author, book.dynasty, dynastyLabel, book.bu, buLabel].filter(Boolean).join(' ')}
+>
   <a href={cardHref} class="card-link">
     <header class="card-header">
       <h3>{book.seed_title}</h3>

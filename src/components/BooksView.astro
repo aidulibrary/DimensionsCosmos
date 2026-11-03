@@ -33,21 +33,9 @@ try {
   console.warn('[books] public/data/index.json 读取失败，按空库渲染：', e);
 }
 
-const url = new URL(Astro.request.url);
-const q = url.searchParams.get('q')?.toLowerCase() ?? '';
-const bu = url.searchParams.get('bu') ?? '';
-
-let books = (indexData?.works ?? []).filter((w) => w.ok);
-
-if (bu) {
-  books = books.filter((b) => b.bu === bu);
-}
-if (q) {
-  books = books.filter((b) =>
-    b.seed_title.toLowerCase().includes(q) ||
-    (b.author ?? '').toLowerCase().includes(q)
-  );
-}
+/* 静态站构建期没有 query，服务端一律输出全量书卡：SEO 与首屏最稳，
+   检索与分类全部交给下方客户端脚本即时完成，不再整页刷新。 */
+const books = (indexData?.works ?? []).filter((w) => w.ok);
 
 const buSet = [...new Set((indexData?.works ?? []).map((w) => w.bu).filter(Boolean))].sort();
 const buLabel = (b: string) => bd.bu[b] ?? b;
@@ -55,9 +43,11 @@ const buLabel = (b: string) => bd.bu[b] ?? b;
 /* 客户端重算计数用的模板：把 0 换成 {n} 占位，脚本里 replace 回去 */
 const countTpl = bl.countShort(0).replace('0', '{n}');
 const countQTpl = bl.countQ(0, '{q}').replace('0', '{n}');
+/* <title> 模板：脚本按检索词实时改写，不再整页刷新 */
+const titleTpl = bl.title('{q}');
 ---
 
-<BaseLayout lang={lang} title={bl.title(q)}>
+<BaseLayout lang={lang} title={bl.title('')}>
   <section>
     <div class="sec-head">
       <h2>{bl.heading}</h2>
@@ -65,90 +55,197 @@ const countQTpl = bl.countQ(0, '{q}').replace('0', '{n}');
       <div class="rule"></div>
     </div>
 
-    <!-- 搜索 -->
-    <!-- 搜索跳转在客户端拼 URL：必须继承当前查询串里的 store=1，否则商店版一搜就掉出商店模式 -->
-    <form class="search-bar" data-books-href={booksHref} onsubmit="event.preventDefault();const u=new URL(this.dataset.booksHref,location.origin);const v=this.q.value.trim();if(v){u.searchParams.set('q',v)}else{u.searchParams.delete('q')};const st=new URLSearchParams(location.search).get('store');if(st){u.searchParams.set('store',st)};location.href=u.pathname+u.search">
-      <input name="q" type="text" placeholder={bl.searchPlaceholder} aria-label={bl.searchAria} value={q} autocomplete="off">
-      <button type="submit" aria-label={bl.searchAria}>🔍</button>
-      {q && <a href={booksHref} class="clear-btn">✕ {bl.clear}</a>}
+    <!-- 搜索：输入即过滤（客户端），无 JS 时退化为 GET 到同一页；
+         store=1 由 BaseLayout 的商店保护脚本自动补隐藏域，此处不重复处理 -->
+    <form class="search-bar" role="search" action={booksHref} method="get" data-books-form>
+      <label class="visually-hidden" for="booksQ">{bl.searchAria}</label>
+      <input
+        id="booksQ"
+        name="q"
+        type="search"
+        placeholder={bl.searchPlaceholder}
+        aria-label={bl.searchAria}
+        autocomplete="off"
+        data-books-q
+      >
+      <button type="button" class="clear-btn" data-books-clear hidden>{bl.clear}</button>
+      <button type="submit" class="go-btn" aria-label={bl.searchAria}>⌕</button>
     </form>
 
-    <!-- 分类过滤 -->
+    <!-- 分类过滤：href 保留为无 JS 降级，点击时由脚本就地过滤 -->
     <div class="filters">
-      <a href={booksHref} class={`filter-chip ${!bu ? 'active' : ''}`}>{bd.all}</a>
+      <a href={booksHref} class="filter-chip active" data-bu="" aria-pressed="true">{bd.all}</a>
       {buSet.map((b) => (
         <a href={`${booksHref}?bu=${encodeURIComponent(b)}`}
-           class={`filter-chip ${bu === b ? 'active' : ''}`}>{buLabel(b)}</a>
+           class="filter-chip" data-bu={b} aria-pressed="false">{buLabel(b)}</a>
       ))}
     </div>
 
     <!-- 结果 -->
-    <p class="result-count">{bl.count(books.length, q, bu ? buLabel(bu) : '')}</p>
+    <p class="result-count" aria-live="polite">{bl.count(books.length, '', '')}</p>
 
     <div
       class="book-grid"
       data-count-tpl={countTpl}
       data-countq-tpl={countQTpl}
-      data-empty-short={bl.emptyShort}
+      data-title-tpl={titleTpl}
+      data-empty-title={bl.emptyTitle}
     >
       {books.map((book) => <BookCard book={book} lang={lang} />)}
     </div>
 
-    {books.length === 0 && (
-      <div class="empty">
-        <p>{bl.emptyTitle}</p>
-        <p>{bl.emptyHint}</p>
-      </div>
-    )}
+    <!-- 空态：三行（发生了什么 / 下一步 / 这句留痕说明），由脚本控制显隐 -->
+    <div class="empty" hidden>
+      <p class="empty-title">{bl.emptyTitle}</p>
+      <p class="empty-hint">{bl.emptyShort}</p>
+      <p class="empty-note">{bl.emptyHint}</p>
+    </div>
   </section>
 
   <script>
-    // 静态站客户端过滤：让 ?bu= / ?q= 真正生效
+    /* 全量书卡 + 客户端即时过滤：关键词 × 部类叠加、条件写回 URL（可分享/可后退）、
+       空态与「搜不到的词」留痕。所有文案来自字典，不在此硬编码任何语言。 */
     (function () {
-      const sp = new URLSearchParams(location.search);
-      const bu = sp.get('bu') || '';
-      const qRaw = sp.get('q') || '';
-      const q = qRaw.toLowerCase();
-      if (!bu && !q) return;
+      var form = document.querySelector('[data-books-form]') as HTMLFormElement | null;
+      var input = document.querySelector('[data-books-q]') as HTMLInputElement | null;
+      var clearBtn = document.querySelector('[data-books-clear]') as HTMLButtonElement | null;
+      var grid = document.querySelector('.book-grid') as HTMLElement | null;
+      var emptyBox = document.querySelector('.empty') as HTMLElement | null;
+      var rc = document.querySelector('.result-count') as HTMLElement | null;
+      if (!input || !grid || !form) return;
 
-      const cards = Array.from(document.querySelectorAll('.book-grid .book-card'));
-      let shown = 0;
-      cards.forEach((c) => {
-        const okBu = !bu || (c.dataset.bu || '') === bu;
-        const okQ = !q || (c.innerText || '').toLowerCase().includes(q);
-        const on = okBu && okQ;
-        c.style.display = on ? '' : 'none';
-        if (on) shown += 1;
-      });
+      var cards = Array.prototype.slice.call(grid.querySelectorAll('.book-card')) as HTMLElement[];
+      var chips = Array.prototype.slice.call(document.querySelectorAll('.filter-chip')) as HTMLAnchorElement[];
+      var state = { q: '', bu: '' };
+      var composing = false;
 
-      document.querySelectorAll('.filter-chip').forEach((a) => {
-        const href = a.getAttribute('href') || '';
-        const abu = new URLSearchParams((href.split('?')[1] || '')).get('bu') || '';
-        a.classList.toggle('active', abu === bu);
-      });
-
-      /* 计数文案来自字典模板（{n}/{q}/{bu}），避免在这里硬编码中文 */
-      const grid = document.querySelector('.book-grid');
-      const rc = document.querySelector('.result-count');
-      if (rc && grid) {
-        const tpl = qRaw ? (grid.dataset.countqTpl || '') : (grid.dataset.countTpl || '');
-        rc.textContent = tpl
-          .replace('{n}', String(shown))
-          .replace('{q}', qRaw)
-          .replace('{bu}', bu)
-          .replace(/\s+·\s*$/, '');
+      /* 归一化：全角转半角、空白合并、大小写统一，简繁与输入法差异交给数据侧 */
+      function norm(s: string): string {
+        return String(s || '')
+          .replace(/[\uFF01-\uFF5E]/g, function (c) {
+            return String.fromCharCode(c.charCodeAt(0) - 0xfee0);
+          })
+          .replace(/[\u3000\s]+/g, ' ')
+          .toLowerCase()
+          .trim();
       }
 
-      let empty = document.querySelector('.empty');
-      if (!empty && grid) {
-        empty = document.createElement('div');
-        empty.className = 'empty';
-        const p = document.createElement('p');
-        p.textContent = grid.dataset.emptyShort || '';
-        empty.appendChild(p);
-        grid.after(empty);
+      function cardText(c: HTMLElement): string {
+        return (c as any).__dcText || ((c as any).__dcText = norm(c.dataset.search || c.textContent || ''));
       }
-      if (empty) empty.style.display = shown ? 'none' : '';
+
+      function readUrl() {
+        var sp = new URLSearchParams(location.search);
+        state.q = sp.get('q') || '';
+        state.bu = sp.get('bu') || '';
+        input!.value = state.q;
+      }
+
+      function writeUrl() {
+        var u = new URL(location.href);
+        if (state.q) u.searchParams.set('q', state.q); else u.searchParams.delete('q');
+        if (state.bu) u.searchParams.set('bu', state.bu); else u.searchParams.delete('bu');
+        history.replaceState(null, '', u.pathname + u.search + u.hash);
+      }
+
+      function miss(q: string) {
+        try {
+          var key = 'dc_search_miss';
+          var list = JSON.parse(localStorage.getItem(key) || '[]');
+          if (!Array.isArray(list)) list = [];
+          if (list.indexOf(q) === -1) {
+            list.push(q);
+            localStorage.setItem(key, JSON.stringify(list.slice(-50)));
+          }
+        } catch (e) { /* 隐私模式忽略 */ }
+      }
+
+      function apply(pushMiss: boolean) {
+        var q = norm(state.q);
+        var shown = 0;
+        cards.forEach(function (c) {
+          var okBu = !state.bu || c.dataset.bu === state.bu;
+          var okQ = !q || cardText(c).indexOf(q) > -1;
+          var on = okBu && okQ;
+          c.hidden = !on;
+          if (on) shown += 1;
+        });
+
+        chips.forEach(function (a) {
+          var on = (a.dataset.bu || '') === state.bu;
+          a.classList.toggle('active', on);
+          a.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+
+        if (rc) {
+          var tpl = q ? grid!.dataset.countqTpl || '' : grid!.dataset.countTpl || '';
+          var buTxt = state.bu ? (chips.filter(function (a) { return a.dataset.bu === state.bu; })[0] || {} as any).textContent || '' : '';
+          rc.textContent = tpl
+            .replace('{n}', String(shown))
+            .replace('{q}', state.q)
+            .replace('{bu}', (buTxt || '').trim())
+            .replace(/\s+·\s*$/, '');
+        }
+
+        if (emptyBox) emptyBox.hidden = shown !== 0;
+        grid!.hidden = shown === 0;
+        if (clearBtn) clearBtn.hidden = !state.q;
+
+        var tplTitle = grid!.dataset.titleTpl || '';
+        document.title = tplTitle.replace('{q}', state.q);
+
+        if (pushMiss && q && shown === 0) miss(state.q.trim());
+      }
+
+      function commit(pushMiss: boolean) {
+        apply(pushMiss);
+        writeUrl();
+      }
+
+      readUrl();
+
+      input.addEventListener('compositionstart', function () { composing = true; });
+      input.addEventListener('compositionend', function () {
+        composing = false;
+        state.q = input.value;
+        commit(true);
+      });
+      input.addEventListener('input', function () {
+        if (composing) return;      // 中文/日文输入法拼写中不打断
+        state.q = input.value;
+        commit(true);
+      });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        state.q = input.value;
+        commit(true);
+      });
+
+      chips.forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; // 新标签页照常打开
+          e.preventDefault();
+          state.bu = a.dataset.bu || '';
+          commit(false);
+        });
+      });
+
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+          state.q = '';
+          input.value = '';
+          input.focus();
+          commit(false);
+        });
+      }
+
+      window.addEventListener('popstate', function () {
+        readUrl();
+        apply(false);
+      });
+
+      apply(true);
     })();
   </script>
 </BaseLayout>
@@ -160,26 +257,34 @@ const countQTpl = bl.countQ(0, '{q}').replace('0', '{n}');
   .sec-head p { color: var(--ink-soft); margin-top: 8px; }
   .sec-head .rule { width: 56px; height: 3px; background: var(--cinnabar); margin: 16px auto 0; border-radius: 2px; }
 
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
   .search-bar {
     display: flex; max-width: 520px; margin: 0 auto 24px;
     border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden; background: var(--white);
   }
   .search-bar input {
-    flex: 1; border: 0; outline: 0; padding: 12px 16px;
-    font-size: 15px; font-family: inherit;
+    flex: 1; min-width: 0; border: 0; outline: 0; padding: 12px 16px;
+    font-size: 15px; font-family: inherit; background: transparent;
   }
-  .search-bar button {
-    border: 0; background: var(--accent); color: var(--on-accent);
-    padding: 0 18px; font-size: 16px; cursor: pointer;
-  }
+  .search-bar input:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .clear-btn {
-    display: flex; align-items: center; padding: 0 12px;
-    color: var(--ink-soft); text-decoration: none; font-size: 12px;
+    border: 0; background: transparent; color: var(--ink-soft);
+    padding: 0 12px; font-size: 12px; font-family: inherit; cursor: pointer;
+    min-height: 44px;
+  }
+  .go-btn {
+    border: 0; background: var(--accent); color: var(--on-accent);
+    padding: 0 18px; font-size: 17px; cursor: pointer; min-width: 48px;
   }
 
   .filters { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
   .filter-chip {
-    font-size: 14px; text-decoration: none; color: var(--ink-soft);
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 36px; font-size: 14px; text-decoration: none; color: var(--ink-soft);
     border: 1px solid var(--line); padding: 6px 16px; border-radius: 999px;
     background: var(--white); transition: all .2s;
   }
@@ -193,9 +298,18 @@ const countQTpl = bl.countQ(0, '{q}').replace('0', '{n}');
   .book-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;
   }
+  .book-grid[hidden] { display: none; }
 
-  .empty {
-    text-align: center; padding: 60px 0; color: var(--ink-soft);
-  }
+  .empty { text-align: center; padding: 56px 0; color: var(--ink-soft); }
+  .empty[hidden] { display: none; }
   .empty p { margin: 8px 0; }
+  .empty-title { font-size: 17px; color: var(--ink); }
+  .empty-note { font-size: 12.5px; opacity: .78; }
+
+  /* 移动端：触控目标提到 44px，避免 chip 与清除按钮点不中 */
+  @media (max-width: 560px) {
+    section { padding: 40px 5vw; }
+    .sec-head h2 { font-size: 24px; letter-spacing: 4px; }
+    .filter-chip { min-height: 44px; padding: 10px 18px; }
+  }
 </style>

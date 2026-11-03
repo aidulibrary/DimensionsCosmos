@@ -11,7 +11,7 @@ export interface UiDict {
   tagline: string;
   /** 页脚数据时间的时区注记 */
   utcNote: string;
-  nav: { books: string; tasks: string; methods: string; pricing: string; cta: string };
+  nav: { home: string; books: string; tasks: string; methods: string; pricing: string; cta: string };
   a11y: { themeToggle: string; themeToDark: string; themeToLight: string; langSwitch: string };
   footer: {
     motto: string;
@@ -35,7 +35,7 @@ export const ui: Record<Locale, UiDict> = {
     brandSub: 'DimensionsCosmos',
     tagline: '用大师的方法读一切书',
     utcNote: '（UTC+8）',
-    nav: { books: '书库', tasks: '任务中心', methods: '方法', pricing: '定价', cta: '解锁全部' },
+    nav: { home: '首页', books: '书库', tasks: '任务中心', methods: '方法', pricing: '定价', cta: '解锁全部' },
     a11y: { themeToggle: '切换夜间模式', themeToDark: '切换到夜间模式', themeToLight: '切换到日间模式', langSwitch: '切换语言' },
     footer: {
       motto: '伟大心智的阅读操作系统',
@@ -58,7 +58,7 @@ export const ui: Record<Locale, UiDict> = {
     brandSub: 'DimensionsCosmos',
     tagline: '用大師的方法讀一切書',
     utcNote: '（UTC+8）',
-    nav: { books: '書庫', tasks: '任務中心', methods: '方法', pricing: '定價', cta: '解鎖全部' },
+    nav: { home: '首頁', books: '書庫', tasks: '任務中心', methods: '方法', pricing: '定價', cta: '解鎖全部' },
     a11y: { themeToggle: '切換夜間模式', themeToDark: '切換到夜間模式', themeToLight: '切換到日間模式', langSwitch: '切換語言' },
     footer: {
       motto: '偉大心智的閱讀作業系統',
@@ -81,7 +81,7 @@ export const ui: Record<Locale, UiDict> = {
     brandSub: '维点图书馆',
     tagline: 'Read any book through a master\u2019s eyes',
     utcNote: '(UTC+8)',
-    nav: { books: 'Library', tasks: 'Tasks', methods: 'Methods', pricing: 'Pricing', cta: 'Unlock all' },
+    nav: { home: 'Home', books: 'Library', tasks: 'Tasks', methods: 'Methods', pricing: 'Pricing', cta: 'Unlock all' },
     a11y: { themeToggle: 'Toggle dark mode', themeToDark: 'Switch to dark mode', themeToLight: 'Switch to light mode', langSwitch: 'Change language' },
     footer: {
       motto: 'A reading operating system for great minds',
@@ -106,7 +106,7 @@ export const ui: Record<Locale, UiDict> = {
     brandSub: '维点图书馆',
     tagline: 'Lee cualquier libro con los ojos de un maestro',
     utcNote: '(UTC+8)',
-    nav: { books: 'Biblioteca', tasks: 'Tareas', methods: 'Métodos', pricing: 'Precios', cta: 'Desbloquear todo' },
+    nav: { home: 'Inicio', books: 'Biblioteca', tasks: 'Tareas', methods: 'Métodos', pricing: 'Precios', cta: 'Desbloquear todo' },
     a11y: {
       themeToggle: 'Cambiar el modo nocturno',
       themeToDark: 'Cambiar al modo nocturno',

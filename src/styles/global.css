@@ -203,6 +203,18 @@ nav {
   gap: 28px;
   align-items: center;
 }
+/* 主导航项（首页/书库/任务/方法/定价）与工具区（CTA/语言/昼夜）分组：
+   分组后手机端可让链接区横向滚动，不被整条隐藏 */
+.nav-primary {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+.nav-tools {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
 .nav-links a {
   color: var(--ink-soft);
   text-decoration: none;
@@ -211,6 +223,22 @@ nav {
 }
 .nav-links a:hover {
   color: var(--cinnabar);
+}
+/* 当前所在页：颜色加深 + 底部朱砂短线，一眼可辨 */
+.nav-primary a.on {
+  color: var(--ink);
+  font-weight: 700;
+  position: relative;
+}
+.nav-primary a.on::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--cinnabar);
 }
 .theme-toggle {
   font-family: inherit;
@@ -970,8 +998,47 @@ footer a:hover {
 
 /* ---- 响应式 ---- */
 @media (max-width: 900px) {
-  .nav-links a:not(.nav-cta) {
+  /* 手机端：导航不再整条隐藏，改为「品牌行 + 可横向滚动的链接行」 */
+  nav {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: 10px 4vw;
+  }
+  .brand {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  /* min-width:0 是关键：否则 .nav-links 被内容 min-content 撑开（370px），
+     在 375px 屏上直接顶出右侧 10-25px 横向滚动条 */
+  .nav-links {
+    flex: 1 1 100%;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+  }
+  .nav-primary {
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-primary::-webkit-scrollbar {
     display: none;
+  }
+  .nav-primary a {
+    font-size: 14px !important;
+    white-space: nowrap;
+  }
+  /* CTA 在小屏让位给导航链接（定价入口仍在导航链接里） */
+  .nav-cta {
+    display: none !important;
+  }
+  .nav-tools {
+    gap: 8px;
+    flex: 0 0 auto;
   }
   .pricing-grid {
     grid-template-columns: 1fr;
@@ -1001,6 +1068,14 @@ footer a:hover {
   }
   .book-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  /* 手机窄屏：导航链接收紧，让「首页/书库/任务中心/方法」尽量不被裁掉 */
+  .nav-primary {
+    gap: 14px;
+  }
+  .nav-primary a {
+    font-size: 13px !important;
+    letter-spacing: 0;
   }
   .open-band {
     grid-template-columns: 1fr;
