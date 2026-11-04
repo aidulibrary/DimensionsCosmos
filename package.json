@@ -28,8 +28,5 @@
   "dependencies": {
     "astro": "^7.3.3",
     "typescript": "^7.0.2"
-  },
-  "devDependencies": {
-    "puppeteer-core": "^25.16.0"
   }
 }

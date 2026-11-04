@@ -1,11 +1,17 @@
 // UX-4 可复算验收：触控目标 44px / chip 间距 / 筛选行横滚与渐隐 / 卡片密度断点
 // 用法：node scripts/verify-ux4.mjs  （需先 npm run build 产出 dist/）
-// 依赖：本机 Edge + puppeteer-core（devDependency，缺失时 npm i -D puppeteer-core）
+// 依赖：本机 Edge + puppeteer-core（可选本机依赖，不入 package.json，避免 CI 拉取 Chromium）
 import { spawn } from 'node:child_process';
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import puppeteer from 'puppeteer-core';
+let puppeteer;
+try {
+  puppeteer = (await import('puppeteer-core')).default;
+} catch {
+  console.error('缺少 puppeteer-core：请在本机执行  npm i -D puppeteer-core  后重跑（不影响 CI 构建）。');
+  process.exit(2);
+}
 
 const DIST = path.resolve('dist');
 const EDGE = process.env.EDGE_PATH || 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
