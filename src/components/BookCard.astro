@@ -108,4 +108,14 @@ const cardHref = minimal ? '#' : i18nHref(lang, `/books/${book.slug}`);
     transition: background .2s, letter-spacing .2s;
   }
   .card-read:hover { background: rgba(158,43,37,.08); letter-spacing: 2px; }
+
+  /* 窄屏密度：内边距收紧、标题降一档、预览保留两行免得卡片过高 */
+  @media (max-width: 480px) {
+    .card-link { padding: 16px 18px; }
+    .card-header h3 { font-size: 17px; letter-spacing: 1px; }
+    .card-meta { margin-top: 6px; font-size: 12.5px; }
+    .card-meta span { margin-right: 10px; }
+    .preview { margin-top: 10px; font-size: 12.5px; padding-top: 8px; }
+    .card-read { padding: 12px 18px; }
+  }
 </style>

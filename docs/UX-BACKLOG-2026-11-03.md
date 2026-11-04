@@ -147,10 +147,20 @@
   - 对比度：精读正文 12.79–15.99:1、导读块 12.86–16.25:1、小字提示 5.17–7.13:1，四纸色全部过 WCAG AA；
   - 线上复测 8/8（`dimensionscosmos.pages.dev` 面板存在/默认 20px/切 26px/夜间/刷新保持/375px/无内容页无面板/无报错）；CI `ingest-deploy` success，本地与线上一致。
 
-### UX-4 移动端触控与密度（P1，0.5 人日，本机）
+### UX-4 移动端触控与密度（P1，0.5 人日，本机）· 已交付
 
 - 方案：分类 chip 高度提到 44px、间距 10px；卡片内边距随 `max-width:480px` 调整；筛选行横滚加渐隐提示。
 - 验收：375px 下 chip 命中区 ≥44×44；无横向溢出；首屏可见 ≥2 张卡片。
+- **交付结果**：
+  ① 触控——`.filter-chip` 在 `max-width:560px` 下 `box-sizing:border-box; height:44px; min-width:44px; padding:0 18px`，实测 44px 整（此前 `min-height:44px` 被 `padding:10px` 顶到 64px，反而更占屏；改定高 + 垂直居中后才"精准 44"）；
+  ② 间距——`.filters` gap 8px → 10px（全断点统一）；
+  ③ 筛选行横滚——窄屏 `flex-wrap:nowrap` + `overflow-x:auto` + `scroll-snap-type:x proximity` + 隐藏滚动条；chip 补 `flex:0 0 auto`，否则 flex 收缩会把 5 个 chip 压扁成"刚满宽度"，看似不溢出、实则点不中也不滚（本轮最隐蔽的坑）；
+  ④ 横滚渐隐——`mask-image` 双向 linear-gradient，按 `--fade-l/--fade-r` 变量控制；`scroll` / `resize` 时同步 `fade-l` / `fade-r` 类，滚到端点对应侧渐隐自动收起，不溢出时不显示（桌面完全无感）；点击 chip 后 `scrollIntoView({inline:'nearest'})` 保证选中项不被切边；
+  ⑤ 卡片密度——`@media (max-width:480px)`：`.book-grid` 单列 + gap 12px（`BooksView.astro`）；`.card-link` padding 20/22 → 16/18、标题 19→17px、meta/preview 降半档、`.card-read` 12/18（`BookCard.astro`）；影响面为首页精选、书库、详情页推荐，全部纳入回归。
+- **验收（可复算，Edge headless CDP）**：
+  - UX-4 专项 22/22：chip 44×≥44 精确命中、gap 10px、375px 单行横滚且 mask 生效、滚到尾部渐隐左右切换、320px 最窄机型同样溢出可滚、480 断点两侧行为正确（500px 横滚仍在但卡片内边距回 20/22）、1280px 恢复换行且无 mask、桌面 chip 不被放大、375px 无横向溢出、首屏可见卡片 ≥2、输入「庄」即时过滤不回归、无 JS 报错；
+  - 跨页回归 23/23：`/`、`/books/`、`/books/[slug]/`、`/read/[slug]/zhuxi/`、`/tasks/`、`/pricing/`、`/about/` 七条路由 375px 无横向溢出、卡片不超视口、无 JS 报错，另 1280px 桌面布局正常；
+  - `astro build` 1372 页 EXIT=0。
 
 ### UX-5 检索埋点聚合（P1，1 人日，marvis）
 
