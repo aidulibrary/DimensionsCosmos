@@ -23,7 +23,9 @@
     "test:ux4": "node scripts/verify-ux4.mjs",
     "test:ux4:online": "node scripts/verify-ux4-online.mjs",
     "test:ux1": "node scripts/verify-ux1.mjs",
-    "test:ux1:online": "node scripts/verify-ux1-online.mjs"
+    "test:ux1:online": "node scripts/verify-ux1-online.mjs",
+    "test:ux6": "node scripts/verify-ux6.mjs",
+    "test:ux6:online": "node scripts/verify-ux6-online.mjs"
   },
   "engines": {
     "node": ">=22"
