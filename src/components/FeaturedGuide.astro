@@ -1,0 +1,266 @@
+---
+/**
+ * 首屏引导与精选（UX-8）。
+ *
+ * 落点：首页 hero 与书库之间。回答的是新访客的第一个问题——「112 部，我从哪本开始」。
+ * 数据：public/data/featured.json（缺失时由 lib/featured 的 SEED 结构兜底）。
+ *
+ * 两条降级分支（必须显式可验，不能靠「应该不会发生」）：
+ *   ① guides 为空的书 —— 精选 6 部里 13-史记 / 17-资治通鉴 属此态。此时卡片不隐瞒，
+ *      标出「原文可读 · 导读筹备中」，主 CTA 直接指向阅读页，不去点一个没有导读的详情页。
+ *   ② featured.json 缺失或条目不足 6 部 —— 有多少渲染多少，不补占位卡、不显示目标计数，
+ *      且整块在完全无条目时整体不输出（宁可没有这一屏，也不留一块空壳）。
+ *
+ * 文案纪律：reason 缺省即不渲染（不写「—」「待补」），非中文语种未过审一律不上线，
+ * 裁决逻辑在 lib/featured.pickReason，本组件只负责「有就画、没有就不画」。
+ */
+import { href, type Locale } from '../i18n/config';
+import { home } from '../i18n/pages/home';
+import { resolveBuPath, buPathText, type TaxonomyNode } from '../lib/siku';
+import {
+  AUDIENCES,
+  itemsOf,
+  pickReason,
+  hasAnyItem,
+  type Audience,
+  type FeaturedItem,
+} from '../lib/featured';
+
+interface Props {
+  lang: Locale;
+  items: FeaturedItem[];
+  taxonomy: TaxonomyNode[];
+}
+
+const { lang, items, taxonomy } = Astro.props;
+const t = home[lang].featured;
+
+const renderable = hasAnyItem(items);
+// 默认落在 general（通用读者占比最高）；general 为空时退到第一个有内容的身份，避免开屏空白
+const defaultAud: Audience = itemsOf(items, 'general').length
+  ? 'general'
+  : (AUDIENCES.find((a) => itemsOf(items, a).length > 0) ?? 'general');
+---
+
+{renderable && (
+  <section class="featured" id="featured" data-featured data-default-aud={defaultAud}>
+    <div class="sec-head">
+      <span class="kicker">{t.kicker}</span>
+      <h2>{t.title}</h2>
+      <p>{t.sub}</p>
+      <div class="rule"></div>
+    </div>
+
+    <div class="aud-tabs" role="tablist" aria-label={t.tabsLabel}>
+      {AUDIENCES.map((aud) => {
+        const n = itemsOf(items, aud).length;
+        return (
+          <button
+            type="button"
+            role="tab"
+            class:list={['aud-tab', { active: aud === defaultAud }]}
+            id={`aud-tab-${aud}`}
+            data-aud={aud}
+            data-count={n}
+            aria-selected={aud === defaultAud ? 'true' : 'false'}
+            aria-controls={`aud-panel-${aud}`}
+            tabindex={aud === defaultAud ? 0 : -1}
+            disabled={n === 0}
+          >
+            <span class="aud-name">{t.aud[aud]}</span>
+            <span class="aud-desc">{t.audDesc[aud]}</span>
+          </button>
+        );
+      })}
+    </div>
+
+    <div class="aud-panels">
+      {AUDIENCES.map((aud) => {
+        const list = itemsOf(items, aud);
+        return (
+          <div
+            class="aud-panel"
+            id={`aud-panel-${aud}`}
+            role="tabpanel"
+            aria-labelledby={`aud-tab-${aud}`}
+            data-panel={aud}
+            data-count={list.length}
+            hidden={aud !== defaultAud}
+          >
+            {list.length === 0 ? (
+              <p class="panel-empty">{t.panelEmpty}</p>
+            ) : (
+              <div class="feat-grid">
+                {list.map((it) => {
+                  const path = resolveBuPath(it.bu, it.slug, taxonomy, null);
+                  const reason = pickReason(it, lang);
+                  const to = it.hasGuide
+                    ? href(lang, `/books/${it.slug}/`)
+                    : href(lang, `/books/${it.slug}/read`);
+                  return (
+                    <a
+                      class:list={['feat-card', { 'no-guide': !it.hasGuide }]}
+                      href={to}
+                      data-slug={it.slug}
+                      data-has-guide={it.hasGuide ? '1' : '0'}
+                    >
+                      <span class="feat-tax">{buPathText(path)}</span>
+                      <span class="feat-title" lang={it.wsTitle ? 'zh-Hant' : undefined}>{it.title}</span>
+                      <span class="feat-meta">
+                        {[it.author, it.dynasty].filter(Boolean).join(' · ')}
+                      </span>
+                      {reason && <span class="feat-reason">{reason}</span>}
+                      <span class="feat-foot">
+                        {it.hasGuide ? (
+                          <span class="feat-badge">{t.badgeGuide.replace('{n}', String(it.guides))}</span>
+                        ) : (
+                          <span class="feat-badge plain">{t.noGuideFlag}</span>
+                        )}
+                        <span class="feat-cta">{it.hasGuide ? t.ctaGuide : t.ctaRead}</span>
+                      </span>
+                    </a>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </section>
+)}
+
+<script>
+  // 身份分栏切换。面板在服务端全量渲染（四栏都在 HTML 里），JS 只负责显隐，
+  // 因此关掉 JS 也能读到全部内容（由 noscript 样式兜底展开），且静态断言可直查 DOM。
+  (() => {
+    const root = document.querySelector('[data-featured]');
+    if (!root) return;
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('.aud-tab'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('.aud-panel'));
+    if (!tabs.length || !panels.length) return;
+
+    const select = (aud: string) => {
+      tabs.forEach((tab) => {
+        const on = tab.dataset.aud === aud;
+        tab.classList.toggle('active', on);
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+        tab.tabIndex = on ? 0 : -1;
+      });
+      panels.forEach((p) => {
+        p.hidden = p.dataset.panel !== aud;
+      });
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        if (tab.disabled) return;
+        select(tab.dataset.aud || '');
+      });
+      // 键盘左右切换：tablist 的标准交互，缺了会挡住键盘用户
+      tab.addEventListener('keydown', (e) => {
+        const i = tabs.indexOf(tab);
+        let next = -1;
+        if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = tabs.length - 1;
+        if (next < 0) return;
+        e.preventDefault();
+        const target = tabs[next];
+        if (!target.disabled) {
+          select(target.dataset.aud || '');
+          target.focus();
+        }
+      });
+    });
+  })();
+</script>
+
+<noscript>
+  <style>
+    /* 无 JS：tab 不可切换，索性把四栏全部展开，内容不因脚本缺席而丢失 */
+    .featured .aud-tabs { display: none; }
+    .featured .aud-panel[hidden] { display: block; }
+  </style>
+</noscript>
+
+<style>
+  .featured { background: var(--paper); padding: 64px 6vw 56px; }
+  .sec-head { text-align: center; margin-bottom: 34px; }
+  .sec-head .kicker {
+    display: inline-block; font-size: 12.5px; letter-spacing: 2px; color: var(--cinnabar);
+    border: 1px solid var(--cinnabar); border-radius: 999px; padding: 3px 12px; margin-bottom: 14px;
+  }
+  .sec-head h2 { font-size: 30px; letter-spacing: 6px; }
+  .sec-head p { color: var(--ink-soft); margin-top: 8px; font-size: 15px; }
+  .sec-head .rule { width: 56px; height: 3px; background: var(--cinnabar); margin: 16px auto 0; border-radius: 2px; }
+
+  /* 身份栏：四等分，按钮整体高 52px 保证触控达标（≥44px） */
+  .aud-tabs {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    max-width: 960px; margin: 0 auto 26px;
+  }
+  .aud-tab {
+    font-family: inherit; cursor: pointer; text-align: left;
+    min-height: 52px; padding: 9px 14px;
+    background: var(--white); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--ink-soft); transition: border-color .18s, background .18s, box-shadow .18s, transform .18s;
+  }
+  .aud-tab:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); }
+  .aud-tab.active {
+    background: var(--brand-sky-tint); border-color: var(--accent); color: var(--accent-deep);
+    box-shadow: 0 6px 18px rgba(0, 48, 72, .1);
+  }
+  .aud-tab:disabled { opacity: .45; cursor: not-allowed; }
+  .aud-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .aud-name { display: block; font-size: 15px; letter-spacing: 2px; font-weight: 600; }
+  .aud-desc { display: block; font-size: 12px; margin-top: 2px; letter-spacing: .5px; opacity: .85; }
+
+  .aud-panel[hidden] { display: none; }
+  .feat-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;
+    max-width: 960px; margin: 0 auto;
+  }
+  .panel-empty { text-align: center; color: var(--ink-soft); font-size: 14px; padding: 24px 0; }
+
+  .feat-card {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 18px 20px 16px; border-radius: 12px; text-decoration: none; color: inherit;
+    background: var(--white); border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    transition: transform .18s, box-shadow .18s, border-color .18s;
+  }
+  .feat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(43, 41, 38, .12); }
+  .feat-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* 无导读的书：左侧色条转为中性金，与「有导读」在扫视层面即可区分 */
+  .feat-card.no-guide { border-left-color: var(--gold); }
+
+  .feat-tax { font-size: 12px; letter-spacing: 1.5px; color: var(--ink-soft); }
+  .feat-title { font-size: 21px; letter-spacing: 3px; line-height: 1.35; word-break: break-word; }
+  .feat-meta { font-size: 12.5px; color: var(--ink-soft); }
+  .feat-reason {
+    font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); margin-top: 4px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .feat-foot {
+    margin-top: auto; padding-top: 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    border-top: 1px dashed var(--line);
+  }
+  .feat-badge {
+    font-size: 12px; color: var(--accent-deep); background: var(--brand-sky-tint);
+    border-radius: 999px; padding: 3px 10px; letter-spacing: .5px;
+  }
+  .feat-badge.plain { color: var(--ink-soft); background: var(--paper-deep); }
+  .feat-cta { font-size: 13px; color: var(--cinnabar); font-weight: 600; white-space: nowrap; }
+
+  @media (max-width: 900px) {
+    .aud-tabs { grid-template-columns: repeat(2, 1fr); }
+    .feat-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 420px) {
+    .sec-head h2 { font-size: 24px; letter-spacing: 4px; }
+    .aud-name { font-size: 14px; }
+  }
+</style>

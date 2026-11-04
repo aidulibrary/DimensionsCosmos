@@ -30,6 +30,26 @@ export interface HomeDict {
   /** {n} 会被替换成剩余方法数 */
   stripMore: string;
   band: { title: string; desc: string }[];
+  /** UX-8 首屏引导与精选。文案缺省（featured.json 无 reason 时）不渲染，不写占位符 */
+  featured: FeaturedDict;
+}
+
+/** 读者身份四值枚举，与 lib/featured.ts 的 Audience 保持一一对应 */
+export interface FeaturedDict {
+  kicker: string;
+  title: string;
+  sub: string;
+  /** tablist 的 aria-label */
+  tabsLabel: string;
+  aud: Record<'student' | 'general' | 'family' | 'research', string>;
+  audDesc: Record<'student' | 'general' | 'family' | 'research', string>;
+  /** {n} 会被替换成该书导读篇数 */
+  badgeGuide: string;
+  /** guides 为空时的降级标记 */
+  noGuideFlag: string;
+  ctaGuide: string;
+  ctaRead: string;
+  panelEmpty: string;
 }
 
 export const home: Record<Locale, HomeDict> = {
@@ -59,6 +79,24 @@ export const home: Record<Locale, HomeDict> = {
       { title: '📤 上传你的藏书', desc: '即将开放：像识典古籍一样整理并上传自己的文本，经 AI 自动校勘、标点、分段后入库。' },
       { title: '🔌 方法即插件', desc: '每种大师方法都是一个独立 AI 插件——可组合、可复用、可导出为 Markdown / JSON。' },
     ],
+    featured: {
+      kicker: '第一次来？从这里开始',
+      title: '按你的身份挑好的入门精选',
+      sub: '同一部经典，学生、普通读者、一家人、研究者该从哪儿读进去并不一样。选一个最像你的身份，直接开始。',
+      tabsLabel: '读者身份',
+      aud: { student: '学生', general: '普通读者', family: '亲子共读', research: '研究者' },
+      audDesc: {
+        student: '从必读篇目入门',
+        general: '不必专业背景',
+        family: '一家人一起读',
+        research: '要版本与脉络',
+      },
+      badgeGuide: '{n} 种大师解读',
+      noGuideFlag: '原文可读 · 导读筹备中',
+      ctaGuide: '选一种大师视角 →',
+      ctaRead: '直接读原文 →',
+      panelEmpty: '该身份下的精选正在编排中。',
+    },
   },
 
   'zh-TW': {
@@ -87,6 +125,24 @@ export const home: Record<Locale, HomeDict> = {
       { title: '📤 上傳你的藏書', desc: '即將開放：像識典古籍一樣整理並上傳自己的文本，經 AI 自動校勘、標點、分段後入庫。' },
       { title: '🔌 方法即外掛', desc: '每種大師方法都是一個獨立 AI 外掛——可組合、可重複使用、可匯出為 Markdown / JSON。' },
     ],
+    featured: {
+      kicker: '第一次來？從這裡開始',
+      title: '按你的身分挑好的入門精選',
+      sub: '同一部經典，學生、一般讀者、一家人、研究者該從哪裡讀進去並不一樣。選一個最像你的身分，直接開始。',
+      tabsLabel: '讀者身分',
+      aud: { student: '學生', general: '一般讀者', family: '親子共讀', research: '研究者' },
+      audDesc: {
+        student: '從必讀篇目入門',
+        general: '不必專業背景',
+        family: '一家人一起讀',
+        research: '要版本與脈絡',
+      },
+      badgeGuide: '{n} 種大師解讀',
+      noGuideFlag: '原文可讀 · 導讀籌備中',
+      ctaGuide: '選一種大師視角 →',
+      ctaRead: '直接讀原文 →',
+      panelEmpty: '此身分下的精選正在編排中。',
+    },
   },
 
   en: {
@@ -116,6 +172,24 @@ export const home: Record<Locale, HomeDict> = {
       { title: '📤 Upload your own collection', desc: 'Coming soon: organise and upload your own texts the way classical-text platforms do. AI handles collation, punctuation and paragraphing.' },
       { title: '🔌 Methods are plugins', desc: 'Each master\u2019s method is a standalone AI plugin — composable, reusable, and exportable as Markdown or JSON.' },
     ],
+    featured: {
+      kicker: 'NEW HERE? START HERE',
+      title: 'Starter picks, chosen for who you are',
+      sub: 'The same classic opens differently to a student, a general reader, a family, a researcher. Pick the reader closest to you and start there.',
+      tabsLabel: 'Reader profile',
+      aud: { student: 'Student', general: 'General reader', family: 'Reading as a family', research: 'Researcher' },
+      audDesc: {
+        student: 'Set texts first',
+        general: 'No background needed',
+        family: 'Read it together',
+        research: 'Editions and lineage',
+      },
+      badgeGuide: '{n} master readings',
+      noGuideFlag: 'Full text ready · guide in preparation',
+      ctaGuide: 'Pick a master\u2019s view →',
+      ctaRead: 'Read the full text →',
+      panelEmpty: 'Picks for this profile are still being curated.',
+    },
   },
 
   // B2：西班牙语首页。西语语序与中文差异最大的是 h1 与副标题，故同样用 HTML 片段/整句重写，
@@ -147,5 +221,23 @@ export const home: Record<Locale, HomeDict> = {
       { title: '📤 Sube tu propia colección', desc: 'Muy pronto: organiza y sube tus textos como hacen las plataformas de clásicos. La IA se encarga de la colación, la puntuación y los párrafos.' },
       { title: '🔌 Los métodos son complementos', desc: 'Cada método de un maestro es un complemento de IA independiente: se puede combinar, reutilizar y exportar como Markdown o JSON.' },
     ],
+    featured: {
+      kicker: '¿PRIMERA VEZ? EMPIEZA AQUÍ',
+      title: 'Clásicos de entrada elegidos según quién eres',
+      sub: 'Un mismo clásico se abre de forma distinta para un estudiante, un lector general, una familia o un investigador. Elige el perfil que más se te parezca y empieza por ahí.',
+      tabsLabel: 'Perfil de lector',
+      aud: { student: 'Estudiante', general: 'Lector general', family: 'En familia', research: 'Investigador' },
+      audDesc: {
+        student: 'Textos obligados',
+        general: 'Sin formación previa',
+        family: 'Para leer juntos',
+        research: 'Ediciones y linaje',
+      },
+      badgeGuide: '{n} lecturas de maestros',
+      noGuideFlag: 'Texto completo listo · guía en preparación',
+      ctaGuide: 'Elige la mirada de un maestro →',
+      ctaRead: 'Leer el texto completo →',
+      panelEmpty: 'La selección para este perfil aún se está preparando.',
+    },
   },
 };

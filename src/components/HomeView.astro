@@ -9,6 +9,9 @@ import { type Locale, href } from '../i18n/config';
 import { ui } from '../i18n/ui';
 import { home } from '../i18n/pages/home';
 import { bookDict } from '../i18n/pages/book';
+import FeaturedGuide from './FeaturedGuide.astro';
+import { normalizeFeatured, type FeaturedWorkRef } from '../lib/featured';
+import type { TaxonomyNode } from '../lib/siku';
 
 interface Props {
   lang: Locale;
@@ -29,6 +32,13 @@ const byBu = indexData?.byBu ?? {};
 const methods = getAllMethods();
 const freeMethods = methods.filter((m) => m.free);
 const total = indexData?.ok ?? 0;
+
+// UX-8：精选清单。featured.json 缺失/条目为空时由 lib/featured 的 SEED 结构兜底，
+// 条目不足 6 部按实际数量渲染（不补占位卡），完全为空时组件整体不输出。
+const featuredItems = normalizeFeatured(
+  (indexData?.works ?? []) as unknown as FeaturedWorkRef[],
+);
+const taxonomyNodes = (indexData?.taxonomy ?? []) as TaxonomyNode[];
 ---
 
 <BaseLayout lang={lang} title={t.title} description={t.description}>
@@ -56,6 +66,8 @@ const total = indexData?.ok ?? 0;
       <span class="vertical-note">{t.verticalNote}</span>
     </div>
   </section>
+
+  <FeaturedGuide lang={lang} items={featuredItems} taxonomy={taxonomyNodes} />
 
   <section class="library">
     <div class="sec-head">
