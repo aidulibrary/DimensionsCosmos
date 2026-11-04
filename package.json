@@ -20,7 +20,8 @@
     "guides:cited": "python pipeline/gen_guides_cited.py",
     "guides:dry": "python pipeline/gen_guides_cited.py --work-id 1 --method zhuxi --dry-run",
     "check:i18n": "node scripts/check-i18n-coverage.mjs",
-    "test:ux4": "node scripts/verify-ux4.mjs"
+    "test:ux4": "node scripts/verify-ux4.mjs",
+    "test:ux4:online": "node scripts/verify-ux4-online.mjs"
   },
   "engines": {
     "node": ">=22"
