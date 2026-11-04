@@ -4,6 +4,20 @@ import { join } from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MethodSelector from '../../components/MethodSelector.astro';
 import type { IndexData, BookMeta, Guide } from '../../lib/data';
+import { resolveBuPath, buPathText, type TaxonomyNode } from '../../lib/siku';
+
+// 四库类目父子表随 index.json 下发，构建期只读一次即可（112 页共用）
+let taxonomyCache: TaxonomyNode[] | null = null;
+function taxonomyOf(): TaxonomyNode[] {
+  if (taxonomyCache) return taxonomyCache;
+  try {
+    const raw = readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8');
+    taxonomyCache = (JSON.parse(raw) as IndexData).taxonomy ?? [];
+  } catch {
+    taxonomyCache = [];
+  }
+  return taxonomyCache;
+}
 
 export async function getStaticPaths() {
   const raw = readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8');
@@ -29,27 +43,54 @@ try {
 
 const { seed_title: title, author, dynasty, bu, chapters, guides } = book;
 const guideList = guides as Guide[] ?? [];
+
+// UX-6 ①：题名以原书正名为准。ws_title 为繁体正名（73/112 与简体不同），
+// 缺失或与简体同形时不重复出「今名」行，避免同一行字出现两遍。
+const wsTitle = (book.ws_title ?? '').trim();
+const hasNameVariant = wsTitle !== '' && wsTitle !== title;
+const displayTitle = hasNameVariant ? wsTitle : title;
+
+// UX-6 ②：分类由「标签」升级为「路径」。部级可点回书库对应分面，类级暂作纯文本。
+const taxPath = resolveBuPath(
+  bu,
+  slug,
+  taxonomyOf(),
+  (book as BookMeta & { bu_sub?: string | null }).bu_sub ?? null,
+);
+const taxText = buPathText(taxPath);
 // 续读入口（UX-2）：只把章 id 序列下发，序号靠它算；标题由本机进度里存的字符串带出，
 // 避免为了一句文案把 130 章标题整份塞进详情页 HTML。
 const chapterIds = (chapters ?? []).map((c) => c.id);
 const firstChapterId = chapterIds[0] ?? 0;
 ---
 
-<BaseLayout title={`${title} · 维点图书馆`} description={`${author}《${title}》— 可用 ${guideList.length} 种大师视角解读`}>
+<BaseLayout title={`${displayTitle} · 维点图书馆`} description={`${author}《${displayTitle}》${hasNameVariant ? `（通称${title}）` : ''}${taxText ? `，${taxText}` : ''} — 可用 ${guideList.length} 种大师视角解读`}>
   <section class="book-detail">
     <!-- 面包屑 -->
     <nav class="breadcrumb">
-      <a href={base}>首页</a> / <a href={`${base}books`}>书库</a> / <span>{title}</span>
+      <a href={base}>首页</a> / <a href={`${base}books`}>书库</a> / <span>{displayTitle}</span>
     </nav>
 
     <!-- 书信息头 -->
     <header class="book-header">
-      <h1>{title}</h1>
+      <h1 lang={hasNameVariant ? 'zh-Hant' : undefined}>{displayTitle}</h1>
+      {hasNameVariant && <p class="title-alias">通称　{title}</p>}
       <p class="meta">
         {author && <span>{author}</span>}
         {dynasty && <span>· {dynasty}</span>}
-        {bu && <span class="bu-tag">{bu}</span>}
       </p>
+      {taxPath.bu && (
+        <p class="tax-line">
+          <span class="tax-label">分类</span>
+          <a class="tax-bu" href={`${base}books?bu=${encodeURIComponent(taxPath.bu)}`} title={`按${taxPath.bu}浏览书库`}>{taxPath.bu}</a>
+          {taxPath.sub && (
+            <>
+              <span class="tax-sep" aria-hidden="true">›</span>
+              <span class="tax-sub">{taxPath.sub}</span>
+            </>
+          )}
+        </p>
+      )}
       <p class="stats">
         <span>📄 {(chapters ?? []).length} 章</span>
         <span>🧠 {guideList.length} 种大师解读</span>
@@ -159,13 +200,24 @@ const firstChapterId = chapterIds[0] ?? 0;
     border-radius: 18px;
     box-shadow: 0 12px 34px rgba(0, 48, 72, 0.16);
   }
-  .book-header h1 { font-size: 36px; letter-spacing: 7px; margin-bottom: 9px; color: var(--brand-on-sky); }
+  /* 题名以正名为主：繁体字形笔画多、长书名更宽，故字号与字距随视口收敛，避免 375 端溢出 */
+  .book-header h1 {
+    font-size: clamp(26px, 7vw, 36px); letter-spacing: clamp(2px, 1.1vw, 7px);
+    margin-bottom: 9px; color: var(--brand-on-sky); word-break: break-word;
+  }
+  .title-alias { font-size: 13.5px; color: var(--brand-on-sky-soft); letter-spacing: 2px; margin-bottom: 10px; }
   .meta { font-size: 17px; color: var(--brand-on-sky-soft); }
   .meta span { margin: 0 6px; }
-  .bu-tag {
-    font-size: 12px; color: var(--brand-on-sky); border: 1px solid rgba(252, 252, 252, 0.5);
-    padding: 1px 8px; border-radius: 4px;
+  /* 四部分类路径：部级可点回书库分面，类级为纯文本 */
+  .tax-line { margin-top: 6px; font-size: 13.5px; color: var(--brand-on-sky-soft); letter-spacing: 1px; }
+  .tax-label { margin-right: 9px; opacity: 0.8; }
+  .tax-bu {
+    color: var(--brand-on-sky); text-decoration: underline; text-underline-offset: 3px;
+    text-decoration-color: rgba(252, 252, 252, 0.45); padding: 1px 2px; border-radius: 3px;
   }
+  .tax-bu:hover { text-decoration-color: currentColor; }
+  .tax-sep { margin: 0 7px; opacity: 0.7; }
+  .tax-sub { color: var(--brand-on-sky); }
   .stats { margin-top: 13px; font-size: 14px; color: var(--brand-on-sky-soft); }
   .stats span { margin: 0 14px; }
   .stats a { color: var(--brand-on-sky); }
