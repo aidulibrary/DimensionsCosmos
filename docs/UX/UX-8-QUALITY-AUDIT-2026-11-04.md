@@ -1,5 +1,9 @@
 # UX-8 交付等级评估：是否达到"国际一线成熟应用"标准
 
+> **REVERTED（2026-11-05）** — 被评估对象 UX-8 已整体回滚，本文所有"达标"结论随之失去适用对象。
+> 保留价值仅有两条：① 采集方法（Edge headless + CDP 实测）可复用于其他页面；② 作为"工程质量合格但方向被否"的案例证据——满分不构成保留理由，见 `docs/UX/UX-PRINCIPLES-2026-11-05.md` §5。
+> 失效范围：本文涉及的组件、文案、脚本路径（`FeaturedGuide.astro` / `StartSteps.astro` / `homeStart.ts` / `lib/featured.ts` / `audit-ux8-quality.mjs`）均已从仓库删除。
+
 - 评估对象：UX-8（首屏引导 + 精选四栏 + 两条降级分支），提交 `85afb7cc`，线上 `dimensionscosmos.pages.dev`
 - 评估时间：2026-11-04
 - 评估方式：**实测**，不引用主观判断代替数据。指标由 `scripts/audit-ux8-quality.mjs` 采集（Edge headless + CDP，非估算），阈值对照 Google web.dev 与 W3C WCAG 2.2 官方口径。

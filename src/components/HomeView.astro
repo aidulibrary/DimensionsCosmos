@@ -9,11 +9,6 @@ import { type Locale, href } from '../i18n/config';
 import { ui } from '../i18n/ui';
 import { home } from '../i18n/pages/home';
 import { bookDict } from '../i18n/pages/book';
-import FeaturedGuide from './FeaturedGuide.astro';
-import StartSteps from './StartSteps.astro';
-import { start } from '../i18n/pages/homeStart';
-import { normalizeFeatured, type FeaturedWorkRef } from '../lib/featured';
-import type { TaxonomyNode } from '../lib/siku';
 
 interface Props {
   lang: Locale;
@@ -34,20 +29,6 @@ const byBu = indexData?.byBu ?? {};
 const methods = getAllMethods();
 const freeMethods = methods.filter((m) => m.free);
 const total = indexData?.ok ?? 0;
-
-// UX-8：精选清单。featured.json 缺失/条目为空时由 lib/featured 的 SEED 结构兜底，
-// 条目不足 6 部按实际数量渲染（不补占位卡），完全为空时组件整体不输出。
-const featuredItems = normalizeFeatured(
-  (indexData?.works ?? []) as unknown as FeaturedWorkRef[],
-);
-const taxonomyNodes = (indexData?.taxonomy ?? []) as TaxonomyNode[];
-
-// UX-8 增补：「从这里开始」第三步的目标书——取精选里第一本已有导读的书（hasGuide），
-// 一本都没有就退到精选第一本，精选也为空则给 undefined（组件内退到书库）。
-// 不硬编码 slug，供数变化后无需改代码。
-const tStart = start[lang];
-const startBook =
-  featuredItems.find((it) => it.hasGuide)?.slug ?? featuredItems[0]?.slug ?? undefined;
 ---
 
 <BaseLayout lang={lang} title={t.title} description={t.description}>
@@ -61,16 +42,11 @@ const startBook =
         <input id="q" type="text" placeholder={t.searchPlaceholder} autocomplete="off">
         <button onclick={`const q=document.getElementById('q').value;if(q)location.href='${href(lang, '/books')}?q='+encodeURIComponent(q)`}>{t.searchBtn}</button>
       </div>
-      <div class="hero-cta">
-        <a class="btn-primary" href={href(lang, '/books')} data-hero-cta="primary">{tStart.heroPrimary}</a>
-        <a class="btn-ghost" href={href(lang, '/methods')} data-hero-cta="secondary">{tStart.heroSecondary}</a>
-      </div>
       <div class="hero-stats">
         <a href={href(lang, '/books')} class="stat-link"><b>{total}</b><span>{t.statBooks}</span></a>
         <a href={href(lang, '/methods')} class="stat-link"><b>{methods.length}</b><span>{t.statMethods}</span></a>
         <a href={href(lang, '/pricing')} class="stat-link"><b>{freeMethods.length}</b><span>{t.statFree}</span></a>
       </div>
-      <a class="hero-hint" href="#start" data-hero-hint>{tStart.heroHint} ↓</a>
     </div>
     <div class="hero-art">
       <div class="hero-placeholder">
@@ -80,10 +56,6 @@ const startBook =
       <span class="vertical-note">{t.verticalNote}</span>
     </div>
   </section>
-
-  <StartSteps lang={lang} startSlug={startBook} />
-
-  <FeaturedGuide lang={lang} items={featuredItems} taxonomy={taxonomyNodes} />
 
   <section class="library">
     <div class="sec-head">
@@ -165,23 +137,6 @@ const startBook =
   .hero-search input { flex: 1; border: 0; outline: 0; padding: 14px 16px; font-size: 16px; font-family: inherit; background: transparent; }
   .hero-search button { border: 0; background: var(--cinnabar); color: var(--on-accent); padding: 0 26px; font-size: 16px; font-family: inherit; cursor: pointer; }
   .hero-search button:hover { background: var(--cinnabar-deep); }
-  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
-  .btn-primary, .btn-ghost {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-height: 48px; padding: 0 26px; border-radius: 6px;
-    font-size: 16px; letter-spacing: 1px; text-decoration: none;
-    transition: background .2s, color .2s, border-color .2s, transform .2s;
-  }
-  .btn-primary { background: var(--cinnabar); color: var(--on-accent); border: 1.5px solid var(--cinnabar); }
-  .btn-primary:hover { background: var(--cinnabar-deep); border-color: var(--cinnabar-deep); transform: translateY(-1px); }
-  .btn-ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
-  .btn-ghost:hover { border-color: var(--ink); color: var(--cinnabar-deep); }
-  .hero-hint {
-    display: inline-flex; align-items: center; min-height: 44px;
-    margin-top: 10px; font-size: 13px; color: var(--ink-soft);
-    text-decoration: none; border-bottom: 1px dashed var(--line);
-  }
-  .hero-hint:hover, .hero-hint:focus-visible { color: var(--cinnabar-deep); border-bottom-color: var(--cinnabar-deep); }
   .hero-stats { display: flex; gap: 36px; margin-top: 34px; }
   .stat-link { text-decoration: none; color: inherit; transition: transform .2s; }
   .stat-link:hover { transform: translateY(-2px); }
@@ -254,8 +209,6 @@ const startBook =
 
   @media (max-width: 900px) {
     .hero { grid-template-columns: 1fr; }
-    .hero-cta { width: 100%; }
-    .btn-primary, .btn-ghost { flex: 1 1 160px; padding: 0 16px; }
     .hero-art .vertical-note { display: none; }
     .open-band { grid-template-columns: repeat(2, 1fr); }
     .strip-inner { grid-template-columns: 1fr; }
