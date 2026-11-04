@@ -160,6 +160,7 @@
 - **验收（可复算，Edge headless CDP）**：
   - UX-4 专项 22/22：chip 44×≥44 精确命中、gap 10px、375px 单行横滚且 mask 生效、滚到尾部渐隐左右切换、320px 最窄机型同样溢出可滚、480 断点两侧行为正确（500px 横滚仍在但卡片内边距回 20/22）、1280px 恢复换行且无 mask、桌面 chip 不被放大、375px 无横向溢出、首屏可见卡片 ≥2、输入「庄」即时过滤不回归、无 JS 报错；
   - 跨页回归 23/23：`/`、`/books/`、`/books/[slug]/`、`/read/[slug]/zhuxi/`、`/tasks/`、`/pricing/`、`/about/` 七条路由 375px 无横向溢出、卡片不超视口、无 JS 报错，另 1280px 桌面布局正常；
+  - 线上复测 10/10（`dimensionscosmos.pages.dev/books/`，`9a04e4f8`，CI `ingest-deploy` success）：375px chip 44 高且宽 ≥44、gap 10px、单行横滚、mask 渐隐生效、溢出时右侧渐隐、卡片内边距 16/18、无横向溢出；1280px 恢复换行、无渐隐、卡片内边距 20/22；
   - `astro build` 1372 页 EXIT=0。
 
 ### UX-5 检索埋点聚合（P1，1 人日，marvis）
