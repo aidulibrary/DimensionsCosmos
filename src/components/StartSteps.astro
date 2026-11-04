@@ -1,0 +1,95 @@
+---
+/**
+ * 「从这里开始」三步条（UX-8 增补）。
+ *
+ * 补的是 backlog UX-8 原案的引导部分：选一部 → 选一位大师 → 读一章。
+ * 三步都是真链接，不依赖 JS：无脚本环境下照样能走完路径（本站在 <noscript> 下仍可用）。
+ *
+ * 第三步的目标书由调用方给（首页取精选里第一本可直接读的书），拿不到就退到书库，
+ * 不硬编码任何 slug——供数变化后不用改组件。
+ */
+import { href, type Locale } from '../i18n/config';
+import { start } from '../i18n/pages/homeStart';
+
+interface Props {
+  lang: Locale;
+  /** 第三步「读一章」的目标书 slug；缺省退到书库 */
+  startSlug?: string;
+}
+
+const { lang, startSlug } = Astro.props;
+const t = start[lang];
+
+const targets = [
+  href(lang, '/books'),
+  href(lang, '/methods'),
+  startSlug ? href(lang, `/books/${startSlug}/read`) : href(lang, '/books'),
+];
+---
+
+<section class="start" id="start">
+  <div class="sec-head">
+    <span class="kicker">{t.kicker}</span>
+    <h2>{t.title}</h2>
+    <p>{t.sub}</p>
+    <div class="rule"></div>
+  </div>
+
+  <ol class="steps" data-start data-step-count={t.steps.length}>
+    {t.steps.map((s, i) => (
+      <li class="step" data-step={i + 1}>
+        <span class="n">{s.n}</span>
+        <h3>{s.title}</h3>
+        <p>{s.desc}</p>
+        <a class="step-cta" href={targets[i]}>{s.cta}</a>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .start {
+    padding: 8px 6vw 56px;
+    max-width: 1280px; margin: 0 auto;
+  }
+  .sec-head { text-align: center; margin-bottom: 30px; }
+  .sec-head .kicker {
+    display: inline-block; font-size: 12px; letter-spacing: 3px;
+    color: var(--cinnabar); border: 1px solid var(--cinnabar);
+    border-radius: 999px; padding: 5px 14px;
+  }
+  .sec-head h2 { font-size: clamp(24px, 2.6vw, 32px); margin: 14px 0 8px; letter-spacing: 1px; }
+  .sec-head p { color: var(--ink-soft); font-size: 15px; line-height: 1.7; max-width: 42em; margin: 0 auto; }
+  .rule { width: 56px; height: 2px; background: var(--cinnabar); margin: 18px auto 0; }
+
+  .steps {
+    list-style: none; display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 18px; padding: 0; margin: 0; counter-reset: step;
+  }
+  .step {
+    position: relative; background: var(--white); border: 1px solid var(--line);
+    border-left: 3px solid var(--cinnabar); border-radius: 10px;
+    padding: 20px 20px 18px; display: flex; flex-direction: column;
+  }
+  .step .n {
+    font-size: 11px; letter-spacing: 2px; color: var(--cinnabar); opacity: .85;
+  }
+  .step h3 { font-size: 19px; margin: 8px 0 8px; letter-spacing: 1px; }
+  .step p { color: var(--ink-soft); font-size: 14px; line-height: 1.75; margin: 0 0 16px; flex: 1; }
+  .step .step-cta {
+    align-self: flex-start; display: inline-flex; align-items: center;
+    min-height: 44px; padding: 0 4px;
+    color: var(--cinnabar); text-decoration: none; font-size: 14px;
+    border-bottom: 1px solid transparent; transition: border-color .2s, color .2s;
+  }
+  .step .step-cta:hover, .step .step-cta:focus-visible {
+    color: var(--cinnabar-deep); border-bottom-color: var(--cinnabar-deep);
+  }
+
+  @media (max-width: 900px) {
+    .start { padding: 4px 5vw 44px; }
+    .steps { grid-template-columns: 1fr; gap: 12px; }
+    .step { padding: 16px 16px 14px; }
+    .step h3 { font-size: 18px; }
+  }
+</style>

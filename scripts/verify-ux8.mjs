@@ -253,6 +253,77 @@ async function phaseA() {
   ck('A 375 卡片单列不挤压', (m.panels.find((p) => p.aud === 'general')?.cards.length ?? 0) > 0, '');
 }
 
+// ── 阶段 A2：首屏引导（hero 主 CTA + 「从这里开始」三步条）──────────────────
+// 期望值独立计算：第三步目标书 = 精选 SEED 顺序里第一个 guides 非空的书，不看页面自报。
+const seedOrder = Object.keys(SEED_EXPECT); // 定义顺序即 order 1→6，与 lib/featured.ts 同源校验已覆盖
+const startExpectSlug = seedOrder.find((slug) => (bySlug.get(slug)?.guides?.length ?? 0) > 0) ?? seedOrder[0];
+const startExpectHref = (startExpectSlug ? `/books/${startExpectSlug}/read` : '/books');
+
+const snapStart = () => page.evaluate(() => {
+  const dec = (u) => { try { return decodeURIComponent(u); } catch { return u; } };
+  const box = (el) => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, top: r.top + window.scrollY }; };
+  const p = document.querySelector('[data-hero-cta="primary"]');
+  const s = document.querySelector('[data-hero-cta="secondary"]');
+  const hint = document.querySelector('[data-hero-hint]');
+  const steps = Array.from(document.querySelectorAll('[data-start] .step'));
+  return {
+    primary: p ? { text: p.textContent.trim(), href: dec(p.getAttribute('href') || ''), ...box(p) } : null,
+    secondary: s ? { text: s.textContent.trim(), href: dec(s.getAttribute('href') || ''), ...box(s) } : null,
+    hint: hint ? { href: hint.getAttribute('href') || '', target: !!document.querySelector('#start') } : null,
+    vh: window.innerHeight,
+    count: document.querySelector('[data-start]')?.dataset?.stepCount ?? null,
+    steps: steps.map((el) => ({
+      mark: el.querySelector('.n')?.textContent?.trim() || '',
+      title: el.querySelector('h3')?.textContent?.trim() || '',
+      href: dec(el.querySelector('a')?.getAttribute('href') || ''),
+      cta: el.querySelector('a')?.textContent?.trim() || '',
+      ctaH: el.querySelector('a') ? el.querySelector('a').getBoundingClientRect().height : 0,
+      ...box(el),
+    })),
+    overflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  };
+});
+
+async function phaseStart() {
+  await go('/', 1280, 900);
+  const s = await snapStart();
+
+  ck('A2 hero 主 CTA 存在', !!s.primary, '');
+  ck('A2 主 CTA 指向书库', s.primary?.href === '/books', s.primary?.href);
+  ck('A2 主 CTA 文案非空', !!s.primary?.text, '');
+  ck('A2 首屏内可见主 CTA（≤1vh 内无需滚动）', !!s.primary && s.primary.top < s.vh, `${s.primary?.top}/${s.vh}`);
+  ck('A2 主 CTA 触控高 ≥48px', (s.primary?.h ?? 0) >= 48, s.primary?.h);
+  ck('A2 次 CTA 指向方法页', s.secondary?.href === '/methods', s.secondary?.href);
+  ck('A2 分流提示指向 #start 且锚点存在', s.hint?.href === '#start' && s.hint?.target, JSON.stringify(s.hint));
+
+  ck('A2 三步条渲染 3 步', s.steps.length === 3 && s.count === '3', `${s.steps.length}/${s.count}`);
+  ck('A2 每步序号/标题/CTA 齐全', s.steps.every((x) => x.mark && x.title && x.cta), JSON.stringify(s.steps.map((x) => [x.mark, x.title, x.cta])));
+  const wantHref = ['/books', '/methods', startExpectHref];
+  ck('A2 三步链接依次为 书库/方法/首读章', s.steps.map((x) => x.href).join(',') === wantHref.join(','), `${s.steps.map((x) => x.href).join(',')} vs ${wantHref.join(',')}`);
+  ck('A2 第三步命中精选首个有导读的书', s.steps[2]?.href === startExpectHref, `${s.steps[2]?.href} 期望 ${startExpectHref}（${startExpectSlug}）`);
+  ck('A2 步骤 CTA 触控高 ≥44px', s.steps.every((x) => x.ctaH >= 44), JSON.stringify(s.steps.map((x) => x.ctaH)));
+  ck('A2 1280 无横向溢出', s.overflowX <= 1, s.overflowX);
+
+  // 375：三步必须单列，按钮不挤成一团
+  await go('/', 375, 780);
+  const m = await snapStart();
+  ck('A2 375 无横向溢出', m.overflowX <= 1, m.overflowX);
+  // 单列判据：三步纵向堆叠（y 递增）且左缘对齐——同 x 不代表同一行，行/列要看 y
+  const stacked = m.steps.length === 3
+    && m.steps[0].y < m.steps[1].y && m.steps[1].y < m.steps[2].y
+    && Math.abs(m.steps[0].x - m.steps[1].x) < 2;
+  ck('A2 375 三步单列排布', stacked, JSON.stringify(m.steps.map((x) => [x.x, x.y, x.w])));
+  ck('A2 375 主 CTA 仍完整可见', !!m.primary && m.primary.w > 0 && m.primary.h >= 48, JSON.stringify(m.primary && [m.primary.w, m.primary.h]));
+
+  // 四语页：CTA 文案不得空、不得残留中文（防止漏译回退到 zh）
+  for (const [loc, mustNotMatchZh] of [['/en/', true], ['/es/', true], ['/zh-TW/', false]]) {
+    await go(loc, 1280, 900);
+    const q = await snapStart();
+    const ok = !!q.primary?.text && (!mustNotMatchZh || !/[\u4e00-\u9fff]/.test(q.primary.text));
+    ck(`A2 ${loc} 首屏 CTA 文案已本地化`, ok, q.primary?.text);
+  }
+}
+
 // ── 阶段 B：featured.json 存在但只有 5 部（<6）+ reason/reviewed 闸门 ────────
 const FIXTURE_ITEMS = [
   { slug: '1-论语', order: 1, audiences: ['student', 'general', 'family', 'research'], reason: { zh: 'FIXTURE论语中文推荐', en: 'FIXTURE english reason' }, reviewed: ['zh'] },
@@ -309,6 +380,7 @@ try {
   console.log(astroBuild('A'));
   await boot();
   await phaseA();
+  await phaseStart();
   // 重建前必须先释放 Edge/静态服务对 dist 的文件占用，否则 Windows 下 astro 清空 dist 会 EPERM
   await shutdown();
 

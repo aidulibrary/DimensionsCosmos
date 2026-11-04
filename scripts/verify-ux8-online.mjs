@@ -160,6 +160,54 @@ if (en.exists) {
   if (!usingFile) ck('线上 未供数时不渲染推荐语', en.reasonCount === 0, `reasonCount=${en.reasonCount}`);
 }
 
+// ── 首屏引导（hero 主 CTA + 三步条）：线上断言 ─────────────────────────────
+// 期望值独立计算：第三步 = 精选顺序里第一个线上 guides 非空的书
+const startSlug = Object.keys(SEED).find((slug) => (bySlug.get(slug)?.guides?.length ?? 0) > 0) ?? Object.keys(SEED)[0];
+const startHref = `/books/${startSlug}/read`;
+
+const snapStart = () => page.evaluate(() => {
+  const dec = (u) => { try { return decodeURIComponent(u); } catch { return u; } };
+  const bx = (el) => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, top: r.top + scrollY }; };
+  const p = document.querySelector('[data-hero-cta="primary"]');
+  const s = document.querySelector('[data-hero-cta="secondary"]');
+  const hint = document.querySelector('[data-hero-hint]');
+  const steps = Array.from(document.querySelectorAll('[data-start] .step'));
+  return {
+    primary: p ? { text: p.textContent.trim(), href: dec(p.getAttribute('href') || ''), ...bx(p) } : null,
+    secondary: s ? { text: s.textContent.trim(), href: dec(s.getAttribute('href') || ''), ...bx(s) } : null,
+    hint: hint ? { href: hint.getAttribute('href') || '', target: !!document.querySelector('#start') } : null,
+    vh: innerHeight,
+    steps: steps.map((el) => ({
+      mark: el.querySelector('.n')?.textContent?.trim() || '',
+      title: el.querySelector('h3')?.textContent?.trim() || '',
+      href: dec(el.querySelector('a')?.getAttribute('href') || ''),
+      ctaH: el.querySelector('a')?.getBoundingClientRect().height ?? 0,
+      ...bx(el),
+    })),
+    overflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  };
+});
+
+await go('/');
+const st = await snapStart();
+ck('线上 首屏主 CTA 已上线', !!st.primary && st.primary.href === '/books', st.primary?.href ?? '未找到 [data-hero-cta=primary]');
+ck('线上 首屏主 CTA 首屏内可见', !!st.primary && st.primary.top < st.vh && st.primary.h >= 48, JSON.stringify(st.primary && [st.primary.top, st.vh, st.primary.h]));
+ck('线上 首屏次 CTA 指向方法页', st.secondary?.href === '/methods', st.secondary?.href ?? '未找到');
+ck('线上 首屏分流提示锚点存在', st.hint?.href === '#start' && st.hint?.target, JSON.stringify(st.hint));
+ck('线上 三步条三步齐全', st.steps.length === 3 && st.steps.every((x) => x.mark && x.title), JSON.stringify(st.steps.map((x) => x.title)));
+ck('线上 三步链接与线上数据一致', st.steps.map((x) => x.href).join(',') === ['/books', '/methods', startHref].join(','), `${st.steps.map((x) => x.href).join(',')} vs /books,/methods,${startHref}`);
+ck('线上 步骤 CTA 触控 ≥44px', st.steps.every((x) => x.ctaH >= 44), JSON.stringify(st.steps.map((x) => x.ctaH)));
+
+await go('/', 375, 780);
+const stm = await snapStart();
+const stacked = stm.steps.length === 3 && stm.steps[0].y < stm.steps[1].y && stm.steps[1].y < stm.steps[2].y;
+ck('线上 375 三步单列排布', stacked, JSON.stringify(stm.steps.map((x) => [x.x, x.y])));
+ck('线上 375 首屏无横向溢出', stm.overflowX <= 1, stm.overflowX);
+
+await go('/en/');
+const ste = await snapStart();
+ck('线上 英文页首屏 CTA 已本地化', !!ste.primary?.text && !/[\u4e00-\u9fff]/.test(ste.primary.text), ste.primary?.text ?? '未找到');
+
 // ── UX-6 / UX-1 关键回归（防新版覆盖旧交付） ────────────────────────────────
 await go('/books/13-%E5%8F%B2%E8%AE%B0/');
 const reg = await page.evaluate(() => {
