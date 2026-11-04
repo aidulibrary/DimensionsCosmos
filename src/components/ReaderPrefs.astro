@@ -1,0 +1,378 @@
+---
+/**
+ * 阅读排版面板（UX-3 / UX-3b）
+ *
+ * 为什么抽成组件：UX-3 的字号 / 行距 / 纸色面板原先只长在原文页
+ * （src/pages/books/[slug]/read.astro）的顶栏里，导读页
+ * （src/pages/read/[slug]/[method].astro）作为同样可选「精读一整篇」的长文页，
+ * 却是硬编码 16px / 1.95 行距、没有任何调节入口 —— 适老改造只覆盖一半页面，
+ * 老花读者读完原文点进导读，字号立刻退回小字，等于白做。
+ *
+ * 三条硬约束（与原文页保持一致，不许各写一套）：
+ * 1. 同一个存储键 `dc:reader:v1`：读者在原文页调成 22px，进导读页必须还是 22px；
+ * 2. 同一组 CSS 变量 `--reader-font` / `--reader-lh` / `data-reader-paper`：
+ *    正文尺寸只由变量决定，与字号解耦滚动比例（UX-2 的进度按 scrollHeight 算）；
+ * 3. 夜间档复用站内 `data-theme="dark"`，不另造第二套暗色 token。
+ *
+ * placement:
+ * - floating：导读页用。页面没有阅读器顶栏，按钮浮在右上、避让顶部导航；
+ * - inline：页面自带工具栏时用（原文页现为内联实现，后续可切到本组件统一）。
+ */
+interface Props {
+  placement?: 'floating' | 'inline';
+  label?: string;
+}
+
+const { placement = 'floating', label = 'Aa' } = Astro.props;
+---
+
+<details class:list={['reader-prefs', `is-${placement}`]} id="readerPrefs">
+  <summary title="阅读设置：字号 / 行距 / 纸色" aria-label="阅读设置">{label}</summary>
+  <div class="rp-panel" role="group" aria-label="阅读设置">
+    <div class="rp-row">
+      <span class="rp-label">字号</span>
+      <div class="rp-seg" id="rpFont" role="group" aria-label="字号">
+        <button type="button" data-font="16" aria-pressed="false">小</button>
+        <button type="button" data-font="18" aria-pressed="false">标准</button>
+        <button type="button" data-font="20" aria-pressed="false">大</button>
+        <button type="button" data-font="22" aria-pressed="false">特大</button>
+        <button type="button" data-font="26" aria-pressed="false">超大</button>
+      </div>
+    </div>
+    <div class="rp-row">
+      <span class="rp-label">行距</span>
+      <div class="rp-seg" id="rpLh" role="group" aria-label="行距">
+        <button type="button" data-lh="1.8" aria-pressed="false">紧凑</button>
+        <button type="button" data-lh="2" aria-pressed="false">标准</button>
+        <button type="button" data-lh="2.2" aria-pressed="false">宽松</button>
+      </div>
+    </div>
+    <div class="rp-row">
+      <span class="rp-label">纸色</span>
+      <div class="rp-seg rp-paper" id="rpPaper" role="group" aria-label="纸色">
+        <button type="button" data-paper="xuan" title="宣纸（默认）" aria-pressed="false"><i class="sw sw-xuan"></i>宣纸</button>
+        <button type="button" data-paper="white" title="纯白" aria-pressed="false"><i class="sw sw-white"></i>纯白</button>
+        <button type="button" data-paper="amber" title="米黄" aria-pressed="false"><i class="sw sw-amber"></i>米黄</button>
+        <button type="button" data-paper="dark" title="夜间" aria-pressed="false"><i class="sw sw-dark"></i>夜间</button>
+      </div>
+    </div>
+    <p class="rp-preview">天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。</p>
+    <p class="rp-tip" id="rpTip">设置只存本机，原文与导读共用。</p>
+  </div>
+</details>
+
+<script is:inline>
+  // 与原文页同一套行为：档位直选（不做 A−/A+ 逐级加减）、同键、同变量。
+  (() => {
+    const FONT_STEPS = [16, 18, 20, 22, 26];
+    const LH_STEPS = [1.8, 2, 2.2];
+    const KEY = 'dc:reader:v1';
+    const paperNames = { xuan: '宣纸', white: '纯白', amber: '米黄', dark: '夜间' };
+    const rootEl = document.documentElement;
+    const panel = document.getElementById('readerPrefs');
+    const tip = document.getElementById('rpTip');
+    const nearest = (n, arr) => arr.reduce((a, b) => (Math.abs(b - n) < Math.abs(a - n) ? b : a), arr[0]);
+
+    const prefs = { font: 20, lh: 2, paper: 'xuan' };
+    try {
+      const raw = localStorage.getItem(KEY);
+      const p = raw ? JSON.parse(raw) : null;
+      if (p && typeof p === 'object') {
+        if (Number(p.font)) prefs.font = nearest(Number(p.font), FONT_STEPS);
+        if (Number(p.lh)) prefs.lh = nearest(Number(p.lh), LH_STEPS);
+        if (paperNames[p.paper]) prefs.paper = p.paper;
+      } else {
+        // 旧键 dc:font（逐像素记忆）迁移到最近档位，老读者不丢设置
+        const legacy = Number(localStorage.getItem('dc:font'));
+        if (legacy) prefs.font = nearest(legacy, FONT_STEPS);
+      }
+    } catch (e) {
+      /* 隐私模式：按默认渲染 */
+    }
+
+    const setTheme = (v) => {
+      // 同值不改写，否则 MutationObserver 会因重复 setAttribute 自激
+      if (rootEl.getAttribute('data-theme') !== v) rootEl.setAttribute('data-theme', v);
+    };
+
+    const syncThemeButton = () => {
+      const btn = document.getElementById('themeToggle');
+      if (!btn) return;
+      const dark = rootEl.getAttribute('data-theme') === 'dark';
+      btn.textContent = dark ? btn.dataset.dayText || '昼' : btn.dataset.nightText || '夜';
+      btn.setAttribute(
+        'aria-label',
+        dark ? btn.dataset.toLight || '切换到日间模式' : btn.dataset.toDark || '切换到夜间模式',
+      );
+    };
+
+    const paintPaper = () => {
+      if (prefs.paper === 'dark') {
+        rootEl.removeAttribute('data-reader-paper');
+        setTheme('dark');
+      } else {
+        rootEl.setAttribute('data-reader-paper', prefs.paper);
+        setTheme('light');
+      }
+    };
+
+    const paint = () => {
+      rootEl.style.setProperty('--reader-font', prefs.font + 'px');
+      rootEl.style.setProperty('--reader-lh', String(prefs.lh));
+      paintPaper();
+      syncThemeButton();
+      document.querySelectorAll('#rpFont button').forEach((b) => {
+        b.setAttribute('aria-pressed', String(Number(b.dataset.font) === prefs.font));
+      });
+      document.querySelectorAll('#rpLh button').forEach((b) => {
+        b.setAttribute('aria-pressed', String(Number(b.dataset.lh) === prefs.lh));
+      });
+      document.querySelectorAll('#rpPaper button').forEach((b) => {
+        b.setAttribute('aria-pressed', String(b.dataset.paper === prefs.paper));
+      });
+      if (tip) {
+        tip.textContent =
+          '当前：字号 ' + prefs.font + 'px · 行距 ' + prefs.lh.toFixed(1) + ' · ' + paperNames[prefs.paper] + '。设置只存本机，原文与导读共用。';
+      }
+      try {
+        localStorage.setItem(KEY, JSON.stringify(prefs));
+        localStorage.setItem('theme', prefs.paper === 'dark' ? 'dark' : 'light');
+      } catch (e) {
+        /* ignore */
+      }
+    };
+
+    const segHandler = (id, apply) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('click', (e) => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        apply(b);
+        paint();
+      });
+    };
+    segHandler('rpFont', (b) => {
+      prefs.font = nearest(Number(b.dataset.font), FONT_STEPS);
+    });
+    segHandler('rpLh', (b) => {
+      prefs.lh = nearest(Number(b.dataset.lh), LH_STEPS);
+    });
+    segHandler('rpPaper', (b) => {
+      prefs.paper = b.dataset.paper || 'xuan';
+    });
+    paint();
+
+    // 顶部昼夜按钮改了主题，纸色档必须跟着改，否则面板亮着「宣纸」而页面是暗的
+    new MutationObserver(() => {
+      const dark = rootEl.getAttribute('data-theme') === 'dark';
+      if (dark !== (prefs.paper === 'dark')) {
+        prefs.paper = dark ? 'dark' : 'xuan';
+        paint();
+      } else {
+        syncThemeButton();
+      }
+    }).observe(rootEl, { attributes: true, attributeFilter: ['data-theme'] });
+
+    // details 原生没有「点外面关闭」，键盘用户还需要 Esc 回焦
+    document.addEventListener('click', (e) => {
+      if (!panel || !panel.open) return;
+      if (!panel.contains(e.target)) panel.open = false;
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && panel && panel.open) {
+        panel.open = false;
+        const s = panel.querySelector('summary');
+        if (s) s.focus();
+      }
+    });
+  })();
+</script>
+
+<style is:global>
+  /* 正文尺寸的唯一来源。导读页正文没有自己的默认值时，
+     20px 即「大」档，与原文页默认档一致——跨页读数不能有落差。 */
+  :root {
+    --reader-font: 20px;
+    --reader-lh: 2;
+  }
+
+  /* 纸色只在日间主题下接管配色：夜间由 global.css 的
+     :root[data-theme="dark"] 承载，两者互不越界（选择器用 [data-theme="light"] 锁死），
+     避免出现「夜间 + 纯白」这种瞎组合。四组正文对比度均 ≥ 10:1（AAA 要求 7:1）。 */
+  :root[data-theme='light'][data-reader-paper='white'] {
+    --paper: #fffdf9;
+    --paper-deep: #f4f1ea;
+    --white: #ffffff;
+    --ink: #22201d;
+    --ink-soft: #5f5a52;
+    --line: #e4ded2;
+    --line-strong: #cfc6b4;
+  }
+  :root[data-theme='light'][data-reader-paper='amber'] {
+    --paper: #f6ecd4;
+    --paper-deep: #efe2c4;
+    --white: #fffdf6;
+    --ink: #2a2620;
+    --ink-soft: #675f50;
+    --line: #ddcfab;
+    --line-strong: #c9b88d;
+  }
+
+  .reader-prefs {
+    position: relative;
+  }
+  /* 导读页没有阅读器顶栏：浮在右上，避让顶部导航（--nav-h）。
+     不压正文——正文容器 max-width 760px 居中，桌面端两侧留白足够。 */
+  .reader-prefs.is-floating {
+    position: fixed;
+    right: clamp(12px, 2.4vw, 26px);
+    top: calc(var(--nav-h, 56px) + 10px);
+    z-index: 66;
+  }
+  .reader-prefs > summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(43, 41, 38, 0.08);
+  }
+  .reader-prefs > summary::-webkit-details-marker {
+    display: none;
+  }
+  .reader-prefs > summary:hover,
+  .reader-prefs[open] > summary {
+    border-color: var(--cinnabar);
+    color: var(--cinnabar);
+  }
+  .rp-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 40;
+    width: min(340px, calc(100vw - 36px));
+    padding: 14px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 14px 34px rgba(43, 41, 38, 0.16);
+    font-family: system-ui, -apple-system, 'PingFang SC', sans-serif;
+  }
+  .rp-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .rp-label {
+    flex: none;
+    width: 32px;
+    padding-top: 9px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .rp-seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+  }
+  .rp-seg button {
+    min-height: 34px;
+    padding: 0 10px;
+    font: inherit;
+    font-size: 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1.2;
+  }
+  .rp-seg button:hover {
+    border-color: var(--line-strong);
+  }
+  .rp-seg button[aria-pressed='true'] {
+    border-color: var(--cinnabar);
+    color: var(--cinnabar);
+    background: color-mix(in srgb, var(--cinnabar) 9%, var(--white));
+    font-weight: 700;
+  }
+  .sw {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--line-strong);
+    display: inline-block;
+    flex: none;
+  }
+  .sw-xuan {
+    background: #f7f2e8;
+  }
+  .sw-white {
+    background: #fffdf9;
+  }
+  .sw-amber {
+    background: #f6ecd4;
+  }
+  .sw-dark {
+    background: #12171a;
+  }
+  .rp-preview {
+    margin: 4px 0 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: var(--paper);
+    border: 1px dashed var(--line);
+    font-family: 'Noto Serif SC', 'Songti SC', serif;
+    font-size: var(--reader-font);
+    line-height: var(--reader-lh);
+    color: var(--ink);
+  }
+  .rp-tip {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 900px) {
+    .reader-prefs > summary,
+    .rp-seg button {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    /* 触屏窄屏：absolute 右对齐会以 Aa 右边界为锚点向左生长，
+       375px 下实测左边界溢出到屏幕外。改为贴底弹层，兼顾单手拇指区。 */
+    .rp-panel {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      top: auto;
+      bottom: 12px;
+      width: auto;
+      max-width: none;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding: 16px;
+      border-radius: 14px;
+      box-shadow: 0 -8px 30px rgba(43, 41, 38, 0.22);
+    }
+    .rp-seg {
+      gap: 8px;
+    }
+  }
+</style>

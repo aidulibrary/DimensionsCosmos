@@ -187,41 +187,47 @@ function notEmpty(v: unknown): boolean {
     font-size: 15px; letter-spacing: 2px; margin: 0 0 8px; color: var(--ink);
     border-left: 3px solid var(--gold); padding-left: 8px;
   }
-  .body-hint { font-size: 12px; color: #8a7a63; margin: 0 0 16px; }
+  .body-hint { font-size: 12px; color: var(--ink-soft); margin: 0 0 16px; }
   .guide-para { margin-bottom: 22px; }
   .guide-para p {
-    font-size: 16px; line-height: 1.95; color: var(--ink);
+    /* UX-3b：精读正文跟随排版面板（--reader-font / --reader-lh）。
+       fallback 保留改动前的 16px/1.95，未挂面板的页面观感不变。 */
+    font-size: var(--reader-font, 16px);
+    line-height: var(--reader-lh, 1.95);
+    color: var(--ink);
     text-align: justify; margin: 0;
   }
   .para-cites {
-    margin-top: 8px; font-size: 12px; color: #8a7a63;
+    /* UX-3b：引证与引证区原为硬编码暖色，夜间/米黄纸下会变成刺眼浅块或低对比；
+       统一改走主题变量，四纸色与夜间自动适配。 */
+    margin-top: 8px; font-size: 12px; color: var(--ink-soft);
     display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
   }
   .para-cites-label { color: var(--gold); letter-spacing: 1px; }
   .para-cites a {
-    color: #9c6b30; text-decoration: none; border-bottom: 1px dotted #cbb08a;
+    color: var(--gold); text-decoration: none; border-bottom: 1px dotted var(--line);
   }
-  .para-cites a:hover { color: #7a4f1f; }
+  .para-cites a:hover { color: var(--ink); }
 
   .guide-citations {
-    border: 1px solid #e0d4bd; border-radius: 10px;
-    background: #fbf7ef; padding: 18px 20px; margin-bottom: 32px;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: var(--white); padding: 18px 20px; margin-bottom: 32px;
   }
   .guide-citations h2 {
     font-size: 15px; letter-spacing: 2px; margin: 0 0 8px; color: var(--ink);
   }
-  .cite-hint { font-size: 12px; color: #8a7a63; margin: 0 0 12px; }
+  .cite-hint { font-size: 12px; color: var(--ink-soft); margin: 0 0 12px; }
   .guide-citations ul { list-style: none; margin: 0; padding: 0; }
   .guide-citations li {
     display: flex; align-items: baseline; gap: 10px;
-    padding: 6px 0; border-top: 1px dashed #e6dccb; font-size: 14px;
+    padding: 6px 0; border-top: 1px dashed var(--line); font-size: 14px;
   }
   .guide-citations li:first-child { border-top: none; }
-  .guide-citations a { color: #9c6b30; text-decoration: none; }
+  .guide-citations a { color: var(--gold); text-decoration: none; }
   .guide-citations a:hover { text-decoration: underline; }
   .guide-citations code {
     font-family: ui-monospace, Menlo, Consolas, monospace;
-    font-size: 11px; color: #a4977f; word-break: break-all;
+    font-size: 11px; color: var(--ink-soft); word-break: break-all;
   }
 
   .guide-footer {

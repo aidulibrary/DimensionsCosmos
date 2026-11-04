@@ -61,24 +61,34 @@ if (isEmpty(value)) return;
     border-bottom: 1px dotted var(--line);
   }
   .field p {
-    font-size: 15.5px; line-height: 1.85; color: var(--ink);
+    /* UX-3b：导读「逻辑结构/比喻/术语」等块同属正文，随排版面板缩放；
+       fallback 保留改动前字号，未挂面板的页面不受影响。 */
+    font-size: var(--reader-font, 15.5px);
+    line-height: var(--reader-lh, 1.85);
+    color: var(--ink);
     white-space: pre-line;
   }
   .field ul {
     list-style: none; padding: 0;
   }
   .field li {
-    padding: 8px 0; font-size: 15px; line-height: 1.75;
+    padding: 8px 0;
+    font-size: calc(var(--reader-font, 15.5px) * 0.95);
+    line-height: var(--reader-lh, 1.85);
     border-bottom: 1px dotted rgba(221,210,189,.5);
   }
   .field li:last-child { border-bottom: none; }
   .field dl { margin: 0; }
   .field dt {
-    font-size: 13px; color: var(--ink-soft);
+    font-size: calc(var(--reader-font, 15.5px) * 0.84);
+    color: var(--ink-soft);
     margin-top: 10px; letter-spacing: 1px;
   }
   .field dd {
-    margin: 0 0 0 12px; font-size: 15px; padding: 4px 0;
+    margin: 0 0 0 12px;
+    font-size: calc(var(--reader-font, 15.5px) * 0.95);
+    line-height: var(--reader-lh, 1.85);
+    padding: 4px 0;
   }
   .field-item { display: block; margin: 4px 0; }
   .field-item em {

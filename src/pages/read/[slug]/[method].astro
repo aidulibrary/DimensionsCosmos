@@ -5,6 +5,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import GuideView from '../../../components/GuideView.astro';
 import PaywallGate from '../../../components/PaywallGate.astro';
 import MethodSelector from '../../../components/MethodSelector.astro';
+import ReaderPrefs from '../../../components/ReaderPrefs.astro';
 import type { BookMeta, Guide } from '../../../lib/data';
 import { getMethodInfo } from '../../../lib/data';
 
@@ -166,6 +167,9 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
       set:html={JSON.stringify({ slug: slug ?? '', method: method ?? '', chapterIds: guideChapterIds })}
     />
     <section class="read-page">
+      {/* 排版入口（UX-3b）：与原文页共用 dc:reader:v1，字号/行距/纸色跨页一致。
+          只在真有导读内容时出现——「尚未上架」页没有正文可调，按钮不该在那撒谎。 */}
+      <ReaderPrefs placement="floating" />
       {/* 续读提示：仅在按本机进度自动定位时出现，3.2 秒后退场 */}
       <div class="guide-resume-tip" id="guideResumeTip" role="status" aria-live="polite" hidden></div>
       <nav class="breadcrumb">
