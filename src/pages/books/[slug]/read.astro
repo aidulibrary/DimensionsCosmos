@@ -242,6 +242,9 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     <!-- 进度条 -->
     <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
 
+    <!-- 续读提示（UX-2）：仅在按本机进度自动定位时出现，3.2 秒后自动退场 -->
+    <div class="resume-tip" id="resumeTip" role="status" aria-live="polite" hidden></div>
+
     <!-- 面包屑 -->
     <nav class="breadcrumb">
       <a href={base}>首页</a> / <a href={`${base}books`}>书库</a> /
@@ -421,9 +424,9 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
         </article>
 
         <nav class="pager">
-          <button id="prevCh" class="pg-btn">← 上一篇</button>
+          <button id="prevCh" class="pg-btn" title="上一篇（← 或 [）">← 上一篇</button>
           <a class="pg-btn back" href={`${base}books/${slug}`}>返回书籍</a>
-          <button id="nextCh" class="pg-btn">下一篇 →</button>
+          <button id="nextCh" class="pg-btn" title="下一篇（→ 或 ]）">下一篇 →</button>
         </nav>
 
         <p class="source-note">
@@ -932,7 +935,12 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
 
   const cache = new Map<number, any>();
 
-  async function go(id: number, push = true, spot: { bi: number; kth: number } | null = null) {
+  async function go(
+    id: number,
+    push = true,
+    spot: { bi: number; kth: number } | null = null,
+    opts: { keepScroll?: boolean } = {},
+  ) {
     const i = idxOf(id);
     if (i < 0) return;
     currentIndex = i;
@@ -966,7 +974,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
         reader.classList.remove('loading');
       }
     }
-    if (!spot) window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!spot && !opts.keepScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
     decorate(id);
     decorateGuides(id);
     syncGuideLinks(id);
@@ -981,6 +989,83 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
       localStorage.setItem('dc:last:' + D.slug, String(id));
       localStorage.setItem('dc:toc-scroll:' + D.slug, String((document.querySelector('.toc') as HTMLElement)?.scrollTop || 0));
     } catch { /* ignore */ }
+    // 换章即落进度：章一变，篇内比例归零；恢复定位（keepScroll）时保留原比例，交给 afterResume 收尾
+    if (!opts.keepScroll) saveProgress({ id, title: String(meta.title || ''), ratio: 0 });
+  }
+
+  // ── 续读进度（UX-2）：章号 + 篇内滚动比例 ──────────────────────
+  // 设计取舍：进度按书分键（dc:progress:<slug>），不做全局单键——112 部书各自都要
+  // 记得住位置，合并成一键等于只记最后一本，等于没记。
+  // 写入分两类：换章即时写（章粒度必须准确，不容节流丢帧），滚动用 rAF 合并写
+  // （一帧最多一次 localStorage 同步 IO，滚动不掉帧）。
+  const PROG_KEY = 'dc:progress:' + D.slug;
+  type Progress = { id: number; title: string; ratio: number; at: number };
+
+  function readProgress(): Progress | null {
+    try {
+      const p = JSON.parse(localStorage.getItem(PROG_KEY) || 'null');
+      if (p && typeof p === 'object' && Number(p.id)) {
+        return {
+          id: Number(p.id),
+          title: String(p.title || ''),
+          ratio: Math.min(1, Math.max(0, Number(p.ratio) || 0)),
+          at: Number(p.at) || 0,
+        };
+      }
+    } catch { /* 隐私模式 / 脏数据：按无进度处理，不阻断阅读 */ }
+    return null;
+  }
+
+  // 恢复定位的那几百毫秒内必须停写：scrollTo 会触发 scroll，否则比例会被自己覆盖成 0
+  let progressMuted = false;
+  function saveProgress(patch: Partial<Progress>) {
+    if (progressMuted) return;
+    const prev = readProgress();
+    const next: Progress = {
+      id: patch.id ?? prev?.id ?? toc[currentIndex]?.id ?? 0,
+      title: patch.title ?? prev?.title ?? String(toc[currentIndex]?.title || ''),
+      ratio: patch.ratio ?? prev?.ratio ?? 0,
+      at: Date.now(),
+    };
+    try {
+      localStorage.setItem(PROG_KEY, JSON.stringify(next));
+      localStorage.setItem('dc:last:' + D.slug, String(next.id)); // 兼容旧键
+    } catch { /* ignore */ }
+  }
+
+  // 篇内比例用「滚动距离 / 可滚动高度」表达，与字号、行距、纸色都解耦
+  const maxScroll = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  const currentRatio = () => (maxScroll() > 0 ? Math.min(1, window.scrollY / maxScroll()) : 0);
+  const ratioToY = (r: number) => Math.round(Math.min(1, Math.max(0, r)) * maxScroll());
+
+  let scrollPending = false;
+  window.addEventListener('scroll', () => {
+    if (scrollPending || progressMuted) return;
+    scrollPending = true;
+    requestAnimationFrame(() => {
+      scrollPending = false;
+      const id = toc[currentIndex]?.id ?? 0;
+      const r = currentRatio();
+      const prev = readProgress();
+      // 停在篇首 3% 以内时不覆盖已有比例：否则误触一次滚动就把位置清成 0
+      if (r < 0.03 && prev && prev.id === id && prev.ratio > 0.05) return;
+      saveProgress({ id, title: String(toc[currentIndex]?.title || ''), ratio: r });
+    });
+  }, { passive: true });
+
+  // 提示条：只在「按进度自动定位」时出现——续读要可感知，否则用户以为页面乱跳
+  const resumeTipEl = document.getElementById('resumeTip');
+  let resumeTipTimer = 0;
+  function showResumeTip(ratio: number) {
+    if (!resumeTipEl) return;
+    resumeTipEl.textContent = `已回到上次读到的位置：第 ${currentIndex + 1} 篇 · 篇内 ${Math.round(ratio * 100)}%`;
+    resumeTipEl.hidden = false;
+    resumeTipEl.classList.add('show');
+    window.clearTimeout(resumeTipTimer);
+    resumeTipTimer = window.setTimeout(() => {
+      resumeTipEl.classList.remove('show');
+      window.setTimeout(() => { resumeTipEl.hidden = true; }, 280);
+    }, 3200);
   }
 
   document.querySelectorAll('.toc-link').forEach((a) => {
@@ -999,9 +1084,18 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   });
 
   document.addEventListener('keydown', (e) => {
-    if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
-    if (e.key === 'ArrowLeft' && currentIndex > 0) go(toc[currentIndex - 1].id);
-    if (e.key === 'ArrowRight' && currentIndex < toc.length - 1) go(toc[currentIndex + 1].id);
+    const t = e.target as HTMLElement | null;
+    if (t?.tagName === 'INPUT' || t?.tagName === 'TEXTAREA' || t?.isContentEditable) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    // 左右方向键与 [ ] 等价：方向键贴合"翻页"直觉，方括号是阅读器通用手感
+    if ((e.key === 'ArrowLeft' || e.key === '[') && currentIndex > 0) {
+      e.preventDefault();
+      go(toc[currentIndex - 1].id);
+    }
+    if ((e.key === 'ArrowRight' || e.key === ']') && currentIndex < toc.length - 1) {
+      e.preventDefault();
+      go(toc[currentIndex + 1].id);
+    }
   });
 
   // ── 阅读排版设置（UX-3）：字号档位 / 行距 / 纸色 ──────────────
@@ -1131,14 +1225,36 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   // 初始：hash 优先（支持稳定引用 #dc:... 与旧式 #ch-<id> 深链），其次上次阅读位置
   const H0 = parseHash();
   const S0 = H0 && H0.bi !== null ? { bi: H0.bi, kth: H0.kth ?? 0 } : null;
+  const P0 = readProgress();
   let target = H0?.id || 0;
   if (!target) {
     try {
       target = Number(localStorage.getItem('dc:last:' + D.slug)) || 0;
     } catch { /* ignore */ }
+    if (!target && P0) target = P0.id; // 旧键缺失时用新进度兜底
   }
-  if (target && (target !== D.first || S0)) go(target, false, S0);
-  else {
+  // 深链语义 vs 续读语义的判定：
+  // go() 每翻一篇都会把 hash 写进 URL，所以「按 F5 / 从地址栏回来」时 URL 天然带 hash，
+  // 简单用「有 hash 就不续读」会让续读在最常见的刷新场景永远失效。
+  // 正确切分：hash 指向的正是进度里那一篇（且无块级锚点）→ 用户就是要回原处，恢复比例；
+  // hash 指向别的篇 / 带块级锚点 → 是真正的深链，深链优先，不恢复比例。
+  const resumeRatio =
+    P0 && P0.id === target && (!H0 || (H0.id === P0.id && !S0)) ? P0.ratio : 0;
+
+  const afterResume = () => {
+    if (resumeRatio <= 0.01) return;
+    progressMuted = true;
+    const y = ratioToY(resumeRatio);
+    if (y > 0) window.scrollTo({ top: y, behavior: 'auto' });
+    showResumeTip(resumeRatio);
+    // 一帧之后再放开写入：scrollTo 产生的 scroll 事件不能把刚恢复的比例写回 0
+    window.setTimeout(() => { progressMuted = false; }, 220);
+  };
+
+  if (target && (target !== D.first || S0)) {
+    const done = go(target, false, S0, { keepScroll: resumeRatio > 0.01 });
+    if (resumeRatio > 0.01) done.then(() => requestAnimationFrame(afterResume));
+  } else {
     setActive(D.first || 0);
     updateNav();
     if (D.first) {
@@ -1153,6 +1269,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
       }, 120);
     }
     renderCnav();
+    if (resumeRatio > 0.01) requestAnimationFrame(afterResume); // 首章已由服务端渲染，无需再拉一次
   }
 
   window.addEventListener('hashchange', () => {
@@ -1676,6 +1793,32 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     /* 进度用星穹蓝，末端留一点红——进度尽头就是个「点」，不铺面 */
     background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 78%, var(--point) 100%);
     transition: width 0.25s ease;
+  }
+
+  /* 续读提示：从顶栏下方滑入，只做「告知位置」一件事，不做二次操作入口 */
+  .resume-tip {
+    position: fixed;
+    top: calc(var(--nav-h, 56px) + 12px);
+    left: 50%;
+    transform: translate(-50%, -10px);
+    z-index: 70;
+    max-width: min(86vw, 420px);
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: var(--accent-deep, #0a3a52);
+    color: #f7f4ec;
+    font-size: 13px;
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+    box-shadow: 0 10px 26px rgba(0, 32, 48, 0.26);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+  }
+  .resume-tip[hidden] { display: none; }
+  .resume-tip.show { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) {
+    .resume-tip { transition: none; }
   }
 
   .breadcrumb {

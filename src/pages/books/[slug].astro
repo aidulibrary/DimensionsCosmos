@@ -29,6 +29,10 @@ try {
 
 const { seed_title: title, author, dynasty, bu, chapters, guides } = book;
 const guideList = guides as Guide[] ?? [];
+// 续读入口（UX-2）：只把章 id 序列下发，序号靠它算；标题由本机进度里存的字符串带出，
+// 避免为了一句文案把 130 章标题整份塞进详情页 HTML。
+const chapterIds = (chapters ?? []).map((c) => c.id);
+const firstChapterId = chapterIds[0] ?? 0;
 ---
 
 <BaseLayout title={`${title} · 维点图书馆`} description={`${author}《${title}》— 可用 ${guideList.length} 种大师视角解读`}>
@@ -69,8 +73,9 @@ const guideList = guides as Guide[] ?? [];
 
       {book.readable ? (
         <div class="read-cta">
-          <a class="btn-read" href={`${base}books/${slug}/read`}>开始阅读原文 →</a>
-          <span class="read-hint">可切换目录、记忆上次读到的位置</span>
+          <a class="btn-read" id="btnRead" data-slug={slug} href={`${base}books/${slug}/read`}>开始阅读原文 →</a>
+          <span class="read-hint" id="readHint">可切换目录、记忆上次读到的位置</span>
+          <a class="read-restart" id="readRestart" href={`${base}books/${slug}/read#ch-${firstChapterId}`} hidden>从头开始读 →</a>
         </div>
       ) : (
         <p class="read-blocked">
@@ -103,6 +108,43 @@ const guideList = guides as Guide[] ?? [];
     />
   </section>
 </BaseLayout>
+
+{book.readable && (
+  <>
+    <script type="application/json" id="book-chapters" set:html={JSON.stringify(chapterIds)} />
+    <script is:inline>
+      // 续读入口（UX-2）：详情页是本机进书的默认落点，按钮文案必须回答「上次读到哪」，
+      // 否则用户只能点进去再自己找回位置——这正是 I2 深度用户流失的那一步。
+      (() => {
+        const idsEl = document.getElementById('book-chapters');
+        const btn = document.getElementById('btnRead');
+        if (!idsEl || !btn) return;
+        const hint = document.getElementById('readHint');
+        const restart = document.getElementById('readRestart');
+        let ids = [];
+        try { ids = JSON.parse(idsEl.textContent || '[]'); } catch { return; }
+        let p = null;
+        try { p = JSON.parse(localStorage.getItem('dc:progress:' + (btn.dataset.slug || '')) || 'null'); } catch { return; }
+        if (!p || !Number(p.id)) return;
+        const idx = ids.indexOf(Number(p.id));
+        const pct = Math.round((Number(p.ratio) || 0) * 100);
+        // 刚开篇（第 1 篇且篇内 <3%）不算「读到过」，别拿它冒充续读
+        if (idx === 0 && pct < 3) return;
+        if (idx >= 0) btn.textContent = '继续阅读 · 第 ' + (idx + 1) + ' 篇 →';
+        else btn.textContent = '继续阅读 →';
+        if (hint) {
+          const t = String(p.title || '').split('/').pop();
+          hint.textContent = [
+            t ? '上次读到《' + t + '》' : '',
+            pct > 0 ? '篇内 ' + pct + '%' : '',
+            '点开直接回到原处',
+          ].filter(Boolean).join(' · ');
+        }
+        if (restart) restart.hidden = false;
+      })();
+    </script>
+  </>
+)}
 
 <style>
   section { padding: 50px 6vw 70px; max-width: 960px; margin: 0 auto; }
@@ -147,6 +189,13 @@ const guideList = guides as Guide[] ?? [];
   }
   .btn-read:hover { background: var(--white); color: var(--accent-deep); transform: translateY(-1px); }
   .read-hint { font-size: 12px; color: var(--brand-on-sky-soft); }
+  /* 续读存在时才出现的次要出口：不抢主按钮，但要让「想重读」的人一眼看到 */
+  .read-restart {
+    font-size: 12.5px; color: var(--brand-on-sky-soft); text-decoration: underline;
+    text-underline-offset: 3px; padding: 6px 4px; border-radius: 6px;
+  }
+  .read-restart:hover { color: var(--brand-on-sky); }
+  .read-restart[hidden] { display: none; }
 
   .read-blocked {
     margin: 20px auto 0; max-width: 620px; font-size: 13.5px; line-height: 1.8;
