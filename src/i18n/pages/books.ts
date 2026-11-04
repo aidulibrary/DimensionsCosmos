@@ -25,6 +25,18 @@ export interface BooksDict {
   countShort: (n: number) => string;
   /** 客户端脚本重算计数时用：数量 + 搜索词 */
   countQ: (n: number, q: string) => string;
+  /** 二期筛选：朝代行的“全部朝代”标签 */
+  dynAll: string;
+  /** 二期筛选：朝代按频次收口后，其余归入此标签 */
+  dynOther: string;
+  /** 二期筛选：排序行标题（屏幕阅读器用） */
+  sortLabel: string;
+  /** 二期筛选：排序项 —— 书目序（默认） */
+  sortDefault: string;
+  /** 二期筛选：排序项 —— 章数降序 */
+  sortChapters: string;
+  /** 二期筛选：排序项 —— 字数降序 */
+  sortChars: string;
 }
 
 export const booksDict: Record<Locale, BooksDict> = {
@@ -41,6 +53,12 @@ export const booksDict: Record<Locale, BooksDict> = {
     emptyShort: '换个分类或关键词再试。',
     countShort: (n) => `${n} 部书`,
     countQ: (n, q) => `${n} 部书匹配「${q}」`,
+    dynAll: '全部朝代',
+    dynOther: '其他',
+    sortLabel: '排序',
+    sortDefault: '书目序',
+    sortChapters: '章数',
+    sortChars: '字数',
   },
 
   'zh-TW': {
@@ -56,6 +74,12 @@ export const booksDict: Record<Locale, BooksDict> = {
     emptyShort: '換個分類或關鍵詞再試。',
     countShort: (n) => `${n} 部書`,
     countQ: (n, q) => `${n} 部書符合「${q}」`,
+    dynAll: '全部朝代',
+    dynOther: '其他',
+    sortLabel: '排序',
+    sortDefault: '書目序',
+    sortChapters: '章數',
+    sortChars: '字數',
   },
 
   en: {
@@ -71,6 +95,12 @@ export const booksDict: Record<Locale, BooksDict> = {
     emptyShort: 'Try another category or keyword.',
     countShort: (n) => `${n} ${n === 1 ? 'book' : 'books'}`,
     countQ: (n, q) => `${n} ${n === 1 ? 'book' : 'books'} matching “${q}”`,
+    dynAll: 'All eras',
+    dynOther: 'Other',
+    sortLabel: 'Sort',
+    sortDefault: 'Catalogue',
+    sortChapters: 'Chapters',
+    sortChars: 'Length',
   },
 
   es: {
@@ -86,5 +116,11 @@ export const booksDict: Record<Locale, BooksDict> = {
     emptyShort: 'Prueba otra categoría u otra palabra clave.',
     countShort: (n) => `${n} ${n === 1 ? 'libro' : 'libros'}`,
     countQ: (n, q) => `${n} ${n === 1 ? 'libro' : 'libros'} que coinciden con «${q}»`,
+    dynAll: 'Todas las épocas',
+    dynOther: 'Otras',
+    sortLabel: 'Ordenar',
+    sortDefault: 'Catálogo',
+    sortChapters: 'Capítulos',
+    sortChars: 'Extensión',
   },
 };

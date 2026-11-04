@@ -22,6 +22,9 @@ const cardHref = minimal ? '#' : i18nHref(lang, `/books/${book.slug}`);
 <div
   class="book-card"
   data-bu={book.bu}
+  data-dyn={book.dynasty ?? ''}
+  data-chars={book.total_chars ?? 0}
+  data-chapters={book.chapter_count ?? 0}
   data-search={[book.seed_title, book.author, book.dynasty, dynastyLabel, book.bu, buLabel].filter(Boolean).join(' ')}
 >
   <a href={cardHref} class="card-link">

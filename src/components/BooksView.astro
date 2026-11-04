@@ -40,6 +40,28 @@ const books = (indexData?.works ?? []).filter((w) => w.ok);
 const buSet = [...new Set((indexData?.works ?? []).map((w) => w.bu).filter(Boolean))].sort();
 const buLabel = (b: string) => bd.bu[b] ?? b;
 
+/* 二期筛选·朝代：按实际分布取频次 ≥3 的朝代单独成 chip（频次降序），
+   长尾朝代合并为「其他」一项，避免 20+ 个朝代把筛选行撑爆。 */
+const dynCount = new Map<string, number>();
+for (const w of indexData?.works ?? []) {
+  if (w.dynasty) dynCount.set(w.dynasty, (dynCount.get(w.dynasty) ?? 0) + 1);
+}
+const DYN_MIN = 3;
+const dynTop = [...dynCount.entries()]
+  .filter(([, n]) => n >= DYN_MIN)
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'zh'))
+  .map(([d]) => d);
+const dynRest = [...dynCount.keys()].filter((d) => !dynTop.includes(d)).sort((a, b) => a.localeCompare(b, 'zh'));
+const dynLabel = (d: string) => bd.dynasty[d] ?? d;
+const dynRestKey = dynRest.join(',');
+
+/* 二期筛选·排序：空串=书目序（构建序），其余为数值降序 */
+const sortSet = [
+  { key: '', label: bl.sortDefault },
+  { key: 'chapters', label: bl.sortChapters },
+  { key: 'chars', label: bl.sortChars },
+];
+
 /* 客户端重算计数用的模板：把 0 换成 {n} 占位，脚本里 replace 回去 */
 const countTpl = bl.countShort(0).replace('0', '{n}');
 const countQTpl = bl.countQ(0, '{q}').replace('0', '{n}');
@@ -73,11 +95,35 @@ const titleTpl = bl.title('{q}');
     </form>
 
     <!-- 分类过滤：href 保留为无 JS 降级，点击时由脚本就地过滤 -->
-    <div class="filters">
+    <div class="filters" role="group" aria-label={bd.all}>
       <a href={booksHref} class="filter-chip active" data-bu="" aria-pressed="true">{bd.all}</a>
       {buSet.map((b) => (
         <a href={`${booksHref}?bu=${encodeURIComponent(b)}`}
            class="filter-chip" data-bu={b} aria-pressed="false">{buLabel(b)}</a>
+      ))}
+    </div>
+
+    <!-- 二期：朝代行（分面筛选，与部类、关键词叠加） -->
+    {dynTop.length > 0 && (
+      <div class="filters filters-sub" role="group" aria-label={bl.dynAll}>
+        <a href={booksHref} class="filter-chip active" data-dyn="" aria-pressed="true">{bl.dynAll}</a>
+        {dynTop.map((d) => (
+          <a href={`${booksHref}?dyn=${encodeURIComponent(d)}`}
+             class="filter-chip" data-dyn={d} aria-pressed="false">{dynLabel(d)}</a>
+        ))}
+        {dynRest.length > 0 && (
+          <a href={`${booksHref}?dyn=${encodeURIComponent(dynRestKey)}`}
+             class="filter-chip" data-dyn={dynRestKey} aria-pressed="false">{bl.dynOther}</a>
+        )}
+      </div>
+    )}
+
+    <!-- 二期：排序行（单选，数值降序） -->
+    <div class="filters filters-sub sort-row" role="group" aria-label={bl.sortLabel}>
+      {sortSet.map((o) => (
+        <a href={`${booksHref}${o.key ? `?sort=${o.key}` : ''}`}
+           class={`filter-chip${o.key ? '' : ' active'}`} data-sort={o.key}
+           aria-pressed={o.key ? 'false' : 'true'}>{o.label}</a>
       ))}
     </div>
 
@@ -115,8 +161,13 @@ const titleTpl = bl.title('{q}');
       if (!input || !grid || !form) return;
 
       var cards = Array.prototype.slice.call(grid.querySelectorAll('.book-card')) as HTMLElement[];
-      var chips = Array.prototype.slice.call(document.querySelectorAll('.filter-chip')) as HTMLAnchorElement[];
-      var state = { q: '', bu: '' };
+      var buChips = Array.prototype.slice.call(document.querySelectorAll('.filter-chip[data-bu]')) as HTMLAnchorElement[];
+      var dynChips = Array.prototype.slice.call(document.querySelectorAll('.filter-chip[data-dyn]')) as HTMLAnchorElement[];
+      var sortChips = Array.prototype.slice.call(document.querySelectorAll('.filter-chip[data-sort]')) as HTMLAnchorElement[];
+      var filtersRows = Array.prototype.slice.call(document.querySelectorAll('.filters')) as HTMLElement[];
+      /* 书目序快照：排序切回默认时按构建序还原，不依赖二次排序的稳定性 */
+      var baseOrder = cards.slice();
+      var state = { q: '', bu: '', dyn: '', sort: '' };
       var composing = false;
 
       /* 归一化：全角转半角、空白合并、大小写统一，简繁与输入法差异交给数据侧 */
@@ -138,6 +189,9 @@ const titleTpl = bl.title('{q}');
         var sp = new URLSearchParams(location.search);
         state.q = sp.get('q') || '';
         state.bu = sp.get('bu') || '';
+        state.dyn = sp.get('dyn') || '';
+        var st = sp.get('sort') || '';
+        state.sort = st === 'chapters' || st === 'chars' ? st : '';
         input!.value = state.q;
       }
 
@@ -145,7 +199,31 @@ const titleTpl = bl.title('{q}');
         var u = new URL(location.href);
         if (state.q) u.searchParams.set('q', state.q); else u.searchParams.delete('q');
         if (state.bu) u.searchParams.set('bu', state.bu); else u.searchParams.delete('bu');
+        if (state.dyn) u.searchParams.set('dyn', state.dyn); else u.searchParams.delete('dyn');
+        if (state.sort) u.searchParams.set('sort', state.sort); else u.searchParams.delete('sort');
         history.replaceState(null, '', u.pathname + u.search + u.hash);
+      }
+
+      /* 排序：数值降序，同值保持书目序；空串恢复构建序 */
+      function applySort() {
+        var key = state.sort;
+        var seq = key ? cards.slice().sort(function (a, b) {
+          var va = parseInt((key === 'chapters' ? a.dataset.chapters : a.dataset.chars) || '0', 10);
+          var vb = parseInt((key === 'chapters' ? b.dataset.chapters : b.dataset.chars) || '0', 10);
+          if (vb !== va) return vb - va;
+          return baseOrder.indexOf(a) - baseOrder.indexOf(b);
+        }) : baseOrder;
+        var frag = document.createDocumentFragment();
+        seq.forEach(function (c) { frag.appendChild(c); });
+        grid!.appendChild(frag);
+      }
+
+      /* 朝代 chip 可能承载多个长尾朝代（逗号分隔），按包含关系命中 */
+      function hitDyn(c: HTMLElement): boolean {
+        if (!state.dyn) return true;
+        var own = c.dataset.dyn || '';
+        if (!own) return false;
+        return state.dyn.split(',').indexOf(own) > -1;
       }
 
       function miss(q: string) {
@@ -165,26 +243,42 @@ const titleTpl = bl.title('{q}');
         var shown = 0;
         cards.forEach(function (c) {
           var okBu = !state.bu || c.dataset.bu === state.bu;
+          var okDyn = hitDyn(c);
           var okQ = !q || cardText(c).indexOf(q) > -1;
-          var on = okBu && okQ;
+          var on = okBu && okDyn && okQ;
           c.hidden = !on;
           if (on) shown += 1;
         });
 
-        chips.forEach(function (a) {
-          var on = (a.dataset.bu || '') === state.bu;
-          a.classList.toggle('active', on);
-          a.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
+        /* 分面高亮：部类 / 朝代 / 排序各自单选，参数为空时第一项（全部）点亮 */
+        var mark = function (list: HTMLAnchorElement[], key: string, cur: string) {
+          list.forEach(function (a) {
+            var on = (a.dataset[key] || '') === cur;
+            a.classList.toggle('active', on);
+            a.setAttribute('aria-pressed', on ? 'true' : 'false');
+          });
+        };
+        mark(buChips, 'bu', state.bu);
+        mark(dynChips, 'dyn', state.dyn);
+        mark(sortChips, 'sort', state.sort);
+
+        applySort(); /* 空 sort 时回落到书目序快照，保证切回默认可完全还原 */
 
         if (rc) {
           var tpl = q ? grid!.dataset.countqTpl || '' : grid!.dataset.countTpl || '';
-          var buTxt = state.bu ? (chips.filter(function (a) { return a.dataset.bu === state.bu; })[0] || {} as any).textContent || '' : '';
+          var pickTxt = function (list: HTMLAnchorElement[], key: string, cur: string) {
+            if (!cur) return '';
+            var hit = list.filter(function (a) { return (a.dataset[key] || '') === cur; })[0];
+            return hit ? String(hit.textContent || '').trim() : '';
+          };
+          var facets = [pickTxt(buChips, 'bu', state.bu), pickTxt(dynChips, 'dyn', state.dyn)].filter(Boolean);
+          /* 计数文案 = i18n 基础模板 + 当前分面标签，避免每种语言各维护一套带分面的模板 */
           rc.textContent = tpl
             .replace('{n}', String(shown))
             .replace('{q}', state.q)
-            .replace('{bu}', (buTxt || '').trim())
-            .replace(/\s+·\s*$/, '');
+            .replace('{bu}', '')
+            .replace(/\s+·\s*$/, '')
+            .trim() + (facets.length ? ' · ' + facets.join(' · ') : '');
         }
 
         if (emptyBox) emptyBox.hidden = shown !== 0;
@@ -222,14 +316,20 @@ const titleTpl = bl.title('{q}');
         commit(true);
       });
 
-      chips.forEach(function (a) {
-        a.addEventListener('click', function (e) {
-          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; // 新标签页照常打开
-          e.preventDefault();
-          state.bu = a.dataset.bu || '';
-          commit(false);
+      function bindChips(list: HTMLAnchorElement[], key: 'bu' | 'dyn' | 'sort') {
+        list.forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; // 新标签页照常打开
+            e.preventDefault();
+            var v = a.dataset[key] || '';
+            state[key] = v;
+            commit(key === 'sort' ? false : true);
+          });
         });
-      });
+      }
+      bindChips(buChips, 'bu');
+      bindChips(dynChips, 'dyn');
+      bindChips(sortChips, 'sort');
 
       if (clearBtn) {
         clearBtn.addEventListener('click', function () {
@@ -247,25 +347,28 @@ const titleTpl = bl.title('{q}');
 
       apply(true);
 
-      /* 筛选行横滚渐隐：仅窄屏、且确实溢出时出现；滚到哪端，哪端的渐隐就收掉 */
-      var filters = document.querySelector('.filters') as HTMLElement | null;
-      if (filters) {
-        var syncFade = function () {
-          var max = filters.scrollWidth - filters.clientWidth;
-          var scrollable = max > 2;
-          filters.classList.toggle('is-scrollable', scrollable);
-          filters.classList.toggle('fade-l', scrollable && filters.scrollLeft > 2);
-          filters.classList.toggle('fade-r', scrollable && filters.scrollLeft < max - 2);
-        };
-        filters.addEventListener('scroll', syncFade, { passive: true });
-        window.addEventListener('resize', syncFade);
-        syncFade();
-        chips.forEach(function (a) {
-          a.addEventListener('click', function () {
-            if (a.scrollIntoView) a.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-          });
+      /* 筛选行横滚渐隐：三行（部类/朝代/排序）各自独立判定；
+         仅窄屏、且该行确实溢出时出现，滚到哪端哪端收掉渐隐 */
+      var syncFade = function (row: HTMLElement) {
+        var max = row.scrollWidth - row.clientWidth;
+        var scrollable = max > 2;
+        row.classList.toggle('is-scrollable', scrollable);
+        row.classList.toggle('fade-l', scrollable && row.scrollLeft > 2);
+        row.classList.toggle('fade-r', scrollable && row.scrollLeft < max - 2);
+      };
+      filtersRows.forEach(function (row) {
+        row.addEventListener('scroll', function () { syncFade(row); }, { passive: true });
+        syncFade(row);
+      });
+      window.addEventListener('resize', function () {
+        filtersRows.forEach(syncFade);
+      });
+      var chipList = buChips.concat(dynChips, sortChips);
+      chipList.forEach(function (a) {
+        a.addEventListener('click', function () {
+          if (a.scrollIntoView) a.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         });
-      }
+      });
     })();
   </script>
 </BaseLayout>
@@ -302,6 +405,10 @@ const titleTpl = bl.title('{q}');
   }
 
   .filters { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  /* 二期筛选行：朝代行与排序行比部类行轻一档，避免三行等重造成视觉噪音 */
+  .filters-sub { margin-top: -10px; margin-bottom: 14px; }
+  .filters-sub .filter-chip { min-height: 30px; font-size: 13px; padding: 4px 12px; }
+  .sort-row { margin-bottom: 20px; }
   .filter-chip {
     display: inline-flex; align-items: center; justify-content: center;
     min-height: 36px; font-size: 14px; text-decoration: none; color: var(--ink-soft);
@@ -349,11 +456,15 @@ const titleTpl = bl.title('{q}');
     .filters.fade-l { --fade-l: 22px; }
     .filters.fade-r { --fade-r: 22px; }
     .filter-chip { box-sizing: border-box; height: 44px; min-height: 44px; min-width: 44px; padding: 0 18px; flex: 0 0 auto; scroll-snap-align: start; }
+    /* 二期：朝代行/排序行在窄屏同样保持 44px 触控目标，不被“轻一档”样式压小 */
+    .filters-sub { margin-top: 0; }
+    .filters-sub .filter-chip { box-sizing: border-box; height: 44px; min-height: 44px; min-width: 44px; padding: 0 14px; }
   }
 
   /* 触控设备（触屏笔电/平板）不受视口宽度限制，一律保持 44px 触控目标 */
   @media (pointer: coarse) {
     .filter-chip { box-sizing: border-box; height: 44px; min-height: 44px; min-width: 44px; padding: 0 18px; }
+    .filters-sub .filter-chip { box-sizing: border-box; height: 44px; min-height: 44px; min-width: 44px; padding: 0 14px; }
   }
 
   /* 卡片密度：窄屏统一单列并收紧间距；上限由 480 收拢到 600，
