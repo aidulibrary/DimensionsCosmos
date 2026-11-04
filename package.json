@@ -19,7 +19,8 @@
     "citations:verify": "python scripts/migrate_citations.py --verify",
     "guides:cited": "python pipeline/gen_guides_cited.py",
     "guides:dry": "python pipeline/gen_guides_cited.py --work-id 1 --method zhuxi --dry-run",
-    "check:i18n": "node scripts/check-i18n-coverage.mjs"
+    "check:i18n": "node scripts/check-i18n-coverage.mjs",
+    "test:ux4": "node scripts/verify-ux4.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -27,5 +28,8 @@
   "dependencies": {
     "astro": "^7.3.3",
     "typescript": "^7.0.2"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
   }
 }

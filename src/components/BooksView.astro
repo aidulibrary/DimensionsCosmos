@@ -338,18 +338,27 @@ const titleTpl = bl.title('{q}');
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       padding: 2px 2px 6px;
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    /* 渐隐仅在可横滚时挂载：非溢出区间（如 481–560px）不再残留 mask，杜绝"假渐隐" */
+    .filters.is-scrollable {
       --fade-l: 0px; --fade-r: 0px;
       -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
       mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
     }
-    .filters::-webkit-scrollbar { display: none; }
     .filters.fade-l { --fade-l: 22px; }
     .filters.fade-r { --fade-r: 22px; }
     .filter-chip { box-sizing: border-box; height: 44px; min-height: 44px; min-width: 44px; padding: 0 18px; flex: 0 0 auto; scroll-snap-align: start; }
   }
 
-  /* 卡片密度：窄屏收紧书卡内边距与网格间距 */
-  @media (max-width: 480px) {
+  /* 触控设备（触屏笔电/平板）不受视口宽度限制，一律保持 44px 触控目标 */
+  @media (pointer: coarse) {
+    .filter-chip { box-sizing: border-box; height: 44px; min-height: 44px; min-width: 44px; padding: 0 18px; }
+  }
+
+  /* 卡片密度：窄屏统一单列并收紧间距；上限由 480 收拢到 600，
+     避免 540–600 区间出现双列但卡宽不足 200px 的挤压态 */
+  @media (max-width: 600px) {
     .book-grid { gap: 12px; grid-template-columns: 1fr; }
   }
 </style>
