@@ -1,0 +1,4 @@
+﻿# 双端协作约定（见 docs/COLLAB-*.md）
+# 协作文档为追加式留言日志：双端同时追加时取并集合并，避免 push 被拒后的手工解冲突
+docs/COLLAB-*.md merge=union
+docs/COLLAB-*.md text eol=lf
