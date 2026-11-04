@@ -1,5 +1,5 @@
 {
- "at": "2026-11-01T18:36:16",
+ "at": "2026-11-04T15:26:18",
  "rules": {
   "min_paras": 5,
   "min_chars": 1000,
@@ -9,28 +9,15 @@
   {
    "work_id": 33,
    "method_id": "ibn_khaldun",
-   "pass": false,
-   "errors": [
-    "第1段：论述仅 92 字 < 120",
-    "第2段：论述仅 68 字 < 120",
-    "第3段：论述仅 101 字 < 120",
-    "段落数 3 < 5",
-    "正文 261 字 < 1000"
-   ],
-   "warnings": [
-    "所有引证都落在各章首块 b001，块位过于单一"
-   ]
+   "pass": true,
+   "errors": [],
+   "warnings": []
   },
   {
    "work_id": 23,
    "method_id": "arendt",
-   "pass": false,
-   "errors": [
-    "第3段：论述仅 102 字 < 120",
-    "段落数 3 < 5",
-    "正文 348 字 < 1000",
-    "出现占位符：['材料1']"
-   ],
+   "pass": true,
+   "errors": [],
    "warnings": [
     "所有引证都落在各章首块 b001，块位过于单一"
    ]
@@ -38,86 +25,53 @@
   {
    "work_id": 23,
    "method_id": "ibn_khaldun",
-   "pass": false,
-   "errors": [
-    "第1段：论述仅 61 字 < 120",
-    "第2段：论述仅 82 字 < 120",
-    "段落数 2 < 5",
-    "正文 143 字 < 1000"
-   ],
+   "pass": true,
+   "errors": [],
    "warnings": [
-    "只跨 2 章（建议 ≥3）",
     "所有引证都落在各章首块 b001，块位过于单一"
    ]
   },
   {
    "work_id": 1,
    "method_id": "adler",
-   "pass": false,
-   "errors": [
-    "段落数 3 < 5",
-    "正文 467 字 < 1000"
-   ],
-   "warnings": [
-    "所有引证都落在各章首块 b001，块位过于单一"
-   ]
+   "pass": true,
+   "errors": [],
+   "warnings": []
   },
   {
    "work_id": 1,
    "method_id": "feynman",
-   "pass": false,
-   "errors": [
-    "段落数 3 < 5",
-    "正文 552 字 < 1000"
-   ],
-   "warnings": [
-    "所有引证都落在各章首块 b001，块位过于单一"
-   ]
+   "pass": true,
+   "errors": [],
+   "warnings": []
   },
   {
    "work_id": 1,
    "method_id": "qianzhongshu",
-   "pass": false,
-   "errors": [
-    "第1段：论述仅 86 字 < 120",
-    "第2段：论述仅 101 字 < 120",
-    "第3段：论述仅 84 字 < 120",
-    "段落数 3 < 5",
-    "正文 271 字 < 1000"
-   ],
-   "warnings": [
-    "所有引证都落在各章首块 b001，块位过于单一"
-   ]
+   "pass": true,
+   "errors": [],
+   "warnings": []
+  },
+  {
+   "work_id": 1,
+   "method_id": "socratic",
+   "pass": true,
+   "errors": [],
+   "warnings": []
   },
   {
    "work_id": 1,
    "method_id": "sushi",
-   "pass": false,
-   "errors": [
-    "第1段：论述仅 67 字 < 120",
-    "第2段：论述仅 59 字 < 120",
-    "第3段：论述仅 33 字 < 120",
-    "段落数 3 < 5",
-    "正文 159 字 < 1000"
-   ],
-   "warnings": [
-    "所有引证都落在各章首块 b001，块位过于单一"
-   ]
+   "pass": true,
+   "errors": [],
+   "warnings": []
   },
   {
    "work_id": 1,
    "method_id": "wangyangming",
-   "pass": false,
-   "errors": [
-    "第1段：论述仅 75 字 < 120",
-    "第2段：论述仅 90 字 < 120",
-    "第3段：论述仅 72 字 < 120",
-    "段落数 3 < 5",
-    "正文 237 字 < 1000"
-   ],
-   "warnings": [
-    "所有引证都落在各章首块 b001，块位过于单一"
-   ]
+   "pass": true,
+   "errors": [],
+   "warnings": []
   },
   {
    "work_id": 1,
@@ -132,44 +86,25 @@
   {
    "work_id": 32,
    "method_id": "arendt",
-   "pass": false,
-   "errors": [
-    "第1段：论述仅 64 字 < 120",
-    "第2段：论述仅 94 字 < 120",
-    "第3段：论述仅 95 字 < 120",
-    "段落数 3 < 5",
-    "正文 253 字 < 1000",
-    "出现占位符：['材料2']"
-   ],
+   "pass": true,
+   "errors": [],
    "warnings": []
   },
   {
    "work_id": 32,
    "method_id": "ibn_khaldun",
-   "pass": false,
-   "errors": [
-    "第1段：论述仅 63 字 < 120",
-    "第2段：论述仅 66 字 < 120",
-    "第3段：论述仅 52 字 < 120",
-    "段落数 3 < 5",
-    "正文 181 字 < 1000"
-   ],
+   "pass": true,
+   "errors": [],
    "warnings": []
   },
   {
    "work_id": 32,
    "method_id": "socratic",
-   "pass": false,
-   "errors": [
-    "第1段：论述仅 96 字 < 120",
-    "第2段：论述仅 64 字 < 120",
-    "第3段：论述仅 75 字 < 120",
-    "段落数 3 < 5",
-    "正文 235 字 < 1000"
-   ],
+   "pass": true,
+   "errors": [],
    "warnings": []
   }
  ],
- "passed": 1,
- "total": 12
+ "passed": 13,
+ "total": 13
 }

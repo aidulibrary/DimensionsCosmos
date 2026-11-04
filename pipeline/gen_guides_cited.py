@@ -539,8 +539,65 @@ def backup_existing(conn, work_id, method_id):
     return path
 
 
-def write_segment(method, work, block, max_tokens=900, min_chars=MIN_BODY_CHARS):
-    """v1.1 分段生成：一次只让模型写一段，避免整篇 JSON 压垮小模型导致偷工减料。"""
+# v1.2 去模板化：每段指定一种不同的切入方式，并禁止复用已用过的开场与比喻
+OPENERS = [
+    "从关键字训释切入：先辨一个字眼的确切义界，再由此展开",
+    "从具体的当代处境切入：先摆一个今天读者真会遇上的场面，再收回原文",
+    "从常见误读切入：先说一般人容易怎样理解（不点名任何注家），再翻过一层",
+    "从一组对照或张力切入：把两个相反而并存的词并置，讲出它们为何互相成立",
+    "从全书脉络的呼应切入：指出这一处与前文何处互相牵动，讲出推进之处",
+    "从一句设问切入：第三人称或无人称发问，随即自答",
+]
+
+_METAPHOR_RE = re.compile(r"(?:像|好比|如同|犹如|就像|仿佛|无异于|恰似)([^，。；、！？\s]{2,7})")
+_SIMILE_WORDS = ("就像", "如同", "仿佛", "犹如", "恰似", "好比", "无异于", "像是")
+_LIFE_METAPHOR_HINTS = ("厨房", "灶", "锅", "煮", "烹", "吃饭", "做饭", "烧", "水壶", "刀子", "锄头")
+
+
+def _simile_count(text: str) -> int:
+    """v1.3：统计明喻标记词出现次数，用于全篇明喻配额（上限 2 处）。"""
+    t = text or ""
+    return sum(t.count(w) for w in _SIMILE_WORDS)
+
+
+def _opening_sig(text: str) -> str:
+    """取段首 8 字的归一化签名，用于识别「同一句式开场」。"""
+    t = re.sub(r"^[「『“\"].*?[」』”\"]", "", text or "")
+    t = re.sub(r"[^\u4e00-\u9fff]", "", t)
+    return t[:8]
+
+
+def _metaphor_terms(text: str) -> list:
+    return [m.group(1) for m in _METAPHOR_RE.finditer(text or "")]
+
+
+def _uses_life_metaphor(text: str) -> bool:
+    t = text or ""
+    return any(h in t for h in _LIFE_METAPHOR_HINTS) or bool(_metaphor_terms(t))
+
+
+def write_segment(method, work, block, max_tokens=900, min_chars=MIN_BODY_CHARS,
+                  prior=None, opener=""):
+    """v1.1 分段生成：一次只让模型写一段，避免整篇 JSON 压垮小模型导致偷工减料。
+    v1.2：传入 prior（已写段落）与本段指定的切入方式 opener，强制去模板化。"""
+    prior = prior or []
+    avoids = []
+    used_terms = []
+    for i, p in enumerate(prior, 1):
+        sig = _opening_sig(p)
+        terms = _metaphor_terms(p)
+        used_terms += terms
+        avoids.append(f"- 第{i}段开头是「{sig}…」" + (f"，用过的比喻：{'、'.join(terms)}" if terms else ""))
+    avoid_block = "\n".join(avoids) if avoids else "- （这是第一段，没有前文）"
+    allow_metaphor = "不可以用生活现象打比方" if any(_uses_life_metaphor(p) for p in prior) else "如有必要最多用一处生活现象打比方"
+    used_similes = sum(_simile_count(p) for p in prior)
+    if used_similes >= 2:
+        simile_rule = (f"本篇已出现 {used_similes} 处明喻，已达全篇上限，本段一个都不许再用"
+                       f"（不得出现「就像/如同/仿佛/犹如/恰似/好比/无异于」），一律改成直陈判断")
+    elif used_similes == 1:
+        simile_rule = "本篇已出现 1 处明喻，本段最多只能再用 1 处，且不得与前文同一喻体"
+    else:
+        simile_rule = "全篇明喻总数上限 2 处，本段最多用 1 处，能不用就不用"
     prompt = f"""{method['system_prompt']}
 
 ---
@@ -561,11 +618,33 @@ def write_segment(method, work, block, max_tokens=900, min_chars=MIN_BODY_CHARS)
 5. **不得出现「材料」「此段」「本段」「这段原文」「本文」「第X则」「第X章」之类指称**，
    也不要用「朱子认为」「注家说」这类注释腔开场——直接讲道理。
 6. 不要引入这段原文之外的典故、书名、人名。
-7. 只输出一个 JSON 对象，不要解释、不要代码围栏：{{"text": "你的这段论述"}}"""
-    last, why = "", ""
-    for attempt in (1, 2):
+7. 只输出一个 JSON 对象，不要解释、不要代码围栏：{{"text": "你的这段论述"}}
+
+【去模板化硬约束：整篇是多段合读的，各段不许同构】
+A. 本段必须用这种切入方式：{opener}
+B. 下面这些开头已经用过，本段开头必须与它们明显不同（不得改写同一句式）：
+{avoid_block}
+C. 已用过的比喻与意象一律不许再用{('（' + '、'.join(dict.fromkeys(used_terms)) + '）') if used_terms else ''}；本段{allow_metaphor}。
+D. 严禁「你有没有想过」「你有没有发现」「孩子，你想想」「你说，」这类第二人称招呼或设问开头，开头 30 字内一次也不许出现「你」字。
+E. 结尾也不要套同一句式，不要都用「这正是……的意义所在」「说到底，……」收束。
+F. 段中不许出现自我设问后自答的固定结构超过一次。
+G. 明喻配额：{simile_rule}。"""
+    last, best, why = "", "", ""
+    short_hit = False
+    for attempt in (1, 2, 3):
         if attempt == 1:
             p = prompt
+        elif short_hit and best:
+            # P0-2 短段定向扩写：不重写全新内容，只在上一稿骨架上补足字数
+            p = prompt + (
+                f"\n\n【上一次的稿子，只有 {len(best)} 字，太短】\n{best}\n\n"
+                f"【本次任务：定向扩写，不是重写】\n"
+                f"1. 保留上一稿已有的判断与句子，不要推翻重来，也不许换新的比喻或典故。\n"
+                f"2. 缺的是层次，请把义理层（为什么这样说、分寸在哪、与全书何处呼应）"
+                f"与切己层（对今天的读者具体意味着什么）各补 1-2 句。\n"
+                f"3. 扩写后总字数须在 220-280 字之间，仍是一段成文，不分点、不列条。\n"
+                f"4. 只输出一个 JSON 对象：{{\"text\": \"扩写后的这一段\"}}"
+            )
         else:
             p = prompt + f"\n\n【上一次的问题】{why}请重写这一段。"
         raw = chat(p, max_tokens=max_tokens)
@@ -576,18 +655,45 @@ def write_segment(method, work, block, max_tokens=900, min_chars=MIN_BODY_CHARS)
         t = _strip_material_refs(t)
         t = _dedup_lead(t, normalize(_simp(block["text"])))
         last = t
+        if len(t) > len(best):
+            best = t
         trans = [h for h in _TRANS_HINTS if h in t]
         if len(t) < min_chars:
-            why = (f"上一稿只有 {len(t)} 字，太短（要求 200-280 字），"
-                   f"请把义理层层剖开并落到读者的具体处境。")
+            short_hit = True
+            why = ""
+            continue
+        short_hit = False
+        if used_similes >= 2 and _simile_count(t) > 0:
+            why = (f"上一稿仍然用了明喻（{'、'.join(w for w in _SIMILE_WORDS if w in t)}），"
+                   f"而本篇明喻已有 {used_similes} 处、达到上限。请把比喻换成直陈判断，本段不要再打比方。")
             continue
         if trans:
             why = (f"上一稿在用「{trans[0]}」这类句子替原文讲白话，等于翻译，不是论述。"
                    f"请不要解释原文的字面意思（读者已看过原文），改为回答：这样说的道理在哪、"
                    f"分寸如何把握、与全书何处呼应、今天为何仍成立。")
             continue
+        sig = _opening_sig(t)
+        if sig and any(sig == _opening_sig(p) for p in prior):
+            why = (f"上一稿开头「{sig}…」与前面某段重复，属于同一句式模板。"
+                   f"请换一种切入方式重新开头（本段指定：{opener}）。")
+            continue
+        reused = [x for x in _metaphor_terms(t) if x in used_terms]
+        if reused:
+            why = (f"上一稿又用了已经用过的比喻「{'、'.join(dict.fromkeys(reused))}」。"
+                   f"整篇不许复用同一比喻，请彻底换一种说法。")
+            continue
+        head = re.sub(r"[^\u4e00-\u9fff]", "", t)[:30]
+        if "你" in head:
+            why = ("上一稿开头用了第二人称招呼/设问（出现「你」），全篇禁止这种开头。"
+                   "请改为训释、处境、误读、对照、脉络或第三人称设问切入。")
+            continue
+        life_hit = [h for h in _LIFE_METAPHOR_HINTS if h in t]
+        if life_hit and any(_uses_life_metaphor(p) for p in prior):
+            why = (f"上一稿又用了「{life_hit[0]}」这类生活比喻，而前面已有段落用过生活比喻。"
+                   f"整篇只允许一段用生活现象打比方，请改用义理或训释的说法。")
+            continue
         return t
-    return last
+    return best or last
 
 
 def _sanitize_content(content):
@@ -627,8 +733,42 @@ def _sanitize_content(content):
     return out
 
 
+def _one_content_field(method, work, blocks, key, spec, max_tokens=500):
+    """v1.2：单字段兜底生成，供 content 整体解析失败时逐字段补齐。"""
+    mats = "\n\n".join(
+        f"【{b['urn']}】（{b.get('chap_title') or ''}）\n{b['text'][:180]}" for b in blocks
+    )
+    example = "{" + f'"{key}": "字段内容"' + "}"
+    prompt = f"""{method['system_prompt']}
+
+---
+下面是《{work['title']}》导读所依据的几段原文：
+
+{mats}
+
+【任务】只写解读字段「{key}」的内容。该字段的要求：{spec}
+1. 写 60-120 字，直接写内容本身，不要写字段名，不要解释你在做什么。
+2. 只依据上面原文说话，不得引入原文之外的典故、书名与内容。
+3. 只输出一个 JSON 对象，不要解释、不要代码围栏：{example}
+"""
+    raw = chat(prompt, max_tokens=max_tokens)
+    obj = extract_json(raw)
+    val = None
+    if isinstance(obj, dict):
+        val = obj.get(key)
+        if val in (None, "", [], {}):
+            for v in obj.values():
+                if v not in (None, "", [], {}):
+                    val = v
+                    break
+    if val in (None, "", [], {}):
+        return ""
+    return val
+
+
 def write_content(method, work, blocks, max_tokens=1600):
-    """v1.1：content 解读字段单独一次调用，避免与正文抢输出预算。"""
+    """v1.1：content 解读字段单独一次调用，避免与正文抢输出预算。
+    v1.2：重试 2 次，仍缺字段则逐字段兜底补齐——避免整篇导读因 content 缺失被判废。"""
     schema = json.dumps(method.get("output_schema", {}), ensure_ascii=False)
     mats = "\n\n".join(f"【{b['urn']}】（{b.get('chap_title') or ''}）\n{b['text'][:220]}" for b in blocks)
     prompt = f"""{method['system_prompt']}
@@ -643,12 +783,29 @@ def write_content(method, work, blocks, max_tokens=1600):
 2. 只依据上面的原文说话，不得引入原文之外的典故、书名与内容。
 3. 不要出现「材料1」「第X则」之类指称；要像面向读者直接讲话。
 4. 只输出一个 JSON 对象，不要解释、不要代码围栏：{{"content": {schema}}}"""
-    raw = chat(prompt, max_tokens=max_tokens)
-    obj = extract_json(raw)
-    c = obj.get("content") if isinstance(obj, dict) else None
-    if isinstance(c, dict) and c:
-        return _sanitize_content(c)
-    return _sanitize_content(obj)
+    clean = {}
+    for attempt in (1, 2, 3):
+        p = prompt if attempt == 1 else (
+            prompt + "\n\n【上一次的问题】上一次输出不合规：不是合法 JSON 对象，或 content 为空、缺字段。"
+            "请严格只输出 {\"content\": {...}}，schema 里每个字段都要有非空内容，不要偷懒省略。"
+        )
+        raw = chat(p, max_tokens=max_tokens)
+        obj = extract_json(raw)
+        c = obj.get("content") if isinstance(obj, dict) else None
+        if not isinstance(c, dict):
+            c = {k: v for k, v in (obj or {}).items() if k != "content"} if isinstance(obj, dict) else {}
+        clean = _sanitize_content(c)
+        clean = {k: v for k, v in clean.items() if k in (method.get("output_schema") or {}) and v}
+        if clean:
+            break
+    schema_map = method.get("output_schema") or {}
+    missing = [k for k in schema_map if not clean.get(k)]
+    for k in missing[:8]:
+        val = _one_content_field(method, work, blocks, k, schema_map.get(k, ""))
+        if not val:
+            continue
+        clean.update(_sanitize_content({k: val}))
+    return clean
 
 
 def generate_one(conn, work, method_id, *, max_blocks, max_tokens, dry_run, force,
@@ -683,12 +840,37 @@ def generate_one(conn, work, method_id, *, max_blocks, max_tokens, dry_run, forc
     if segmented and quote_mode == "auto":
         # v1.1 分段生成路径：逐块单独成段，原文引文与 URN 由程序直接绑定
         pairs, seg_fixes = [], []
+        prior_texts = []
+        expect = len(blocks)
+        # P1 跨篇去同构：按方法在 METHODS 中的序号偏移切入起点，避免各方法第 1-3 段切入序列一致
+        moff = list(METHODS).index(method_id) if method_id in METHODS else 0
         for k, b in enumerate(blocks, 1):
-            txt = write_segment(method, work, b, max_tokens=min(1000, max_tokens))
+            txt = ""
+            for try_i in range(3):
+                cand = write_segment(
+                    method, work, b,
+                    max_tokens=min(1000 + 200 * try_i, 1400),
+                    prior=list(prior_texts),
+                    opener=OPENERS[(k - 1 + moff * 2 + try_i) % len(OPENERS)],
+                )
+                if cand and len(cand) >= MIN_BODY_CHARS:
+                    txt = cand
+                    break
+                seg_fixes.append(
+                    f"第 {k} 段（{b['urn']}）第 {try_i + 1} 次不合格"
+                    f"（{len(cand or '')} 字，下限 {MIN_BODY_CHARS} 字），重试"
+                )
             if not txt:
-                seg_fixes.append(f"第 {k} 段（{b['urn']}）生成失败，已跳过")
+                seg_fixes.append(f"第 {k} 段（{b['urn']}）重试 3 次仍失败，本段缺失")
                 continue
+            prior_texts.append(txt)
             pairs.append((b, txt))
+        # P0-1 段数强校验：必须齐段才允许落库，否则整篇重跑
+        if len(pairs) < expect:
+            return {"ok": False,
+                    "error": f"分段不全（{len(pairs)}/{expect} 段），整篇重跑："
+                             f"{seg_fixes[-1] if seg_fixes else ''}",
+                    "fixes": seg_fixes}
         content = write_content(method, work, blocks, max_tokens=max(1200, max_tokens // 2))
         model_used = get_last_model() or "unknown"
         paras = []
