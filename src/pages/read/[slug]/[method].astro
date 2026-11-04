@@ -46,6 +46,8 @@ const chapterTitles: Record<string, string> = {};
 for (const ch of ((book?.chapters ?? []) as { title?: string; ref?: string }[])) {
   if (ch?.ref && ch?.title) chapterTitles[ch.ref] = ch.title;
 }
+/** 章 id 序列：把原文线进度里的 id 换算成「第几篇」，与详情页续读按钮同一算法 */
+const guideChapterIds = ((book?.chapters ?? []) as { id?: number }[]).map((c) => Number(c?.id) || 0);
 const methodInfo = getMethodInfo(method ?? '');
 const allGuides = (book?.guides as Guide[] ?? []).map((g) => g.method_id);
 
@@ -157,7 +159,15 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
         ],
       })}
     />
+    {/* 导读线进度（UX-2b）：只带 slug/method 与章 id 序列，读写全在本机 */}
+    <script
+      type="application/json"
+      id="guide-prog-meta"
+      set:html={JSON.stringify({ slug: slug ?? '', method: method ?? '', chapterIds: guideChapterIds })}
+    />
     <section class="read-page">
+      {/* 续读提示：仅在按本机进度自动定位时出现，3.2 秒后退场 */}
+      <div class="guide-resume-tip" id="guideResumeTip" role="status" aria-live="polite" hidden></div>
       <nav class="breadcrumb">
         <a href={base}>首页</a> / <a href={`${base}books/${slug}`}>{book.seed_title}</a> / <span>{methodInfo.name_zh}</span>
       </nav>
@@ -172,7 +182,8 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
       />
 
       <div class="back-to-source">
-        <a class="bts-primary" href={`${base}books/${slug}/read/`}>对照原文全文 →</a>
+        <a class="bts-primary" id="btsLink" href={`${base}books/${slug}/read/`}>对照原文全文 →</a>
+        <span class="bts-resume" id="btsResume" hidden></span>
         <span class="bts-hint">
           文中每段「本段引证」都可点开，直达原文对应章句；原文页的章标题下也会反向列出引用该篇的解读。
         </span>
@@ -187,8 +198,107 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
         />
       </div>
     </section>
+<script is:inline>
+  // ── 导读线进度（UX-2b）────────────────────────────────────────────
+  // 与原文页共用同一个键 dc:progress:<slug>，但写入独立子对象 guides[method]：
+  //   键里 id/title/ratio/at 归原文线，guides 归导读线，各方法再各自一份。
+  // 这样两条线来回切换都不会重置对方，也不必为同一本书维护两个键。
+  (() => {
+    const metaEl = document.getElementById('guide-prog-meta');
+    if (!metaEl) return;
+    let meta = {};
+    try { meta = JSON.parse(metaEl.textContent || '{}'); } catch { return; }
+    const slug = String(meta.slug || '');
+    const method = String(meta.method || '');
+    if (!slug || !method) return;
+    const KEY = 'dc:progress:' + slug;
+
+    const readRaw = () => {
+      try {
+        const p = JSON.parse(localStorage.getItem(KEY) || 'null');
+        return p && typeof p === 'object' ? p : null;
+      } catch { return null; }
+    };
+    const readMine = () => {
+      const p = readRaw();
+      const g = p && p.guides && typeof p.guides === 'object' ? p.guides[method] : null;
+      if (!g) return null;
+      return { r: Math.min(1, Math.max(0, Number(g.r) || 0)), at: Number(g.at) || 0 };
+    };
+
+    // 恢复定位的那几百毫秒内停写：scrollTo 触发的 scroll 会把比例写回 0
+    let muted = false;
+    const save = (r) => {
+      if (muted) return;
+      const prev = readMine();
+      // 停在文首 3% 内不覆盖已有比例：误触一次滚动不该把阅读位置清成 0
+      if (r < 0.03 && prev && prev.r > 0.05) return;
+      const p = readRaw() || {};
+      const guides = p.guides && typeof p.guides === 'object' ? p.guides : {};
+      guides[method] = { r: Math.round(r * 1000) / 1000, at: Date.now() };
+      p.guides = guides;
+      try { localStorage.setItem(KEY, JSON.stringify(p)); } catch { /* 隐私模式：静默降级 */ }
+    };
+
+    // 位置用「滚动距离 / 可滚动高度」表达，与字号、行距、纸色都解耦
+    const maxScroll = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const currentRatio = () => (maxScroll() > 0 ? Math.min(1, window.scrollY / maxScroll()) : 0);
+
+    let pending = false;
+    window.addEventListener('scroll', () => {
+      if (pending || muted) return;
+      pending = true;
+      requestAnimationFrame(() => { pending = false; save(currentRatio()); });
+    }, { passive: true });
+
+    const tipEl = document.getElementById('guideResumeTip');
+    let tipTimer = 0;
+    const showTip = (text) => {
+      if (!tipEl) return;
+      tipEl.textContent = text;
+      tipEl.hidden = false;
+      tipEl.classList.add('show');
+      window.clearTimeout(tipTimer);
+      tipTimer = window.setTimeout(() => {
+        tipEl.classList.remove('show');
+        window.setTimeout(() => { tipEl.hidden = true; }, 280);
+      }, 3200);
+    };
+
+    // 带 hash 时是深链语义（用户点的就是某条引证），深链优先，不抢位置
+    const restore = () => {
+      const mine = readMine();
+      if (!mine || mine.r <= 0.02 || location.hash) return;
+      muted = true;
+      const y = Math.round(mine.r * maxScroll());
+      if (y > 0) window.scrollTo({ top: y, behavior: 'auto' });
+      showTip('已回到上次读到的地方：本文 ' + Math.round(mine.r * 100) + '%');
+      window.setTimeout(() => { muted = false; }, 220);
+    };
+    if (document.readyState === 'complete') requestAnimationFrame(restore);
+    else window.addEventListener('load', () => requestAnimationFrame(restore));
+
+    // 跨线出口：把原文线的位置带出来，导读读完不必再自己去原文里找那一段
+    const link = document.getElementById('btsLink');
+    const resumeEl = document.getElementById('btsResume');
+    const p = readRaw();
+    if (!p || !Number(p.id)) return;
+    const ids = Array.isArray(meta.chapterIds) ? meta.chapterIds.map(Number) : [];
+    const idx = ids.indexOf(Number(p.id));
+    const pct = Math.round((Number(p.ratio) || 0) * 100);
+    // 第 1 篇且篇内 <3% 不算「读到过」，别拿它冒充续读
+    if (idx === 0 && pct < 3) return;
+    if (link && idx >= 0) link.textContent = '接着读原文 · 第 ' + (idx + 1) + ' 篇 →';
+    if (resumeEl && idx >= 0) {
+      const t = String(p.title || '').split('/').pop();
+      resumeEl.textContent = '上次原文读到' + (t ? '《' + t + '》' : '') + (pct > 0 ? ' · 篇内 ' + pct + '%' : '');
+      resumeEl.hidden = false;
+    }
+  })();
+</script>
   </BaseLayout>
 )}
+
 
 <style>
   section { padding: 50px 6vw 70px; }
@@ -226,6 +336,44 @@ const paywallTitle = `${book.seed_title} x ${methodInfo.name_zh} - 维点图书�
     line-height: 1.7;
     color: var(--ink-soft);
     flex: 1 1 260px;
+  }
+  /* 跨线出口带出的原文位置：只做提示，不抢主链接的位置 */
+  .back-to-source .bts-resume {
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .back-to-source .bts-resume[hidden] { display: none; }
+
+  /* 续读提示：与原文页同款观感——只告知「回到了哪里」，不提供二次操作 */
+  .guide-resume-tip {
+    position: fixed;
+    top: calc(var(--nav-h, 56px) + 12px);
+    left: 50%;
+    transform: translate(-50%, -10px);
+    z-index: 70;
+    max-width: min(86vw, 420px);
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: var(--accent-deep, #0a3a52);
+    color: #f7f4ec;
+    font-size: 13px;
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+    box-shadow: 0 10px 26px rgba(0, 32, 48, 0.26);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+  }
+  .guide-resume-tip[hidden] { display: none; }
+  .guide-resume-tip.show { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) {
+    .guide-resume-tip { transition: none; }
   }
   .switch-section h3 { font-size: 18px; letter-spacing: 2px; margin-bottom: 16px; }
 

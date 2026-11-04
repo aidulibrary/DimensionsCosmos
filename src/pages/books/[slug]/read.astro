@@ -1018,10 +1018,19 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
 
   // 恢复定位的那几百毫秒内必须停写：scrollTo 会触发 scroll，否则比例会被自己覆盖成 0
   let progressMuted = false;
+  // 同一键里还存着导读线（UX-2b）的 guides 子对象：先取原对象、再覆盖本线四个字段，
+  // 整对象重建会把导读进度一并抹掉——两条线就此变成互相重置。
+  function readRawProgress(): Record<string, unknown> | null {
+    try {
+      const p = JSON.parse(localStorage.getItem(PROG_KEY) || 'null');
+      return p && typeof p === 'object' ? (p as Record<string, unknown>) : null;
+    } catch { return null; }
+  }
   function saveProgress(patch: Partial<Progress>) {
     if (progressMuted) return;
     const prev = readProgress();
-    const next: Progress = {
+    const next: Progress & Record<string, unknown> = {
+      ...(readRawProgress() || {}),
       id: patch.id ?? prev?.id ?? toc[currentIndex]?.id ?? 0,
       title: patch.title ?? prev?.title ?? String(toc[currentIndex]?.title || ''),
       ratio: patch.ratio ?? prev?.ratio ?? 0,
