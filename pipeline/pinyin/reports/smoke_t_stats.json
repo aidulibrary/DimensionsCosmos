@@ -1,0 +1,46 @@
+{
+  "build_id": "smoke_t",
+  "chapters": 5,
+  "han_chars": 3842,
+  "state_counts": {
+    "a": 3815,
+    "u": 15,
+    "v": 12
+  },
+  "state_ratio": {
+    "a": 0.99297,
+    "u": 0.0039,
+    "v": 0.00312
+  },
+  "rule_hits_total": 27,
+  "rule_hits_top": {
+    "tongJia.zhi.zhi": 7,
+    "poDu.sheng.carriage": 4,
+    "tongJia.hui.wisdom": 3,
+    "tongJia.nai.endure": 2,
+    "poDu.zhi.wise": 2,
+    "poDu.xing.dexing": 1,
+    "tongJia.di.ti": 1,
+    "poDu.zhong.verb_zhongyu": 1,
+    "poDu.mo.dusk": 1,
+    "poDu.guan.cap": 1,
+    "tongJia.nv.ru": 1,
+    "poDu.hao.haoxue": 1,
+    "poDu.shao.young": 1,
+    "poDu.yi.wear": 1
+  },
+  "uncertain_top": {
+    "大": 15
+  },
+  "rule_hash": "bdd13b5657e1eee31a29903e970d3f978e0989422e0f723502b33650334de9af",
+  "corpus_hash": "31ab82e933e45ac43115ea8c75cb744087d56df0866acf36ee7783aacce278b2",
+  "config": {
+    "engine": "L0.5-rule-v1",
+    "window": 12,
+    "limit": 5,
+    "db_write": true,
+    "shard_write": "all"
+  },
+  "elapsed_s": 0.1,
+  "chars_per_s": 3842.0
+}

@@ -1,0 +1,61 @@
+{
+  "build_id": "b20261111_L05rule_r2v5",
+  "batches": 3,
+  "chapters": 10075,
+  "han_chars": 21558218,
+  "state_counts": {
+    "a": 20609578,
+    "u": 947046,
+    "v": 1594
+  },
+  "state_ratio": {
+    "a": 0.956,
+    "u": 0.04393,
+    "v": 7e-05
+  },
+  "rule_hits_total": 1399551,
+  "rule_hits_top": {
+    "df.you.you_default": 149270,
+    "df.wei.wei_default": 145432,
+    "df.wang.wang_default": 66110,
+    "df.yu.yu_default": 58328,
+    "df.xing.xing_default": 50531,
+    "df.zhong.zhong_default": 46626,
+    "df.jian.jian_default": 38596,
+    "df.cong.cong_default": 37855,
+    "df.zhi.zhi_default": 31144,
+    "df.shuo.shuo_default": 31051,
+    "df.jiang.jiang_default": 30203,
+    "df.xiang.xiang_default": 29266,
+    "lex.wei.guiding": 27612,
+    "poDu.jiang.general": 27483,
+    "df.chang.chang_default": 22251,
+    "lex.wang.guowang": 17150,
+    "df.le.le_default": 15792,
+    "df.shu.shu_default": 15770,
+    "df.nv.nv_default": 14815,
+    "lex.zhi.zhidao": 14124
+  },
+  "uncertain_top": {
+    "有": 149961,
+    "为": 91601,
+    "王": 69570,
+    "行": 50531,
+    "中": 46633,
+    "為": 38270,
+    "与": 36553,
+    "知": 31144,
+    "相": 29266,
+    "见": 29079,
+    "从": 26472,
+    "说": 23637,
+    "與": 21589,
+    "将": 18687,
+    "女": 14815,
+    "少": 13986,
+    "爲": 13853,
+    "长": 13427,
+    "食": 13135,
+    "好": 13103
+  }
+}

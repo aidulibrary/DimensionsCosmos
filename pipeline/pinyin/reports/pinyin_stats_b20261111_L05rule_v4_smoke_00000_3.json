@@ -1,0 +1,72 @@
+{
+  "build_id": "b20261111_L05rule_v4_smoke",
+  "chapters": 3,
+  "han_chars": 2625,
+  "state_counts": {
+    "a": 2463,
+    "u": 153,
+    "v": 9
+  },
+  "state_ratio": {
+    "a": 0.93829,
+    "u": 0.05829,
+    "v": 0.00343
+  },
+  "rule_hits_total": 42,
+  "rule_hits_top": {
+    "tongJia.zhi.zhi": 7,
+    "poDu.hao.haoxue": 5,
+    "poDu.wei.verb_zuo": 5,
+    "poDu.sheng.carriage": 4,
+    "poDu.le.yue": 3,
+    "tongJia.nai.endure": 2,
+    "poDu.wei.prep_for": 2,
+    "poDu.yu.yuqi": 2,
+    "tongJia.nv.ru": 2,
+    "poDu.zhi.wise": 2,
+    "poDu.xing.dexing": 1,
+    "poDu.jian.jian": 1,
+    "tongJia.di.ti": 1,
+    "poDu.zhong.verb_zhongyu": 1,
+    "poDu.mo.dusk": 1,
+    "poDu.guan.cap": 1,
+    "poDu.yu.tell": 1,
+    "poDu.shao.young": 1
+  },
+  "uncertain_top": {
+    "與": 27,
+    "有": 25,
+    "爲": 19,
+    "行": 17,
+    "知": 16,
+    "從": 10,
+    "見": 7,
+    "說": 5,
+    "樂": 5,
+    "長": 3,
+    "女": 3,
+    "亡": 2,
+    "中": 2,
+    "惡": 2,
+    "相": 2,
+    "語": 1,
+    "弟": 1,
+    "王": 1,
+    "好": 1,
+    "將": 1,
+    "乘": 1,
+    "衣": 1,
+    "共": 1
+  },
+  "rule_hash": "cf1ca76949ac1b5e605ee4614ce5ae644109fc9938f01d5f0edee1469e821650",
+  "corpus_hash": "d9b43706437759e0b00b117bd4166fefc97838d58aff73af9f732d66ff8b7e0c",
+  "config": {
+    "engine": "L0.5-rule-v1",
+    "window": 12,
+    "limit": 3,
+    "db_write": false,
+    "shard_write": "all"
+  },
+  "elapsed_s": 0.0,
+  "chars_per_s": 2625.0
+}

@@ -1,0 +1,437 @@
+{
+  "summary": {
+    "build_id": "b20261111_L05rule_v5",
+    "high_risk_chars": 34,
+    "total_positions": 1169143,
+    "rewritten_positions": 99027,
+    "overall_rewrite_ratio": 0.084701,
+    "demotable_chars": [
+      "从",
+      "女",
+      "告"
+    ],
+    "demotable_positions": 67410,
+    "thresholds": {
+      "min_samples": 500,
+      "max_rewrite_ratio": 0.005
+    }
+  },
+  "rows": [
+    {
+      "char": "有",
+      "total": 171250,
+      "rewritten": 2426,
+      "rewrite_ratio": 0.014166,
+      "default_reading": "yǒu",
+      "default_share": 0.9858,
+      "rule_readings": {
+        "yòu": 2426
+      },
+      "demotable": false
+    },
+    {
+      "char": "为",
+      "total": 141637,
+      "rewritten": 21896,
+      "rewrite_ratio": 0.154592,
+      "default_reading": "wèi",
+      "default_share": 0.8454,
+      "rule_readings": {
+        "wéi": 20089,
+        "wèi": 1807
+      },
+      "demotable": false
+    },
+    {
+      "char": "王",
+      "total": 110501,
+      "rewritten": 9741,
+      "rewrite_ratio": 0.088153,
+      "default_reading": "wáng",
+      "default_share": 0.9118,
+      "rule_readings": {
+        "wàng": 9741
+      },
+      "demotable": false
+    },
+    {
+      "char": "中",
+      "total": 92573,
+      "rewritten": 3407,
+      "rewrite_ratio": 0.036803,
+      "default_reading": "zhōng",
+      "default_share": 0.9632,
+      "rule_readings": {
+        "zhòng": 3407
+      },
+      "demotable": false
+    },
+    {
+      "char": "行",
+      "total": 63231,
+      "rewritten": 1379,
+      "rewrite_ratio": 0.021809,
+      "default_reading": "xíng",
+      "default_share": 0.9782,
+      "rule_readings": {
+        "xìng": 731,
+        "háng": 648
+      },
+      "demotable": false
+    },
+    {
+      "char": "相",
+      "total": 48883,
+      "rewritten": 9544,
+      "rewrite_ratio": 0.195242,
+      "default_reading": "xiāng",
+      "default_share": 0.8048,
+      "rule_readings": {
+        "xiàng": 9544
+      },
+      "demotable": false
+    },
+    {
+      "char": "知",
+      "total": 48705,
+      "rewritten": 6106,
+      "rewrite_ratio": 0.125367,
+      "default_reading": "zhī",
+      "default_share": 0.8746,
+      "rule_readings": {
+        "zhì": 6106
+      },
+      "demotable": false
+    },
+    {
+      "char": "与",
+      "total": 42224,
+      "rewritten": 546,
+      "rewrite_ratio": 0.012931,
+      "default_reading": "yǔ",
+      "default_share": 0.9871,
+      "rule_readings": {
+        "yù": 495,
+        "yú": 51
+      },
+      "demotable": false
+    },
+    {
+      "char": "见",
+      "total": 39821,
+      "rewritten": 5846,
+      "rewrite_ratio": 0.146807,
+      "default_reading": "jiàn",
+      "default_share": 0.8532,
+      "rule_readings": {
+        "xiàn": 5846
+      },
+      "demotable": false
+    },
+    {
+      "char": "从",
+      "total": 36454,
+      "rewritten": 181,
+      "rewrite_ratio": 0.004965,
+      "default_reading": "cóng",
+      "default_share": 0.995,
+      "rule_readings": {
+        "zòng": 181
+      },
+      "demotable": true
+    },
+    {
+      "char": "将",
+      "total": 33555,
+      "rewritten": 10444,
+      "rewrite_ratio": 0.31125,
+      "default_reading": "jiāng",
+      "default_share": 0.6887,
+      "rule_readings": {
+        "jiàng": 10412,
+        "qiāng": 32
+      },
+      "demotable": false
+    },
+    {
+      "char": "说",
+      "total": 26793,
+      "rewritten": 562,
+      "rewrite_ratio": 0.020976,
+      "default_reading": "shuō",
+      "default_share": 0.979,
+      "rule_readings": {
+        "shuì": 536,
+        "yuè": 26
+      },
+      "demotable": false
+    },
+    {
+      "char": "长",
+      "total": 25635,
+      "rewritten": 2252,
+      "rewrite_ratio": 0.087849,
+      "default_reading": "zhǎng",
+      "default_share": 0.9122,
+      "rule_readings": {
+        "zhǎng": 2252
+      },
+      "demotable": false
+    },
+    {
+      "char": "少",
+      "total": 20043,
+      "rewritten": 2475,
+      "rewrite_ratio": 0.123485,
+      "default_reading": "shǎo",
+      "default_share": 0.8765,
+      "rule_readings": {
+        "shào": 2475
+      },
+      "demotable": false
+    },
+    {
+      "char": "乐",
+      "total": 19779,
+      "rewritten": 2976,
+      "rewrite_ratio": 0.150463,
+      "default_reading": "lè",
+      "default_share": 0.8495,
+      "rule_readings": {
+        "yuè": 2937,
+        "yào": 39
+      },
+      "demotable": false
+    },
+    {
+      "char": "传",
+      "total": 19762,
+      "rewritten": 1401,
+      "rewrite_ratio": 0.070894,
+      "default_reading": "chuán",
+      "default_share": 0.9291,
+      "rule_readings": {
+        "zhuàn": 1401
+      },
+      "demotable": false
+    },
+    {
+      "char": "食",
+      "total": 19593,
+      "rewritten": 2994,
+      "rewrite_ratio": 0.15281,
+      "default_reading": "shí",
+      "default_share": 0.8472,
+      "rule_readings": {
+        "sì": 2937,
+        "yì": 57
+      },
+      "demotable": false
+    },
+    {
+      "char": "数",
+      "total": 19142,
+      "rewritten": 426,
+      "rewrite_ratio": 0.022255,
+      "default_reading": "shù",
+      "default_share": 0.9777,
+      "rule_readings": {
+        "shuò": 420,
+        "cù": 6
+      },
+      "demotable": false
+    },
+    {
+      "char": "女",
+      "total": 18723,
+      "rewritten": 90,
+      "rewrite_ratio": 0.004807,
+      "default_reading": "nǚ",
+      "default_share": 0.9952,
+      "rule_readings": {
+        "rǔ": 90
+      },
+      "demotable": true
+    },
+    {
+      "char": "好",
+      "total": 17738,
+      "rewritten": 1323,
+      "rewrite_ratio": 0.074586,
+      "default_reading": "hǎo",
+      "default_share": 0.9254,
+      "rule_readings": {
+        "hào": 1323
+      },
+      "demotable": false
+    },
+    {
+      "char": "弟",
+      "total": 16110,
+      "rewritten": 2076,
+      "rewrite_ratio": 0.128864,
+      "default_reading": "dì",
+      "default_share": 0.8711,
+      "rule_readings": {
+        "tì": 2076
+      },
+      "demotable": false
+    },
+    {
+      "char": "卒",
+      "total": 15255,
+      "rewritten": 439,
+      "rewrite_ratio": 0.028777,
+      "default_reading": "zú",
+      "default_share": 0.9712,
+      "rule_readings": {
+        "cù": 439
+      },
+      "demotable": false
+    },
+    {
+      "char": "亡",
+      "total": 14550,
+      "rewritten": 1112,
+      "rewrite_ratio": 0.076426,
+      "default_reading": "wáng",
+      "default_share": 0.9236,
+      "rule_readings": {
+        "wú": 1112
+      },
+      "demotable": false
+    },
+    {
+      "char": "处",
+      "total": 13758,
+      "rewritten": 1517,
+      "rewrite_ratio": 0.110263,
+      "default_reading": "chù",
+      "default_share": 0.8897,
+      "rule_readings": {
+        "chǔ": 1517
+      },
+      "demotable": false
+    },
+    {
+      "char": "衣",
+      "total": 13372,
+      "rewritten": 1218,
+      "rewrite_ratio": 0.091086,
+      "default_reading": "yī",
+      "default_share": 0.9089,
+      "rule_readings": {
+        "yì": 1218
+      },
+      "demotable": false
+    },
+    {
+      "char": "乘",
+      "total": 12623,
+      "rewritten": 2089,
+      "rewrite_ratio": 0.165492,
+      "default_reading": "chéng",
+      "default_share": 0.8345,
+      "rule_readings": {
+        "shèng": 2089
+      },
+      "demotable": false
+    },
+    {
+      "char": "告",
+      "total": 12520,
+      "rewritten": 16,
+      "rewrite_ratio": 0.001278,
+      "default_reading": "gào",
+      "default_share": 0.9987,
+      "rule_readings": {
+        "gù": 16
+      },
+      "demotable": true
+    },
+    {
+      "char": "共",
+      "total": 9702,
+      "rewritten": 535,
+      "rewrite_ratio": 0.055143,
+      "default_reading": "gòng",
+      "default_share": 0.9449,
+      "rule_readings": {
+        "gōng": 535
+      },
+      "demotable": false
+    },
+    {
+      "char": "间",
+      "total": 9542,
+      "rewritten": 534,
+      "rewrite_ratio": 0.055963,
+      "default_reading": "jiān",
+      "default_share": 0.944,
+      "rule_readings": {
+        "jiàn": 534
+      },
+      "demotable": false
+    },
+    {
+      "char": "语",
+      "total": 8084,
+      "rewritten": 576,
+      "rewrite_ratio": 0.071252,
+      "default_reading": "yǔ",
+      "default_share": 0.9287,
+      "rule_readings": {
+        "yù": 576
+      },
+      "demotable": false
+    },
+    {
+      "char": "雨",
+      "total": 7940,
+      "rewritten": 467,
+      "rewrite_ratio": 0.058816,
+      "default_reading": "yǔ",
+      "default_share": 0.9412,
+      "rule_readings": {
+        "yù": 467
+      },
+      "demotable": false
+    },
+    {
+      "char": "恶",
+      "total": 7621,
+      "rewritten": 1597,
+      "rewrite_ratio": 0.209553,
+      "default_reading": "è",
+      "default_share": 0.7904,
+      "rule_readings": {
+        "wù": 1597
+      },
+      "demotable": false
+    },
+    {
+      "char": "冠",
+      "total": 6329,
+      "rewritten": 633,
+      "rewrite_ratio": 0.100016,
+      "default_reading": "guān",
+      "default_share": 0.9,
+      "rule_readings": {
+        "guàn": 633
+      },
+      "demotable": false
+    },
+    {
+      "char": "强",
+      "total": 5695,
+      "rewritten": 203,
+      "rewrite_ratio": 0.035645,
+      "default_reading": "qiáng",
+      "default_share": 0.9644,
+      "rule_readings": {
+        "qiǎng": 203
+      },
+      "demotable": false
+    }
+  ]
+}

@@ -57,6 +57,7 @@ const esc = (s = '') =>
 
 const highlight = (ctx = '') =>
   esc(ctx).replace(/□/g, '<em class="gap">□</em>');
+const BR = import.meta.env.BASE_URL || '/';
 ---
 
 <BaseLayout title="古籍任务中心 · 维点图书馆" description="把每一处存疑文本变成可认领、可复核、可回填正文的校勘单元——古籍校勘的协作台。">
@@ -98,6 +99,28 @@ const highlight = (ctx = '') =>
 
   <section class="wrap">
     <div class="sec-head">
+      <h2>在办产线</h2>
+      <p>常态化作业面的统一入口：每条产线一张卡，进站即开工，进度与门禁同页可见</p>
+      <div class="rule"></div>
+    </div>
+    <div class="pipe-grid">
+      <a class="pipe" href={`${BR}collation/pinyin-review/`}>
+        <div class="p-top"><span class="badge ghost">待标注</span><span class="p-metric">128 位</span></div>
+        <h3>注音金标标注台</h3>
+        <p>逐字位判定「机器判读当否」。三态固定为确定／异读／存疑，键盘流标注，进度存本机，导出 JSONL 直接回传训练集。</p>
+        <div class="p-bar"><i style="width:0%"></i></div>
+        <div class="p-foot"><span>判定口径与分层进度同页可见</span><span class="p-go">进入标注 →</span></div>
+      </a>
+      <a class="pipe" href={`${BR}collation/pinyin-preview/`}>
+        <div class="p-top"><span class="badge ghost">预览验证</span><span class="p-metric">3 部 9 章</span></div>
+        <h3>注音版预览</h3>
+        <p>三态注音的前端渲染验证：原生 ruby 分段渲染、按需拉取分片、默认关闭；同页对照 G3 门禁达成情况。</p>
+        <div class="p-bar"><i style="width:81.1%"></i></div>
+        <div class="p-foot"><span>覆盖率 81.14% · 存疑 5.01%</span><span class="p-go">查看样例 →</span></div>
+      </a>
+    </div>
+
+    <div class="sec-head mt">
       <h2>任务池</h2>
       <p>每条任务均可直达原文对应字位，验收后自动生成 TEI <code>&lt;app&gt;</code> 校勘记片段</p>
       <div class="rule"></div>
@@ -416,6 +439,24 @@ const highlight = (ctx = '') =>
     .t-bounty { margin-left: 0; }
     .dr-meta { grid-template-columns: 1fr; }
   }
+
+  /* 在办产线 */
+  .pipe-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .pipe {
+    display: block; text-decoration: none; background: var(--white);
+    border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px 16px;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .pipe:hover { border-color: var(--cinnabar); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .p-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .p-metric { font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .pipe h3 { font-size: 17px; letter-spacing: 1px; color: var(--ink); margin: 12px 0 8px; }
+  .pipe p { font-size: 13px; line-height: 1.9; color: var(--ink-soft); }
+  .p-bar { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; margin: 16px 0 10px; }
+  .p-bar i { display: block; height: 100%; background: var(--gold); }
+  .p-foot { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--ink-soft); }
+  .p-go { color: var(--cinnabar); font-weight: 600; }
+  @media (max-width: 760px) { .pipe-grid { grid-template-columns: 1fr; } }
 </style>
 
 <script is:inline>

@@ -1,0 +1,62 @@
+{
+  "build_id": "b20261111_L05rule_v1",
+  "chapters": 2000,
+  "han_chars": 7394991,
+  "state_counts": {
+    "a": 7350077,
+    "u": 42382,
+    "v": 2532
+  },
+  "state_ratio": {
+    "a": 0.99393,
+    "u": 0.00573,
+    "v": 0.00034
+  },
+  "rule_hits_total": 28493,
+  "rule_hits_top": {
+    "poDu.xiang.minister": 4193,
+    "poDu.wang.verb_tianxia": 3658,
+    "poDu.jiang.general": 2301,
+    "poDu.wei.verb_zuo": 2178,
+    "tongJia.zhi.zhi": 2157,
+    "poDu.shi.si": 1336,
+    "poDu.shao.young": 882,
+    "proper.chanyu": 777,
+    "proper.tubo": 750,
+    "tongJia.di.ti": 729,
+    "proper.kehan": 720,
+    "poDu.zhong.verb_hit": 657,
+    "proper.longxi": 587,
+    "tongJia.wang.wu": 492,
+    "poDu.sheng.carriage": 423,
+    "poDu.yi.wear": 404,
+    "tongJia.you.again": 334,
+    "poDu.zhong.verb_zhongyu": 329,
+    "poDu.duo.measure": 322,
+    "poDu.hao.haoxue": 315,
+    "tongJia.zao.early": 263,
+    "tongJia.sheng.nature": 262,
+    "tongJia.zu.cu": 257,
+    "poDu.jian.xian": 245,
+    "poDu.xing.dexing": 227,
+    "proper.yueshi": 222,
+    "tongJia.nai.endure": 221,
+    "tongJia.fan.return": 156,
+    "poDu.zhang.elder": 144,
+    "poDu.yu.rain": 139
+  },
+  "uncertain_top": {
+    "大": 42382
+  },
+  "rule_hash": "bdd13b5657e1eee31a29903e970d3f978e0989422e0f723502b33650334de9af",
+  "corpus_hash": "224539dabb49c9760f6b6e95a4ce6e26c99675633ec3e254bd34bc93f6e7f6e8",
+  "config": {
+    "engine": "L0.5-rule-v1",
+    "window": 12,
+    "limit": 2000,
+    "db_write": true,
+    "shard_write": "all"
+  },
+  "elapsed_s": 70.1,
+  "chars_per_s": 105520.9
+}

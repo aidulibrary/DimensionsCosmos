@@ -1,0 +1,41 @@
+{
+  "build_id": "b20261111_L05rule_v1",
+  "batches": 4,
+  "chapters": 8075,
+  "han_chars": 14163227,
+  "state_counts": {
+    "a": 14081872,
+    "u": 76684,
+    "v": 4671
+  },
+  "state_ratio": {
+    "a": 0.99426,
+    "u": 0.00541,
+    "v": 0.00033
+  },
+  "rule_hits_top": {
+    "poDu.wei.verb_zuo": 17910,
+    "poDu.jiang.general": 8107,
+    "poDu.wang.verb_tianxia": 5790,
+    "poDu.xiang.minister": 4503,
+    "poDu.jian.xian": 4120,
+    "tongJia.zhi.zhi": 3650,
+    "poDu.le.yue": 2822,
+    "poDu.zhang.elder": 2108,
+    "tongJia.you.again": 2092,
+    "poDu.wei.prep_for": 1755,
+    "poDu.shi.si": 1575,
+    "poDu.zhong.verb_hit": 1511,
+    "poDu.wu.hate": 1474,
+    "poDu.shao.young": 1451,
+    "poDu.jian.passive": 1390,
+    "tongJia.di.ti": 1347,
+    "poDu.sheng.carriage": 1119,
+    "proper.chanyu": 900,
+    "poDu.yi.wear": 770,
+    "poDu.hao.haoxue": 751
+  },
+  "uncertain_top": {
+    "大": 76684
+  }
+}

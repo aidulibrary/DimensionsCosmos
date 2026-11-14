@@ -1,0 +1,141 @@
+{
+ "buildId": "b20261111_L05rule_r2v9",
+ "engine": "L0.5-rule-v2.5",
+ "generatedFrom": "D:\\DimensionsCosmos\\data\\pinyin\\b20261111_L05rule_r2v9",
+ "books": [
+  {
+   "workId": 13,
+   "title": "史记",
+   "slug": "13-史记",
+   "chapters": [
+    {
+     "chId": 438,
+     "title": "史記/卷003",
+     "chars": 3687,
+     "annotated": 2896,
+     "coverage": 0.7855,
+     "a": 2687,
+     "v": 0,
+     "u": 209
+    },
+    {
+     "chId": 446,
+     "title": "史記/卷011",
+     "chars": 1735,
+     "annotated": 1404,
+     "coverage": 0.8092,
+     "a": 1293,
+     "v": 0,
+     "u": 111
+    },
+    {
+     "chId": 448,
+     "title": "史記/卷013",
+     "chars": 1247,
+     "annotated": 1016,
+     "coverage": 0.8148,
+     "a": 954,
+     "v": 0,
+     "u": 62
+    },
+    {
+     "chId": 449,
+     "title": "史記/卷014",
+     "chars": 645,
+     "annotated": 542,
+     "coverage": 0.8403,
+     "a": 512,
+     "v": 0,
+     "u": 30
+    }
+   ],
+   "annotated": 5858,
+   "chars": 7314,
+   "rateU": 0.0703,
+   "rateV": 0.0
+  },
+  {
+   "workId": 15,
+   "title": "后汉书",
+   "slug": "15-后汉书",
+   "chapters": [
+    {
+     "chId": 575,
+     "title": "後漢書/卷102",
+     "chars": 3538,
+     "annotated": 2909,
+     "coverage": 0.8222,
+     "a": 2768,
+     "v": 0,
+     "u": 141
+    },
+    {
+     "chId": 595,
+     "title": "後漢書/卷119",
+     "chars": 3456,
+     "annotated": 2751,
+     "coverage": 0.796,
+     "a": 2633,
+     "v": 0,
+     "u": 118
+    },
+    {
+     "chId": 617,
+     "title": "後漢書/卷28下",
+     "chars": 3673,
+     "annotated": 3063,
+     "coverage": 0.8339,
+     "a": 2961,
+     "v": 1,
+     "u": 101
+    },
+    {
+     "chId": 620,
+     "title": "後漢書/卷30上",
+     "chars": 2470,
+     "annotated": 2012,
+     "coverage": 0.8146,
+     "a": 1926,
+     "v": 0,
+     "u": 86
+    }
+   ],
+   "annotated": 10735,
+   "chars": 13137,
+   "rateU": 0.0415,
+   "rateV": 0.0001
+  },
+  {
+   "workId": 17,
+   "title": "资治通鉴",
+   "slug": "17-资治通鉴",
+   "chapters": [
+    {
+     "chId": 1069,
+     "title": "資治通鑑/校勘人姓名",
+     "chars": 989,
+     "annotated": 804,
+     "coverage": 0.8129,
+     "a": 790,
+     "v": 0,
+     "u": 14
+    }
+   ],
+   "annotated": 804,
+   "chars": 989,
+   "rateU": 0.0174,
+   "rateV": 0.0
+  }
+ ],
+ "totals": {
+  "chapters": 9,
+  "annotated": 17397,
+  "chars": 21440,
+  "a": 16524,
+  "v": 1,
+  "u": 872,
+  "rateU": 0.0501,
+  "rateV": 0.0001,
+  "coverage": 0.8114
+ }
+}

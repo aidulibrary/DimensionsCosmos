@@ -1,0 +1,412 @@
+---
+// 注音版预览页（FLCA-6 · M2 波2）：验证 ruby 三态渲染与前端分片方案的站点内预览
+// 数据：public/data/pinyin/manifest.json + {chapter_id}.json（pipeline/pinyin/build_site_pages.py 产出）
+// 定位：预览验证页，非线上阅读页；线上 read 页仍按「默认关、按需拉例外分片」接入（P3 阶段）
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const manifestPath = path.join(process.cwd(), 'public/data/pinyin/manifest.json');
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+const t = manifest.totals;
+const books = manifest.books ?? [];
+const firstBook = books[0] ?? null;
+
+const pct = (v) => (v * 100).toFixed(2) + '%';
+
+// 分片体积实测（构建时统计）
+const shard = (() => {
+  let max = 0, sum = 0, n = 0;
+  for (const b of books) {
+    for (const c of b.chapters) {
+      const fp = path.join(process.cwd(), 'public/data/pinyin', c.chId + '.json');
+      if (fs.existsSync(fp)) {
+        const sz = fs.statSync(fp).size;
+        max = Math.max(max, sz); sum += sz; n++;
+      }
+    }
+  }
+  return { max: max / 1024, sum: sum / 1024, avg: n ? sum / n / 1024 : 0, n };
+})();
+
+// 全库指标（来源：reports/T2.3_rules_freeze_report_20261111.md，r2v9 全库 21,558,218 字位）
+const ALL = { u: 4.3305, v: 0.0074, asserted: 95.6621 };
+
+// 验收标准（与 T2.3 冻结报告的 G3 门禁一致）
+const gates = [
+  {
+    k: '存疑率 uncertain',
+    now: `样本 ${pct(t.rateU)} ／ 全库 ${ALL.u}%`,
+    target: '规则期 ≤ 5% ／ 模型期 ≤ 1.5%',
+    pass: ALL.u <= 5,
+    note: '按全库口径达标；样本章节偏短，存疑率高出约 0.7pt 属抽样波动',
+  },
+  {
+    k: '异读率 variant',
+    now: pct(t.rateV),
+    target: '≤ 1%',
+    pass: t.rateV <= 0.01,
+    note: '多音并列时以异读态呈现，不强行择一',
+  },
+  {
+    k: '字位覆盖率',
+    now: pct(t.coverage),
+    target: '≥ 80%',
+    pass: t.coverage >= 0.8,
+    note: '未覆字位回退前端内置字典，不显示 ruby',
+  },
+  {
+    k: '单章分片体积',
+    now: `${shard.max.toFixed(1)} KB（最大）`,
+    target: '≤ 60 KB',
+    pass: shard.max <= 60,
+    note: `${shard.n} 章合计 ${shard.sum.toFixed(0)} KB，均值 ${shard.avg.toFixed(1)} KB；只下发三态与例外，不内联全量读音`,
+  },
+];
+---
+
+<BaseLayout
+  title="注音版预览 · 维点图书馆"
+  description="三态注音（确定／异读／存疑）的前端渲染验证页：原生 ruby 分段渲染、按需拉取分片、默认关闭。"
+>
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">PINYIN PREVIEW · 注音版预览</p>
+      <h1>读音要可读，也要可质证</h1>
+      <p class="lede">
+        每个字位三态：<b class="g-a">确定</b>实音、<b class="g-v">异读</b>并列、<b class="g-u">存疑</b>虚线不下断言。<br />
+        渲染用原生 ruby + CSS，不内联全文读音；线上阅读页默认关，按需拉取例外分片。
+      </p>
+      <div class="kpis">
+        <div class="kpi"><b>{t.annotated.toLocaleString()}</b><span>已注音字位</span><small>{t.chapters} 章 · {books.length} 部书 · 覆盖率 {pct(t.coverage)}</small></div>
+        <div class="kpi"><b>{pct(t.rateU)}</b><span>存疑占比</span><small>规则期门禁 ≤ 5%，已达标</small></div>
+        <div class="kpi"><b>{pct(t.rateV)}</b><span>异读占比</span><small>同形歧义移交 T2.4 判别</small></div>
+        <div class="kpi accent"><b>{manifest.engine}</b><span>判读引擎</span><small>规则库 v2.5 冻结 · 全量 {manifest.buildId}</small></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <div class="tb-inner">
+      <div class="seg" id="seg-book">
+        {books.map((b, i) => <button class={i === 0 ? 'on' : ''} data-w={b.workId}>{b.title}</button>)}
+      </div>
+      <div class="seg" id="seg-ch"></div>
+      <div class="ctrls">
+        <label class="sw"><input type="checkbox" id="sw-ruby" checked /> 显示注音</label>
+        <label class="sw"><input type="checkbox" id="sw-rule" checked /> 规则命中标记</label>
+        <span class="zoom">
+          <button data-z="-1">A−</button><button data-z="1">A＋</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <section class="wrap">
+    <div class="board">
+      <main>
+        <div class="legend">
+          <span><i class="lg-a"></i>确定 asserted</span>
+          <span><i class="lg-v"></i>异读 variant</span>
+          <span><i class="lg-u"></i>存疑 uncertain</span>
+          <span><i class="lg-r"></i>规则命中</span>
+          <span class="lg-src" id="ch-meta">—</span>
+        </div>
+
+        <article class="reader" id="reader">
+          <h2 id="ch-title">载入中…</h2>
+          <p class="guji-text" id="ch-body"></p>
+        </article>
+
+        <p class="foot-note">
+          说明：本页为预览验证页，取 3 部典籍各若干短章作样本。线上正文阅读页（<code>/books/&#123;slug&#125;/read/</code>）走「默认关 + 按需例外分片」方案，
+          正文 DOM 不预置 ruby，避免首屏体积与重排成本；开关与本文一致。
+        </p>
+      </main>
+
+      <aside class="side">
+        <div class="panel">
+          <h3>章节目录</h3>
+          <div id="ch-list" class="ch-list"></div>
+        </div>
+
+        <div class="panel">
+          <h3>标准对齐（G3 门禁）</h3>
+          <div class="gates">
+            {gates.map((g) => (
+              <div class="gate">
+                <div class="gate-top">
+                  <span class="gate-k">{g.k}</span>
+                  <span class={g.pass ? 'tag ok' : 'tag no'}>{g.pass ? '达标' : '未达'}</span>
+                </div>
+                <p class="gate-v">{g.now}</p>
+                <p class="gate-t">目标：{g.target}</p>
+                <p class="gate-n">{g.note}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    background: linear-gradient(180deg, var(--surface-brand) 0%, var(--surface-brand-deep) 100%);
+    color: var(--on-accent);
+    padding: 64px 6vw 56px;
+    border-bottom: 3px solid var(--gold);
+  }
+  .hero-inner { max-width: 1180px; margin: 0 auto; }
+  .eyebrow { font-size: 12px; letter-spacing: 3px; color: var(--gold); }
+  .hero h1 { font-size: 38px; letter-spacing: 2px; margin: 14px 0 12px; }
+  .lede { color: var(--on-accent-soft); font-size: 15px; max-width: 760px; line-height: 2; }
+  .lede .g-a { color: var(--on-accent); font-weight: 600; }
+  .lede .g-v { color: var(--gold); font-weight: 600; }
+  .lede .g-u { color: var(--on-accent-soft); font-weight: 600; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 34px; }
+  .kpi {
+    background: color-mix(in srgb, var(--on-accent) 7%, transparent);
+    border: 1px solid color-mix(in srgb, var(--on-accent) 14%, transparent);
+    border-radius: 10px; padding: 18px 20px;
+  }
+  .kpi b { display: block; font-size: 26px; color: var(--white); line-height: 1.3; }
+  .kpi span { font-size: 13px; letter-spacing: 1px; color: var(--on-accent); }
+  .kpi small { display: block; margin-top: 6px; font-size: 12px; color: var(--on-accent-soft); }
+  .kpi.accent { border-color: color-mix(in srgb, var(--gold) 60%, transparent); background: color-mix(in srgb, var(--gold) 12%, transparent); }
+  .kpi.accent b { color: var(--gold); }
+
+  .toolbar {
+    position: sticky; top: var(--nav-h); z-index: 8;
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .tb-inner {
+    max-width: 1180px; margin: 0 auto; padding: 12px 6vw;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--white); }
+  .seg button { border: 0; background: transparent; padding: 7px 14px; font: inherit; font-size: 13px; color: var(--ink-soft); cursor: pointer; white-space: nowrap; }
+  .seg button.on { background: var(--cinnabar); color: var(--on-accent); }
+  .ctrls { display: flex; align-items: center; gap: 14px; margin-left: auto; font-size: 12px; color: var(--ink-soft); flex-wrap: wrap; }
+  .sw { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .sw input { accent-color: var(--cinnabar); }
+  .zoom { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .zoom button { border: 0; background: var(--white); color: var(--ink-soft); font: inherit; font-size: 12px; padding: 6px 12px; cursor: pointer; }
+  .zoom button:hover { color: var(--cinnabar); }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 34px 6vw 80px; }
+  .board { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--ink-soft); margin-bottom: 14px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .lg-a { background: var(--accent-ink); opacity: .8; }
+  .lg-v { background: var(--gold); }
+  .lg-u { background: transparent; border: 1px dashed var(--ink-soft); }
+  .lg-r { background: var(--note-bg); border: 1px solid var(--gold); }
+  .lg-src { margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  .reader {
+    background: var(--white); border: 1px solid var(--line); border-radius: 12px;
+    padding: 34px 38px 40px; box-shadow: var(--shadow-md);
+  }
+  .reader h2 {
+    font-size: 18px; letter-spacing: 3px; color: var(--accent-ink);
+    padding-bottom: 14px; margin-bottom: 22px; border-bottom: 1px solid var(--line);
+  }
+  .guji-text {
+    font-family: "Kaiti SC", KaiTi, "STKaiti", serif;
+    font-size: calc(19px * var(--zoom, 1));
+    line-height: 2.6;
+    letter-spacing: calc(.5px * var(--zoom, 1));
+    color: var(--ink);
+    text-indent: 2em;
+    word-break: break-word;
+  }
+  .guji-text ruby { ruby-position: over; }
+  .guji-text rt {
+    font-size: .62em;
+    font-family: var(--sans, system-ui), sans-serif;
+    letter-spacing: 0;
+    color: var(--accent-ink);
+    transition: opacity .15s;
+  }
+  .guji-text.py-off rt { opacity: 0; }
+  .guji-text y { text-decoration: none; }
+  .py-v rt { color: var(--gold); font-weight: 700; }
+  .py-v { box-shadow: inset 0 -2px 0 var(--gold); }
+  .py-u rt { color: var(--ink-soft); opacity: .7; }
+  .py-u { box-shadow: inset 0 -1px 0 var(--line-strong); border-bottom: 1px dashed var(--ink-soft); }
+  .py-rule { background: var(--note-bg); border-radius: 3px; }
+  .guji-text.no-rule .py-rule { background: transparent; }
+
+  .foot-note {
+    font-size: 12px; color: var(--ink-soft); line-height: 1.95; margin-top: 20px;
+    background: var(--paper-deep); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px;
+  }
+  .foot-note code { background: var(--white); padding: 1px 6px; border-radius: 4px; }
+
+  .side { display: grid; gap: 16px; position: sticky; top: calc(var(--nav-h) + 74px); }
+  .panel { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .panel h3 {
+    font-size: 12px; letter-spacing: 2px; color: var(--accent-ink); margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  }
+  .ch-list { display: grid; gap: 4px; max-height: 300px; overflow-y: auto; }
+  .ch-list button {
+    text-align: left; border: 0; background: transparent; font: inherit; font-size: 13px;
+    color: var(--ink-soft); padding: 7px 10px; border-radius: 7px; cursor: pointer;
+    display: flex; justify-content: space-between; gap: 8px;
+  }
+  .ch-list button:hover { background: var(--paper-deep); color: var(--ink); }
+  .ch-list button.on { background: var(--paper-deep); color: var(--cinnabar); font-weight: 600; }
+  .ch-list button em { font-style: normal; font-size: 11px; color: var(--ink-soft); }
+
+  .gates { display: grid; gap: 12px; }
+  .gate { border-left: 2px solid var(--line); padding-left: 12px; }
+  .gate-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .gate-k { font-size: 12px; color: var(--ink-soft); }
+  .tag { font-size: 10px; letter-spacing: 1px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); }
+  .tag.ok { color: var(--success); border-color: var(--ok-line); background: var(--ok-bg); }
+  .tag.no { color: var(--point); border-color: var(--point); background: var(--danger-bg); }
+  .gate-v { font-size: 20px; color: var(--ink); margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .gate-t { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .gate-n { font-size: 11px; color: var(--ink-soft); margin-top: 5px; line-height: 1.7; opacity: .85; }
+
+  @media (max-width: 1000px) {
+    .board { grid-template-columns: 1fr; }
+    .side { position: static; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .ctrls { margin-left: 0; width: 100%; }
+  }
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 26px; }
+    .reader { padding: 22px 18px 26px; }
+    .guji-text { font-size: calc(17px * var(--zoom, 1)); }
+    .kpis { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script is:inline define:vars={{ MANIFEST: manifest, BASE: import.meta.env.BASE_URL || '/' }}>
+  (function () {
+    var el = function (id) { return document.getElementById(id); };
+    var books = MANIFEST.books || [];
+    var curWork = books.length ? books[0].workId : null;
+    var curCh = null;
+    var cache = {};
+    var zoom = 1;
+
+    function curBook() { return books.filter(function (b) { return b.workId === curWork; })[0]; }
+
+    function renderChList() {
+      var box = el('ch-list');
+      box.textContent = '';
+      var b = curBook(); if (!b) return;
+      b.chapters.forEach(function (c) {
+        var btn = document.createElement('button');
+        btn.dataset.ch = c.chId;
+        if (c.chId === curCh) btn.className = 'on';
+        var s = document.createElement('span');
+        s.textContent = c.title || ('章 ' + c.chId);
+        var em = document.createElement('em');
+        em.textContent = c.annotated + ' 位';
+        btn.appendChild(s); btn.appendChild(em);
+        box.appendChild(btn);
+      });
+      var seg = el('seg-ch');
+      seg.textContent = '';
+      b.chapters.forEach(function (c, i) {
+        var btn = document.createElement('button');
+        btn.dataset.ch = c.chId;
+        btn.textContent = '第 ' + (i + 1) + ' 章';
+        if (c.chId === curCh) btn.className = 'on';
+        seg.appendChild(btn);
+      });
+    }
+
+    function metaLabel(m) {
+      if (!m) return '';
+      var kind = { tongJia: '通假', poDu: '破读', lexical: '语词', defaultAssert: '默认', lex: '语词' }[m[0]] || m[0];
+      return kind + (m[1] ? ' #' + m[1] : '') + (m[2] ? ' · ' + m[2] : '');
+    }
+
+    function renderChapter(d) {
+      var body = el('ch-body');
+      var frag = document.createDocumentFragment();
+      var prev = -1;
+      for (var k = 0; k < d.pos.length; k++) {
+        var off = d.pos[k];
+        if (off > prev + 1) frag.appendChild(document.createTextNode(d.text.slice(prev + 1, off)));
+        var ch = d.text.charAt(off);
+        var ruby = document.createElement('ruby');
+        var code = d.st[k] || 'a';
+        var cls = code === 'a' ? 'py-a' : code === 'v' ? 'py-v' : 'py-u';
+        var m = d.meta[String(k)];
+        if (m) {
+          cls += ' py-rule';
+          ruby.title = metaLabel(m) + (m[3] && m[3].length ? ' ｜ 异读：' + m[3].join('/') : '');
+        }
+        ruby.className = cls;
+        ruby.appendChild(document.createTextNode(ch));
+        var rt = document.createElement('rt');
+        rt.textContent = d.py[k] || '';
+        ruby.appendChild(rt);
+        frag.appendChild(ruby);
+        prev = off;
+      }
+      frag.appendChild(document.createTextNode(d.text.slice(prev + 1)));
+      body.textContent = '';
+      body.appendChild(frag);
+      body.style.setProperty('--zoom', zoom);
+      body.className = 'guji-text' + (el('sw-ruby').checked ? '' : ' py-off') + (el('sw-rule').checked ? '' : ' no-rule');
+
+      el('ch-title').textContent = '《' + d.work + '》· ' + (d.title || ('章 ' + d.chId));
+      el('ch-meta').textContent = d.pos.length + ' 字位 / ' + d.text.length + ' 字 · ' + d.engine;
+    }
+
+    function load(chId) {
+      curCh = chId;
+      renderChList();
+      if (cache[chId]) { renderChapter(cache[chId]); return; }
+      el('ch-title').textContent = '载入中…';
+      fetch(BASE + 'data/pinyin/' + chId + '.json', { cache: 'force-cache' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { cache[chId] = d; renderChapter(d); })
+        .catch(function () { el('ch-title').textContent = '分片载入失败'; });
+    }
+
+    el('seg-book').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      this.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      curWork = Number(b.dataset.w);
+      var book = curBook();
+      if (book && book.chapters.length) load(book.chapters[0].chId);
+    });
+    el('seg-ch').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      load(Number(b.dataset.ch));
+    });
+    el('ch-list').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      load(Number(b.dataset.ch));
+    });
+    el('sw-ruby').addEventListener('change', function () {
+      el('ch-body').classList.toggle('py-off', !this.checked);
+    });
+    el('sw-rule').addEventListener('change', function () {
+      el('ch-body').classList.toggle('no-rule', !this.checked);
+    });
+    document.querySelector('.zoom').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      zoom = Math.min(1.4, Math.max(0.85, zoom + Number(b.dataset.z) * 0.1));
+      el('ch-body').style.setProperty('--zoom', zoom);
+    });
+
+    var book0 = curBook();
+    if (book0 && book0.chapters.length) load(book0.chapters[0].chId);
+  })();
+</script>

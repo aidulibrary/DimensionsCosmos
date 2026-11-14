@@ -1,0 +1,10 @@
+{
+  "rows": 100654,
+  "char_entries": 41923,
+  "polyphone_chars": 8617,
+  "phrase_entries": 47111,
+  "rule_added": 86,
+  "surface_polyphone": 8627,
+  "max_reading_per_surface": 11,
+  "lexicon_sha256": "3cc5869e11d127392938d995361195a5f9df7be3e9caef447f4fab061e604eb5"
+}

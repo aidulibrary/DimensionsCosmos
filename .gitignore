@@ -44,3 +44,8 @@ data/tmp/
 
 # 本地整库快照（不入库）
 .backups/
+
+# 注音主线：构建中间产物不入库（2026-11-15 债务治理）
+data/pinyin/
+pipeline/pinyin/__pycache__/
+pipeline/pinyin/output/*.tmp

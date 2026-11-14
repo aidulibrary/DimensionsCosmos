@@ -1,0 +1,88 @@
+{
+ "build_id": "b20261111_L05rule_r2v5",
+ "total": 30000,
+ "seed": 20261111,
+ "excluded": [
+  "亡",
+  "将",
+  "將",
+  "恶",
+  "惡",
+  "相"
+ ],
+ "pool_total": 1277098,
+ "strata": [
+  {
+   "state": "asserted",
+   "rtype": "lexical",
+   "n_all": 306167,
+   "n_excluded": 21717,
+   "n_pool": 284450,
+   "quota_f": 6681.946099672852,
+   "quota": 6682
+  },
+  {
+   "state": "asserted",
+   "rtype": "poDu",
+   "n_all": 138711,
+   "n_excluded": 40602,
+   "n_pool": 98109,
+   "quota_f": 2304.654771990873,
+   "quota": 2305
+  },
+  {
+   "state": "asserted",
+   "rtype": "properNoun",
+   "n_all": 11887,
+   "n_excluded": 0,
+   "n_pool": 11887,
+   "quota_f": 279.2346397848873,
+   "quota": 279
+  },
+  {
+   "state": "asserted",
+   "rtype": "tongJia",
+   "n_all": 11928,
+   "n_excluded": 1379,
+   "n_pool": 10549,
+   "quota_f": 247.8040056440461,
+   "quota": 248
+  },
+  {
+   "state": "uncertain",
+   "rtype": "defaultAssert",
+   "n_all": 929264,
+   "n_excluded": 76537,
+   "n_pool": 852727,
+   "quota_f": 20031.203556813965,
+   "quota": 20031
+  },
+  {
+   "state": "uncertain",
+   "rtype": "normal",
+   "n_all": 17782,
+   "n_excluded": 0,
+   "n_pool": 17782,
+   "quota_f": 417.71265791662034,
+   "quota": 418
+  },
+  {
+   "state": "variant",
+   "rtype": "poDu",
+   "n_all": 70,
+   "n_excluded": 0,
+   "n_pool": 70,
+   "quota_f": 1.6443530566957274,
+   "quota": 1
+  },
+  {
+   "state": "variant",
+   "rtype": "tongJia",
+   "n_all": 1524,
+   "n_excluded": 0,
+   "n_pool": 1524,
+   "quota_f": 35.799915120061264,
+   "quota": 36
+  }
+ ]
+}

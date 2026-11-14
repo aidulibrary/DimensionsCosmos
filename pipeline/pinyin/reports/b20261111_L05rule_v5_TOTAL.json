@@ -1,0 +1,61 @@
+{
+  "build_id": "b20261111_L05rule_v5",
+  "batches": 5,
+  "chapters": 10075,
+  "han_chars": 21558218,
+  "state_counts": {
+    "a": 20288404,
+    "u": 1262250,
+    "v": 7564
+  },
+  "state_ratio": {
+    "a": 0.9411,
+    "u": 0.05855,
+    "v": 0.00035
+  },
+  "rule_hits_total": 158121,
+  "rule_hits_top": {
+    "poDu.wei.verb_zuo": 33024,
+    "poDu.jiang.general": 27916,
+    "poDu.xiang.minister": 9544,
+    "poDu.wang.verb_tianxia": 9458,
+    "poDu.jian.xian": 5884,
+    "tongJia.zhi.zhi": 5807,
+    "poDu.le.yue": 3480,
+    "proper.chanyu": 3165,
+    "poDu.zhang.elder": 3024,
+    "poDu.shi.si": 2937,
+    "poDu.wu.hate": 2500,
+    "poDu.wei.prep_for": 2479,
+    "poDu.shao.young": 2475,
+    "poDu.zhong.verb_hit": 2338,
+    "tongJia.you.again": 2090,
+    "tongJia.di.ti": 2076,
+    "poDu.jian.passive": 2018,
+    "poDu.chu.verb": 2015,
+    "poDu.sheng.carriage": 2003,
+    "poDu.zhuan.bio": 1950
+  },
+  "uncertain_top": {
+    "有": 168824,
+    "为": 119741,
+    "王": 100760,
+    "中": 89166,
+    "行": 61852,
+    "為": 50768,
+    "知": 42599,
+    "与": 41678,
+    "相": 39339,
+    "从": 34531,
+    "见": 32168,
+    "说": 25515,
+    "與": 25393,
+    "将": 21396,
+    "长": 21199,
+    "爲": 18742,
+    "女": 18633,
+    "少": 17568,
+    "传": 17375,
+    "数": 16625
+  }
+}
