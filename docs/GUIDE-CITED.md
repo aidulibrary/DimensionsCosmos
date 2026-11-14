@@ -1,5 +1,11 @@
 # 引证式导读生成器（P0-5）
 
+> **[FROZEN 2026-11-14] 本文档涉及的方法线与 AI 导读业务已整体冻结并移出前台。**
+> 依据：《认知纠正令与读书方法暂停令》(2026-11-14) 乙档处置。本项目唯一可用定位表述为「浇灌自由生长的文明」。
+> 文中关于「用大师的方法读一切书」「伟大心智的阅读操作系统」「助学 AI」「方法即 SKU」的表述**均已停用**，不再作为设计依据。
+> 现状与恢复准入（G1–G5）见 `archive/method-line-2026-11-14/README.md`。本文档仅作历史留档，不删除。
+
+
 > 脚本：`pipeline/gen_guides_cited.py`（生成+校验+入库）、`pipeline/refpack.py`（候选原文池）
 > 产物：`ai_guides.result.paragraphs[]` + `ai_guides.citations[]` → 构建时经 `scripts/gen-data.mjs` 落到 `public/data/book-{id}.json`
 > 前端：`GuideView.astro` 渲染「精读正文」段落与段末「本段引证」锚点

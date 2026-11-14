@@ -126,6 +126,9 @@ try {
   );
 }
 
+// FROZEN(2026-11-14) 方法线/导读线已前台移出：置 true 时导读数据不再下发前端。
+// 历史 13 篇见 archive/method-line-2026-11-14/guides_13_frozen.json，恢复准入见同目录 README 的 G1-G5。
+const GUIDES_FROZEN = true;
 const worksGuides = {};
 let guidesBlocked = 0;
 try {
@@ -142,7 +145,7 @@ try {
        FROM ai_guides ORDER BY work_id, method_id`,
     )
     .all();
-  for (const g of guides) {
+  for (const g of (GUIDES_FROZEN ? [] : guides)) {
     if (guideGate && guideGate.get(`${g.work_id}:${g.method_id}`) === false) {
       guidesBlocked += 1;
       continue;

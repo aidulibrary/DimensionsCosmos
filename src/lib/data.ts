@@ -291,13 +291,15 @@ const METHODS_INFO: Record<
     name_en: "Multi-Dimensional Lens",
     era: "当代 · AI-Native",
     tags: ["多视角", "认知多样性", "对比融合"],
-    summary: "三位大师同时解读，在一个屏幕上看到文明的对话。",
+    summary: "把不同文本并置呈现，便于对照阅读。",
     icon: "🔮",
     price: 12.9,
     free: false,
   },
 };
 
+/* FROZEN 2026-11-14：方法线已冻结并移出前台（见 archive/method-line-2026-11-14/README.md）。
+   以下方法数据与查询函数无前台调用，仅作留档；解冻前不得接入任何页面。 */
 export function getMethodInfo(methodId: string) {
   return (
     METHODS_INFO[methodId] ?? {

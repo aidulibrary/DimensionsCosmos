@@ -2,8 +2,8 @@ import type { Locale } from '../config';
 
 /**
  * 首页文案（B1 三语）。
- * h1 与少数需要强调的句子用 HTML 片段，因为各语言的语序不同（中文「用大师的方法读书」，
- * 英文得写成「Read any book through a master's eyes」），硬套占位符会译出译文腔。
+ * h1 与少数需要强调的句子用 HTML 片段，因为各语言的语序不同（中文「读原文，见底本」，
+ * 英文得写成「Read the source, see the base text」），硬套占位符会译出译文腔。
  * 译者即本文件作者，内容可信，模板处用 set:html 渲染。
  */
 export interface HomeDict {
@@ -25,127 +25,127 @@ export interface HomeDict {
   libSub: string;
   browseAll: string;
   stripTitle: string;
-  /** {n} 会被替换成方法数 */
+  /** {n} 会被替换成在架书数 */
   stripSub: string;
-  /** {n} 会被替换成剩余方法数 */
+  /** {n} 会被替换成剩余书数 */
   stripMore: string;
   band: { title: string; desc: string }[];
 }
 
 export const home: Record<Locale, HomeDict> = {
   zh: {
-    title: '维点图书馆 · 用大师的方法读一切书',
-    description: '伟大心智的阅读操作系统：用苏格拉底的方法读庄子，用费曼的方法读相对论，用朱熹的方法读古兰经。',
-    kicker: '伟大心智 · 阅读操作系统',
-    h1Html: '用<em>大师</em>的方法，<br>读<em>一切</em>书',
+    title: '维点图书馆 · 古籍原文在线阅读',
+    description: '公有领域古籍原文在线阅读库：按经史子集整理卷次章节，保留底本原貌，缺章缺字显式标注、绝不补写。浇灌自由生长的文明。',
+    kicker: '古籍 · 原文 · 底本',
+    h1Html: '读<em>原文</em>，<br>见<em>底本</em>',
     motto: '浇灌自由生长的文明',
-    sub: '同样的文本，不同的大师会看到完全不同的东西。选一部经典，再选一位大师的视角——朱熹带你涵泳，费曼帮你白话，苏格拉底追着你问。',
+    sub: '一个只做原文的图书馆：卷次与章节按经史子集整理，缺章缺字显式标注、不做补写，全文可检索、可离线读。读法不在本站，在你自己手里。',
     searchPlaceholder: '搜书名：论语 / 史记 / 庄子 ……',
     searchBtn: '检索',
     statBooks: '部经典可读',
-    statMethods: '种大师视角',
-    statFree: '个免费体验',
-    heroArt: ['朱熹 × 费曼 × 苏格拉底', '苏轼 × 钱锺书 × 王阳明', '阿伦特 × 伊本·赫勒敦 × 阿德勒'],
-    verticalNote: '筛选 · 组织 · 导读',
+    statMethods: '篇校勘记',
+    statFree: '全部免费阅读',
+    heroArt: ['经部 × 史部 × 子部', '集部 × 别集 × 总集', '底本 × 校勘 × 存真'],
+    verticalNote: '存真 · 索引 · 开卷',
     libTitle: '经典书库',
     libSub: '经史子集 · 首批 {n} 部 · 原文来自中文维基文库（CC BY-SA）',
     browseAll: '浏览全部书库 →',
-    stripTitle: '🧠 选好书了？挑一种大师视角来读',
-    stripSub: '每本书都内置 {n} 种解读方法——从朱熹到苏格拉底，从费曼到阿伦特',
-    stripMore: '+{n} 种更多 →',
+    stripTitle: '原文即正文',
+    stripSub: '每部书按底本逐章整理，共 {n} 部在架，缺章缺字显式标注',
+    stripMore: '+{n} 部 →',
     band: [
-      { title: '📖 先选书，再选方法', desc: '主流流程：浏览书库 → 找到感兴趣的书 → 选择一位大师的视角 → 开始阅读。' },
-      { title: '🧪 创建自己的读书法', desc: '即将开放：上传你的阅读方法论（系统提示词 + 输出模板），转换为可售卖插件，获得收益分成。' },
-      { title: '📤 上传你的藏书', desc: '即将开放：像识典古籍一样整理并上传自己的文本，经 AI 自动校勘、标点、分段后入库。' },
-      { title: '🔌 方法即插件', desc: '每种大师方法都是一个独立 AI 插件——可组合、可复用、可导出为 Markdown / JSON。' },
+      { title: '📖 原文优先', desc: '本站只做原文：按卷次与章节整理，能读、能检索、能离线保存。' },
+      { title: '🔍 底本存真', desc: '底本缺章、缺字（以 □ 标注）或篇幅异常时，页面显式提示，不做补写、不做臆改。' },
+      { title: '📤 开放来源', desc: '原文底本主要来自中文维基文库（CC BY-SA 4.0）等开放许可来源，经清洗去标记后入库。' },
+      { title: '🧭 读法由你', desc: '本站不预设读法，只把原文与底本信息摆清楚，读法由读者自己生长。' },
     ],
   },
 
   'zh-TW': {
-    title: '維點圖書館 · 用大師的方法讀一切書',
-    description: '偉大心智的閱讀作業系統：用蘇格拉底的方法讀莊子，用費曼的方法讀相對論，用朱熹的方法讀古蘭經。',
-    kicker: '偉大心智 · 閱讀作業系統',
-    h1Html: '用<em>大師</em>的方法，<br>讀<em>一切</em>書',
+    title: '維點圖書館 · 古籍原文線上閱讀',
+    description: '公有領域古籍原文線上閱讀庫：按經史子集整理卷次章節，保留底本原貌，缺章缺字顯式標註、絕不補寫。澆灌自由生長的文明。',
+    kicker: '古籍 · 原文 · 底本',
+    h1Html: '讀<em>原文</em>，<br>見<em>底本</em>',
     motto: '澆灌自由生長的文明',
-    sub: '同樣的文本，不同的大師會看到完全不同的東西。選一部經典，再選一位大師的視角——朱熹帶你涵泳，費曼幫你白話，蘇格拉底追著你問。',
+    sub: '一個只做原文的圖書館：卷次與章節按經史子集整理，缺章缺字顯式標註、不做補寫，全文可檢索、可離線讀。讀法不在本站，在你自己手裡。',
     searchPlaceholder: '搜書名：論語 / 史記 / 莊子 ……',
     searchBtn: '檢索',
     statBooks: '部經典可讀',
-    statMethods: '種大師視角',
-    statFree: '個免費體驗',
-    heroArt: ['朱熹 × 費曼 × 蘇格拉底', '蘇軾 × 錢鍾書 × 王陽明', '阿倫特 × 伊本·赫勒敦 × 阿德勒'],
-    verticalNote: '篩選 · 組織 · 導讀',
+    statMethods: '篇校勘記',
+    statFree: '全部免費閱讀',
+    heroArt: ['經部 × 史部 × 子部', '集部 × 別集 × 總集', '底本 × 校勘 × 存真'],
+    verticalNote: '存真 · 索引 · 開卷',
     libTitle: '經典書庫',
     libSub: '經史子集 · 首批 {n} 部 · 原文來自中文維基文庫（CC BY-SA）',
     browseAll: '瀏覽全部書庫 →',
-    stripTitle: '🧠 選好書了？挑一種大師視角來讀',
-    stripSub: '每本書都內建 {n} 種解讀方法——從朱熹到蘇格拉底，從費曼到阿倫特',
-    stripMore: '+{n} 種更多 →',
+    stripTitle: '原文即正文',
+    stripSub: '每部書按底本逐章整理，共 {n} 部在架，缺章缺字顯式標註',
+    stripMore: '+{n} 部 →',
     band: [
-      { title: '📖 先選書，再選方法', desc: '主流流程：瀏覽書庫 → 找到感興趣的書 → 選擇一位大師的視角 → 開始閱讀。' },
-      { title: '🧪 建立自己的讀書法', desc: '即將開放：上傳你的閱讀方法論（系統提示詞 + 輸出範本），轉換為可販售外掛，獲得收益分潤。' },
-      { title: '📤 上傳你的藏書', desc: '即將開放：像識典古籍一樣整理並上傳自己的文本，經 AI 自動校勘、標點、分段後入庫。' },
-      { title: '🔌 方法即外掛', desc: '每種大師方法都是一個獨立 AI 外掛——可組合、可重複使用、可匯出為 Markdown / JSON。' },
+      { title: '📖 原文優先', desc: '本站只做原文：按卷次與章節整理，能讀、能檢索、能離線保存。' },
+      { title: '🔍 底本存真', desc: '底本缺章、缺字（以 □ 標註）或篇幅異常時，頁面顯式提示，不做補寫、不做臆改。' },
+      { title: '📤 開放來源', desc: '原文底本主要來自中文維基文庫（CC BY-SA 4.0）等開放許可來源，經清洗去標記後入庫。' },
+      { title: '🧭 讀法由你', desc: '本站不預設讀法，只把原文與底本資訊擺清楚，讀法由讀者自己生長。' },
     ],
   },
 
   en: {
-    title: 'DimensionsCosmos Library · Read any book through a master\u2019s eyes',
+    title: 'DimensionsCosmos Library · Read classical texts in the original',
     description:
-      'A reading operating system for great minds: read Zhuangzi the way Socrates would, relativity the way Feynman would, the Quran the way Zhu Xi would.',
-    kicker: 'GREAT MINDS · A READING OS',
-    h1Html: 'Read <em>any</em> book<br>through a <em>master</em>\u2019s eyes',
+      'An online reading library for public-domain classical Chinese texts: volumes and chapters organised by the classic fourfold division, kept as the base text has them, with missing chapters or characters marked explicitly and never filled in. Watering a civilisation that grows freely.',
+    kicker: 'CLASSICS · SOURCE TEXT · BASE EDITION',
+    h1Html: 'Read the <em>source</em>,<br>see the <em>base text</em>',
     motto: 'Watering a civilisation that grows freely',
-    sub: 'The same text looks different to every great mind. Pick a classic, then pick a master\u2019s vantage point — Zhu Xi reads with you line by line, Feynman puts it in plain words, Socrates keeps asking why.',
+    sub: 'A library that carries only primary texts: volumes and chapters organised by the classic fourfold division, missing chapters and characters marked explicitly and never filled in, all searchable and readable offline. How to read is not decided here; it is yours.',
     searchPlaceholder: 'Search a title: Analects / Records of the Grand Historian / Zhuangzi…',
     searchBtn: 'Search',
     statBooks: 'classics to read',
-    statMethods: 'master perspectives',
-    statFree: 'free to try',
-    heroArt: ['Zhu Xi × Feynman × Socrates', 'Su Shi × Qian Zhongshu × Wang Yangming', 'Arendt × Ibn Khaldun × Adler'],
-    verticalNote: 'FILTER · ORGANISE · GUIDE',
+    statMethods: 'collation notes',
+    statFree: 'free to read',
+    heroArt: ['Classics × History × Masters', 'Collections × Anthologies × Individual works', 'Base text × Collation × Fidelity'],
+    verticalNote: 'FIDELITY · INDEX · OPEN',
     libTitle: 'The Classics Library',
     libSub: 'Classics, history, masters, collected works · first {n} titles · source texts from Chinese Wikisource (CC BY-SA)',
     browseAll: 'Browse the full library →',
-    stripTitle: '🧠 Found your book? Now pick a master\u2019s vantage point',
-    stripSub: 'Every title ships with {n} interpretive methods — from Zhu Xi to Socrates, from Feynman to Arendt',
-    stripMore: '+{n} more methods →',
+    stripTitle: 'The source text is the content',
+    stripSub: 'Every title is organised chapter by chapter after its base edition — {n} volumes on the shelf, gaps marked explicitly',
+    stripMore: '+{n} more volumes →',
     band: [
-      { title: '📖 Pick the book, then the method', desc: 'The main path: browse the library → find a title that pulls you in → choose a master\u2019s vantage point → start reading.' },
-      { title: '🧪 Build your own reading method', desc: 'Coming soon: upload your own methodology (system prompt + output template), publish it as a sellable plugin and share the revenue.' },
-      { title: '📤 Upload your own collection', desc: 'Coming soon: organise and upload your own texts the way classical-text platforms do. AI handles collation, punctuation and paragraphing.' },
-      { title: '🔌 Methods are plugins', desc: 'Each master\u2019s method is a standalone AI plugin — composable, reusable, and exportable as Markdown or JSON.' },
+      { title: '📖 Source text first', desc: 'This site carries primary texts only: organised by volume and chapter, readable, searchable, and saveable for offline use.' },
+      { title: '🔍 Fidelity to the base edition', desc: 'Where the base edition lacks a chapter, lacks characters (marked with □) or shows an abnormal length, the page says so plainly — nothing is filled in, nothing is emended silently.' },
+      { title: '📤 Open sources', desc: 'Base texts come chiefly from open-licensed sources such as Chinese Wikisource (CC BY-SA 4.0), cleaned of markup before entering the database.' },
+      { title: '🧭 The way of reading is yours', desc: 'No reading method is prescribed here; the source text and its provenance are laid out clearly, and each reader\u2019s way of reading grows on its own.' },
     ],
   },
 
   // B2：西班牙语首页。西语语序与中文差异最大的是 h1 与副标题，故同样用 HTML 片段/整句重写，
   // 不做逐字直译——直译会译出明显的"译文腔"，这是翻译质量的第一道分水岭。
   es: {
-    title: 'Biblioteca DimensionsCosmos · Lee cualquier libro con los ojos de un maestro',
+    title: 'Biblioteca DimensionsCosmos · Lee los textos clásicos en su original',
     description:
-      'Un sistema operativo de lectura para grandes mentes: lee a Zhuangzi como lo haría Sócrates, la relatividad como lo haría Feynman, el Corán como lo haría Zhu Xi.',
-    kicker: 'GRANDES MENTES · UN SO DE LECTURA',
-    h1Html: 'Lee <em>cualquier</em> libro<br>con los ojos de un <em>maestro</em>',
+      'Una biblioteca de lectura en línea de textos clásicos chinos de dominio público: volúmenes y capítulos organizados según las cuatro divisiones clásicas, tal como los presenta la edición de base, con los capítulos o caracteres faltantes señalados explícitamente y nunca completados. Regar una civilización que crece en libertad.',
+    kicker: 'CLÁSICOS · TEXTO ORIGINAL · EDICIÓN DE BASE',
+    h1Html: 'Lee el <em>original</em>,<br>mira la <em>edición de base</em>',
     motto: 'Regar una civilización que crece en libertad',
-    sub: 'Un mismo texto se ve distinto para cada gran mente. Elige un clásico y después el punto de vista de un maestro: Zhu Xi lee contigo verso a verso, Feynman lo explica en palabras llanas y Sócrates no deja de preguntar por qué.',
+    sub: 'Una biblioteca que solo alberga textos primarios: volúmenes y capítulos organizados por las cuatro divisiones clásicas, con los faltantes señalados explícitamente y sin rellenos, todo consultable y legible sin conexión. Aquí no se dicta cómo leer: eso es tuyo.',
     searchPlaceholder: 'Busca un título: Analectas / Memorias del gran historiador / Zhuangzi…',
     searchBtn: 'Buscar',
     statBooks: 'clásicos por leer',
-    statMethods: 'perspectivas de maestros',
-    statFree: 'gratis para probar',
-    heroArt: ['Zhu Xi × Feynman × Sócrates', 'Su Shi × Qian Zhongshu × Wang Yangming', 'Arendt × Ibn Jaldún × Adler'],
-    verticalNote: 'FILTRAR · ORGANIZAR · GUIAR',
+    statMethods: 'notas de colación',
+    statFree: 'lectura gratuita',
+    heroArt: ['Clásicos × Historia × Filósofos', 'Colecciones × Antologías × Obras individuales', 'Edición de base × Colación × Fidelidad'],
+    verticalNote: 'FIDELIDAD · ÍNDICE · ABRIR',
     libTitle: 'La biblioteca de clásicos',
     libSub: 'Clásicos, historia, maestros y obras reunidas · primeros {n} títulos · textos originales de Wikisource en chino (CC BY-SA)',
     browseAll: 'Ver toda la biblioteca →',
-    stripTitle: '🧠 ¿Ya tienes tu libro? Elige el punto de vista de un maestro',
-    stripSub: 'Cada título incluye {n} métodos de interpretación: de Zhu Xi a Sócrates, de Feynman a Arendt',
-    stripMore: '+{n} métodos más →',
+    stripTitle: 'El texto original es el contenido',
+    stripSub: 'Cada título se organiza capítulo a capítulo según su edición de base: {n} volúmenes disponibles, con los faltantes señalados',
+    stripMore: '+{n} volúmenes más →',
     band: [
-      { title: '📖 Primero el libro, después el método', desc: 'La ruta principal: explora la biblioteca → encuentra un título que te atraiga → elige el punto de vista de un maestro → empieza a leer.' },
-      { title: '🧪 Crea tu propio método de lectura', desc: 'Muy pronto: sube tu metodología (prompt de sistema + plantilla de salida), publícala como complemento de pago y comparte los ingresos.' },
-      { title: '📤 Sube tu propia colección', desc: 'Muy pronto: organiza y sube tus textos como hacen las plataformas de clásicos. La IA se encarga de la colación, la puntuación y los párrafos.' },
-      { title: '🔌 Los métodos son complementos', desc: 'Cada método de un maestro es un complemento de IA independiente: se puede combinar, reutilizar y exportar como Markdown o JSON.' },
+      { title: '📖 El texto original primero', desc: 'Este sitio solo alberga textos primarios: organizados por volumen y capítulo, legibles, consultables y guardables sin conexión.' },
+      { title: '🔍 Fidelidad a la edición de base', desc: 'Cuando la edición de base carece de un capítulo, de caracteres (marcados con □) o muestra una extensión anómala, la página lo indica con claridad: nada se rellena ni se enmienda por conjetura.' },
+      { title: '📤 Fuentes abiertas', desc: 'Los textos de base provienen sobre todo de fuentes de licencia abierta como Wikisource en chino (CC BY-SA 4.0), depuradas de marcas antes de entrar en la base de datos.' },
+      { title: '🧭 La manera de leer es tuya', desc: 'Aquí no se prescribe ninguna manera de leer: se exponen con claridad el texto original y los datos de su edición, y la manera de leer de cada lector crece por su cuenta.' },
     ],
   },
 };

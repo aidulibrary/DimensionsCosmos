@@ -1,0 +1,16 @@
+---
+import PricingView from '../../components/PricingView.astro';
+import { ACTIVE_LOCALES, DEFAULT_LOCALE, TRANSLATED_PAGES, type Locale } from '../../i18n/config';
+
+/* 只为「该语言确实有这一页译文」的语言生成静态路由；
+   未译语言由 href() 回落中文页，不断链。 */
+export function getStaticPaths() {
+  return ACTIVE_LOCALES
+    .filter((l) => l !== DEFAULT_LOCALE && TRANSLATED_PAGES[l].includes('/pricing'))
+    .map((locale) => ({ params: { locale } }));
+}
+
+const { locale } = Astro.params as { locale: Locale };
+---
+
+<PricingView lang={locale} />

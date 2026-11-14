@@ -10,7 +10,6 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import type { IndexData, BookMeta, Chapter, ChapterContent, Guide } from '../../../lib/data';
-import { getMethodInfo } from '../../../lib/data';
 
 export async function getStaticPaths() {
   const raw = readFileSync(join(process.cwd(), 'public', 'data', 'index.json'), 'utf-8');
@@ -165,40 +164,14 @@ const tocLite = allChapters.map((c) => ({
 // ---- 原文页 → 导读页 互链数据（P3）----
 //   1) guideLite：本书已上架的解读方法，供工具条「看解读」入口（无解读则不出入口，避免死链）
 //   2) chapCites：章 URN → 该章被哪些导读引用 / 最细落点锚，供章标题下的「本章解读」徽标
-const guidesRaw = ((book.guides ?? []) as Guide[]).filter((g) => !!g?.method_id);
-const guideLite = guidesRaw.map((g) => {
-  const mi = getMethodInfo(g.method_id);
-  return { id: g.method_id, name: mi.name_zh, icon: mi.icon ?? '' };
-});
-
+// FROZEN(2026-11-14)：方法线已按《认知纠正令》移出前台，原文页不再下发任何导读互链数据。
+// 恢复准入见 archive/method-line-2026-11-14/README.md 的 G1-G5。
+const guidesRaw: Guide[] = [];
+// 导读线已冻结（见上），原文页不再计算任何「看解读 / 本章解读」互链数据。
+// 保留同名变量以维持下游渲染结构，值为空。
+const guideLite: { id: string; name: string; icon: string }[] = [];
 type ChapHit = { m: string; name: string; u: string; n: number };
 const chapGuideMap: Record<string, ChapHit[]> = {};
-const urnDepth = (urn: string) => urn.split('/').length;
-for (const g of guidesRaw) {
-  const mi = getMethodInfo(g.method_id);
-  const best = new Map<string, string>();
-  const counts = new Map<string, number>();
-  const push = (urnRaw: string) => {
-    const urn = String(urnRaw || '').trim();
-    // 只接受章级及更细的稳定引用，纯 work 级不作为章内落点
-    const m = /^(dc:[^/]+\/c\d+)((?:\/b\d+)?(?:\/k\d+)?)$/.exec(urn);
-    if (!m) return;
-    const chap = m[1];
-    counts.set(chap, (counts.get(chap) ?? 0) + 1);
-    const cur = best.get(chap);
-    if (!cur || urnDepth(urn) > urnDepth(cur)) best.set(chap, urn);
-  };
-  for (const u of g.citations ?? []) push(u);
-  for (const p of g.paragraphs ?? []) for (const u of p.cites ?? []) push(u);
-  for (const [chap, anchor] of best) {
-    (chapGuideMap[chap] ??= []).push({
-      m: g.method_id,
-      name: mi.name_zh,
-      u: anchor,
-      n: counts.get(chap) ?? 1,
-    });
-  }
-}
 
 const passData = {
   base,
@@ -354,34 +327,6 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
                 {typeof collation.pending === 'number' && <em>{collation.pending}</em>}
               </a>
             )}
-            {guideLite.length === 1 && (
-              <a
-                class="tb-guide"
-                data-guide-link
-                data-m={guideLite[0].id}
-                href={`${base}read/${slug}/${guideLite[0].id}`}
-                title={`以${guideLite[0].name}的方法读本书`}
-              >
-                {guideLite[0].icon} 看{guideLite[0].name}解读
-              </a>
-            )}
-            {guideLite.length > 1 && (
-              <details class="tb-guide-wrap" id="guideWrap">
-                <summary class="tb-guide">看解读（{guideLite.length}）▾</summary>
-                <div class="tb-guide-menu">
-                  {guideLite.map((g) => (
-                    <a
-                      data-guide-link
-                      data-m={g.id}
-                      href={`${base}read/${slug}/${g.id}`}
-                      title={`以${g.name}的方法读本书`}
-                    >
-                      {g.icon} {g.name}解读
-                    </a>
-                  ))}
-                </div>
-              </details>
-            )}
           </div>
         </div>
 
@@ -433,12 +378,6 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
           原文底本：中文维基文库（CC BY-SA 4.0）。已过清洗管线去除维基标记、注脚与模板残留。
         </p>
 
-        {guideLite.length === 0 && (
-          <p class="guide-pending">
-            本书的解读正在筹备中。
-            <a href={`${base}methods`}>了解可用的解读方法 →</a>
-          </p>
-        )}
       </main>
 
       {collation && (

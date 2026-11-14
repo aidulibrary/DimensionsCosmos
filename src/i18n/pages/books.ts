@@ -43,7 +43,7 @@ export const booksDict: Record<Locale, BooksDict> = {
   zh: {
     title: (q) => `书库 · 维点图书馆${q ? ' · 搜索：' + q : ''}`,
     heading: '经典书库',
-    sub: (n) => `经史子集 · ${n} 部可读 · 选一部，再选一位大师的视角`,
+    sub: (n) => `经史子集 · ${n} 部可读 · 按底本逐章整理，缺章缺字显式标注`,
     searchPlaceholder: '搜书名或作者……',
     searchAria: '检索书库',
     clear: '清除',
@@ -64,7 +64,7 @@ export const booksDict: Record<Locale, BooksDict> = {
   'zh-TW': {
     title: (q) => `書庫 · 維點圖書館${q ? ' · 搜尋：' + q : ''}`,
     heading: '經典書庫',
-    sub: (n) => `經史子集 · ${n} 部可讀 · 選一部，再選一位大師的視角`,
+    sub: (n) => `經史子集 · ${n} 部可讀 · 按底本逐章整理，缺章缺字顯式標註`,
     searchPlaceholder: '搜書名或作者……',
     searchAria: '檢索書庫',
     clear: '清除',
@@ -85,7 +85,7 @@ export const booksDict: Record<Locale, BooksDict> = {
   en: {
     title: (q) => `Library · DimensionsCosmos${q ? ' · Search: ' + q : ''}`,
     heading: 'The Classics Library',
-    sub: (n) => `Canon, history, masters, collections · ${n} readable volumes · pick a book, then pick a master's eye`,
+    sub: (n) => `Canon, history, philosophy, collections · ${n} readable volumes · chapter by chapter after the base edition, gaps marked`,
     searchPlaceholder: 'Search title or author…',
     searchAria: 'Search the library',
     clear: 'Clear',
@@ -106,7 +106,7 @@ export const booksDict: Record<Locale, BooksDict> = {
   es: {
     title: (q) => `Biblioteca · DimensionsCosmos${q ? ' · Búsqueda: ' + q : ''}`,
     heading: 'Biblioteca de clásicos',
-    sub: (n) => `Clásicos, historia, maestros y obras reunidas · ${n} volúmenes legibles · elige un libro y luego la mirada de un maestro`,
+    sub: (n) => `Clásicos, historia, filosofía y obras reunidas · ${n} volúmenes legibles · capítulo a capítulo según la edición de base, huecos señalados`,
     searchPlaceholder: 'Buscar título o autor…',
     searchAria: 'Buscar en la biblioteca',
     clear: 'Borrar',

@@ -5,6 +5,8 @@
 //   1) PAY_ENABLED —— 是否已具备真实收款与发货能力
 //   2) BUY_LINK    —— 真实商品页地址（面包多 / Gumroad / 自有收银台）
 //   3) OPERATOR    —— 运营主体与联系方式（条款、退款页、页脚统一引用）
+/* FROZEN 2026-11-14：按「方法 SKU」收费的叙事已停用（paywall / 定价页已下线归档）。
+   本文件的 BUY_LINKS 仅为留档，PAY_ENABLED 保持 false；恢复须待方法线解冻（G1–G5）。 */
 export const PAY_ENABLED = false;
 
 // 每个付费方法对应的真实商品链接；未配置则视为未上架

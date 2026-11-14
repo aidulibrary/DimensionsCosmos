@@ -11,7 +11,7 @@
  *   非 GET 请求   不拦截（预留未来 AI 接口 POST）
  */
 
-const VERSION = 'v1.0.3';
+const VERSION = 'v1.0.4';
 const SHELL_CACHE = `dc-shell-${VERSION}`;
 const PAGE_CACHE = `dc-page-${VERSION}`;
 const DATA_CACHE = `dc-data-${VERSION}`;
@@ -24,8 +24,6 @@ const KEEP_CACHES = [SHELL_CACHE, PAGE_CACHE, DATA_CACHE, ASSET_CACHE, FONT_CACH
 const PRECACHE_URLS = [
   '/',
   '/books/',
-  '/methods/',
-  '/pricing/',
   '/offline.html',
   '/manifest.webmanifest',
   '/icons/icon-192.png',

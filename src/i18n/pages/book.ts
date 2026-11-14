@@ -10,7 +10,7 @@ export interface BookDict {
   bu: Record<string, string>;
   /** 朝代 */
   dynasty: Record<string, string>;
-  /** {n} 种解读 */
+  /** 已停用（方法线冻结），保留字段满足类型 */
   guides: (n: number) => string;
   read: string;
   readAria: (title: string) => string;
@@ -53,37 +53,37 @@ export const bookDict: Record<Locale, BookDict> = {
   zh: {
     bu: { 经部: '经部', 史部: '史部', 子部: '子部', 集部: '集部' },
     dynasty: {},
-    guides: (n) => `${n} 种解读`,
+    guides: () => '',
     read: '读原文',
     readAria: (t) => `阅读《${t}》原文`,
-    fallback: '已有 AI 解读',
+    fallback: '',
     all: '全部',
   },
   'zh-TW': {
     bu: { 经部: '經部', 史部: '史部', 子部: '子部', 集部: '集部' },
     dynasty: {},
-    guides: (n) => `${n} 種解讀`,
+    guides: () => '',
     read: '讀原文',
     readAria: (t) => `閱讀《${t}》原文`,
-    fallback: '已有 AI 解讀',
+    fallback: '',
     all: '全部',
   },
   en: {
     bu: { 经部: 'Canon', 史部: 'History', 子部: 'Masters', 集部: 'Collections' },
     dynasty: dynastyEn,
-    guides: (n) => (n === 1 ? '1 reading' : `${n} readings`),
+    guides: () => '',
     read: 'Read the source',
     readAria: (t) => `Read the source text of ${t}`,
-    fallback: 'AI commentary available',
+    fallback: '',
     all: 'All',
   },
   es: {
     bu: { 经部: 'Clásicos', 史部: 'Historia', 子部: 'Maestros', 集部: 'Obras reunidas' },
     dynasty: dynastyEs,
-    guides: (n) => (n === 1 ? '1 lectura' : `${n} lecturas`),
+    guides: () => '',
     read: 'Leer el original',
     readAria: (t) => `Leer el texto original de ${t}`,
-    fallback: 'Comentario de IA disponible',
+    fallback: '',
     all: 'Todos',
   },
 };

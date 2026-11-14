@@ -2,8 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import MethodSelector from '../../components/MethodSelector.astro';
-import type { IndexData, BookMeta, Guide } from '../../lib/data';
+import type { IndexData, BookMeta } from '../../lib/data';
 import { resolveBuPath, buPathText, type TaxonomyNode } from '../../lib/siku';
 
 // 四库类目父子表随 index.json 下发，构建期只读一次即可（112 页共用）
@@ -41,8 +40,7 @@ try {
   return new Response('未找到该书', { status: 404 });
 }
 
-const { seed_title: title, author, dynasty, bu, chapters, guides } = book;
-const guideList = guides as Guide[] ?? [];
+const { seed_title: title, author, dynasty, bu, chapters } = book;
 
 // UX-6 ①：题名以原书正名为准。ws_title 为繁体正名（73/112 与简体不同），
 // 缺失或与简体同形时不重复出「今名」行，避免同一行字出现两遍。
@@ -64,7 +62,7 @@ const chapterIds = (chapters ?? []).map((c) => c.id);
 const firstChapterId = chapterIds[0] ?? 0;
 ---
 
-<BaseLayout title={`${displayTitle} · 维点图书馆`} description={`${author}《${displayTitle}》${hasNameVariant ? `（通称${title}）` : ''}${taxText ? `，${taxText}` : ''} — 可用 ${guideList.length} 种大师视角解读`}>
+<BaseLayout title={`${displayTitle} · 维点图书馆`} description={`${author}《${displayTitle}》${hasNameVariant ? `（通称${title}）` : ''}${taxText ? `，${taxText}` : ''}。在线阅读原文，保留底本原貌。`}>
   <section class="book-detail">
     <!-- 面包屑 -->
     <nav class="breadcrumb">
@@ -93,7 +91,6 @@ const firstChapterId = chapterIds[0] ?? 0;
       )}
       <p class="stats">
         <span>📄 {(chapters ?? []).length} 章</span>
-        <span>🧠 {guideList.length} 种大师解读</span>
         <span>✍️ {(book.total_chars ?? 0).toLocaleString()} 字</span>
       </p>
 
@@ -128,25 +125,6 @@ const firstChapterId = chapterIds[0] ?? 0;
       )}
     </header>
 
-    <!-- 已有的免费解读预览（朱熹） -->
-    {guideList.filter((g) => g.method_id === 'zhuxi').map((g) => (
-      <div class="preview-box">
-        <h3>🆓 免费预览：朱熹读书法</h3>
-        {(g.content as Record<string, unknown>)?.structure && (
-          <p><strong>逻辑结构</strong>：{String((g.content as Record<string, unknown>).structure)}</p>
-        )}
-        {(g.content as Record<string, unknown>)?.personal_application && (
-          <p><strong>切己体察</strong>：{String((g.content as Record<string, unknown>).personal_application)}</p>
-        )}
-        <a href={`${base}read/${slug}/zhuxi`} class="preview-link">查看完整朱熹解读 →</a>
-      </div>
-    ))}
-
-    <!-- 方法选择器 -->
-    <MethodSelector
-      bookSlug={slug ?? ''}
-      unlockedMethods={guideList.map((g) => g.method_id)}
-    />
   </section>
 </BaseLayout>
 

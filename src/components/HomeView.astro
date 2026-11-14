@@ -4,7 +4,6 @@ import BookCard from './BookCard.astro';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { IndexData } from '../lib/data';
-import { getAllMethods } from '../lib/data';
 import { type Locale, href } from '../i18n/config';
 import { ui } from '../i18n/ui';
 import { home } from '../i18n/pages/home';
@@ -26,8 +25,6 @@ try {
 
 const works = indexData?.works?.filter((w) => w.ok) ?? [];
 const byBu = indexData?.byBu ?? {};
-const methods = getAllMethods();
-const freeMethods = methods.filter((m) => m.free);
 const total = indexData?.ok ?? 0;
 ---
 
@@ -44,8 +41,6 @@ const total = indexData?.ok ?? 0;
       </div>
       <div class="hero-stats">
         <a href={href(lang, '/books')} class="stat-link"><b>{total}</b><span>{t.statBooks}</span></a>
-        <a href={href(lang, '/methods')} class="stat-link"><b>{methods.length}</b><span>{t.statMethods}</span></a>
-        <a href={href(lang, '/pricing')} class="stat-link"><b>{freeMethods.length}</b><span>{t.statFree}</span></a>
       </div>
     </div>
     <div class="hero-art">
@@ -77,23 +72,6 @@ const total = indexData?.ok ?? 0;
     <p class="center-link">
       <a href={href(lang, '/books')}>{t.browseAll}</a>
     </p>
-  </section>
-
-  <section class="method-strip">
-    <div class="strip-inner">
-      <div class="strip-text">
-        <h3>{t.stripTitle}</h3>
-        <p>{t.stripSub.replace('{n}', String(methods.length))}</p>
-      </div>
-      <div class="strip-pills">
-        {methods.slice(0, 5).map((m) => (
-          <a href={`${href(lang, '/methods')}#${m.id}`} class="strip-pill">
-            {m.icon} {lang === 'zh' || lang === 'zh-TW' ? m.name_zh : m.name_en}
-          </a>
-        ))}
-        <a href={href(lang, '/methods')} class="strip-pill more">{t.stripMore.replace('{n}', String(methods.length - 5))}</a>
-      </div>
-    </div>
   </section>
 
   <section class="open-band">

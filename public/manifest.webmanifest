@@ -43,10 +43,10 @@
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
-      "name": "阅读方法",
-      "short_name": "方法",
-      "description": "查看 10 种大师视角",
-      "url": "/methods/",
+      "name": "校勘任务",
+      "short_name": "校勘",
+      "description": "认领缺口字，逐字校勘",
+      "url": "/tasks/",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
