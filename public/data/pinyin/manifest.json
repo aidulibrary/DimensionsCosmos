@@ -1,7 +1,7 @@
 {
- "buildId": "b20261111_L05rule_r2v9",
+ "buildId": "b20261115_v27_keep",
  "engine": "L0.5-rule-v2.5",
- "generatedFrom": "D:\\DimensionsCosmos\\data\\pinyin\\b20261111_L05rule_r2v9",
+ "generatedFrom": "D:\\DimensionsCosmos\\data\\pinyin\\b20261115_v27_keep",
  "books": [
   {
    "workId": 13,
@@ -14,9 +14,9 @@
      "chars": 3687,
      "annotated": 2896,
      "coverage": 0.7855,
-     "a": 2687,
+     "a": 2693,
      "v": 0,
-     "u": 209
+     "u": 203
     },
     {
      "chId": 446,
@@ -51,7 +51,7 @@
    ],
    "annotated": 5858,
    "chars": 7314,
-   "rateU": 0.0703,
+   "rateU": 0.0693,
    "rateV": 0.0
   },
   {
@@ -131,10 +131,10 @@
   "chapters": 9,
   "annotated": 17397,
   "chars": 21440,
-  "a": 16524,
+  "a": 16530,
   "v": 1,
-  "u": 872,
-  "rateU": 0.0501,
+  "u": 866,
+  "rateU": 0.0498,
   "rateV": 0.0001,
   "coverage": 0.8114
  }
