@@ -45,13 +45,29 @@ const barePath = curPrefix && rawPath.startsWith(curPrefix) ? rawPath.slice(curP
 const langLinks = ACTIVE_LOCALES.map((l) => {
   const raw = href(l, barePath);
   const samePath = raw === rawPath || `${raw}/` === rawPath;
+  // 该语言是否真有这一页的译文：href() 对未译页会回落到中文路径（不加前缀），
+  // 因此「带前缀路径 === 去前缀路径」即视为无译文。切换器与 hreflang 都以此为准。
+  // 中文是原文语种，其 href 永远不带前缀，同一判据推不出 true，需单独兜底。
+  const hasPage = l === 'zh' || raw !== barePath;
   return {
     code: l,
     label: LOCALES[l].label,
     url: samePath && l !== lang ? localePath(l, '/') : raw,
     current: l === lang,
+    hasPage,
   };
 });
+
+// 绝对化并统一尾斜杠：canonical 与 hreflang 必须指向同一个最终 URL，
+// 否则等于自己又制造一套「同页多址」。带扩展名的文件页原样保留。
+const absUrl = (p) => {
+  const withSlash = /\.[a-z0-9]+$/i.test(p) || p.endsWith('/') ? p : `${p}/`;
+  return new URL(withSlash, Astro.site ?? Astro.url).href;
+};
+
+// 正式 URL（canonical）：语言前缀 + 去前缀路径，目录式页面统一带尾斜杠。
+// Cloudflare Pages 对 /zh-TW/books 与 /zh-TW/books/ 都返回 200，靠 canonical 把权重归到一个地址。
+const canonicalUrl = absUrl(localePath(lang, barePath));
 
 // 保证尾斜杠，`${base}books` 才能拼成 `/books`
 const rawBase = import.meta.env.BASE_URL || '/';
@@ -126,11 +142,19 @@ try {
   </script>
   <title>{title}</title>
   <meta name="description" content={description}>
-  {/* hreflang：让 Google/Bing 知道这是一组等价页而非重复内容；x-default 指向默认语言 */}
-  {langLinks.map((l) => (
-    <link rel="alternate" hreflang={LOCALES[l.code].htmlLang} href={new URL(l.url, Astro.site ?? Astro.url).href} />
-  ))}
-  <link rel="alternate" hreflang="x-default" href={new URL(href('zh', barePath), Astro.site ?? Astro.url).href} />
+  {/* canonical/hreflang 只对可收录页输出：noindex 页（404、站内工具页）声明这些没有意义，
+      反而会把权重指向一个不存在或不收录的地址。 */}
+  {!noindex && (
+    <>
+      <link rel="canonical" href={canonicalUrl}>
+      {/* hreflang：只声明真实存在的等价页。未译页的 alternate 若指到某语言首页，
+          等于向搜索引擎谎报等价关系，会被当成错误 hreflang；故仅对 hasPage 的语言输出。 */}
+      {langLinks.filter((l) => l.hasPage).map((l) => (
+        <link rel="alternate" hreflang={LOCALES[l.code].htmlLang} href={absUrl(l.url)} />
+      ))}
+      <link rel="alternate" hreflang="x-default" href={absUrl(href('zh', barePath))} />
+    </>
+  )}
   {noindex && <meta name="robots" content="noindex, follow">}
 
   <!-- ══ PWA 基础 ══ -->

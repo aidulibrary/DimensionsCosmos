@@ -392,6 +392,20 @@ const SEC_PER_CHAR = meta.ctxL + 1 + meta.ctxR;
       return null;
     }
 
+    /* 从当前题的「下一条」开始找未标项，扫到末尾再环形回绕，永不返回当前题。
+       原因：render() 在 focus=0 时总是落到 firstUnmarked()，若当前题恰好就是第一条未标，
+       「跳到下一未标」会原地不动，读者以为按钮坏了。当前题不在筛选队列时（如切了分层）退化为从头找。 */
+    function nextUnmarkedAfter(fromId) {
+      var q = currentQueue();
+      if (!q.length) return null;
+      var pos = q.findIndex(function (x) { return x.id === fromId; });
+      for (var k = 1; k <= q.length; k++) {
+        var it = pos < 0 ? q[k - 1] : q[(pos + k) % q.length];
+        if (it.id !== fromId && !store[it.id]) return it.id;
+      }
+      return null;
+    }
+
     function render() {
       var q = currentQueue();
       var open = firstUnmarked();
@@ -535,9 +549,14 @@ const SEC_PER_CHAR = meta.ctxL + 1 + meta.ctxR;
     });
     el('btn-prev').addEventListener('click', prev);
     el('btn-jump').addEventListener('click', function () {
-      focus = 0;
+      var t = nextUnmarkedAfter(idx);
+      if (t === null) {
+        // 两种"找不到"要分开说：全标完 vs 只剩当前这一条（此时跳到自身等于没动）
+        toast(firstUnmarked() === null ? '当前筛选下已全部标完，可导出回传' : '只剩当前这一条未标，标完即完成');
+        return;
+      }
+      focus = t;  // 显式定位，避免 render() 回落到第一条未标而看起来没动
       render();
-      if (firstUnmarked() === null) toast('当前筛选下已无待标项');
     });
     el('btn-export').addEventListener('click', exportJSONL);
     el('btn-export2').addEventListener('click', exportJSONL);
