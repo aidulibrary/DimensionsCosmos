@@ -442,7 +442,9 @@ try {
           var m = p.match(/^\/(zh-TW|en|es)(\/.*)?$/);
           return m ? '/' + (m[2] || '').replace(/^\//, '') : p;
         };
-        if (bare(target.pathname) !== bare(location.pathname)) return;
+        // alternate 与当前地址的尾斜杠不保证一致（如 /zh-TW/books 对 /books/），比较前先归一化。
+        var norm = function (p) { return p.replace(/\/+$/, '') || '/'; };
+        if (norm(bare(target.pathname)) !== norm(bare(location.pathname))) return;
         location.replace(target.pathname + location.search); // search 里含 store=1 则一并带过去
       } catch (e) { /* 任何异常一律按当前语言渲染 */ }
     })();
