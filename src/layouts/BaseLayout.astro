@@ -436,7 +436,13 @@ try {
         if (!alt) return;
         var target = new URL(alt.getAttribute('href'), location.origin);
         if (target.origin !== location.origin) return;
-        if (target.pathname === location.pathname) return;  // 该页无译文，保持原样
+        // 未译页的 alternate 会回落到该语言首页：剥掉语言前缀后若与本页骨架不同，
+        // 说明本站没有这一页的译文，必须保持原样，否则读者会被静默弹回首页。
+        var bare = function (p) {
+          var m = p.match(/^\/(zh-TW|en|es)(\/.*)?$/);
+          return m ? '/' + (m[2] || '').replace(/^\//, '') : p;
+        };
+        if (bare(target.pathname) !== bare(location.pathname)) return;
         location.replace(target.pathname + location.search); // search 里含 store=1 则一并带过去
       } catch (e) { /* 任何异常一律按当前语言渲染 */ }
     })();
