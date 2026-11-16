@@ -1094,6 +1094,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     ch.__pyLoaded = true;
     const data = await loadPy(id);
     if (!data) {
+      // 包缺失或取包失败：允许下次重试，避免一次失败把本章注音永久锁死
+      ch.__pyLoaded = false;
       console.warn('[pinyin] 本章暂无注音数据', id);
       return;
     }
@@ -1107,9 +1109,11 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     savePy();
     paintPyUI();
     const id = Number(toc[currentIndex]?.id);
+    if (!Number.isFinite(id)) return;
     const ch: any = cache.get(id);
-    if (!ch) return;
-    if (on && !ch.__pyLoaded) await hydratePinyin(id);
+    // 首章由服务端直出，cache 里没有正文：这里不能早退，否则读者点开关毫无反应。
+    // hydratePinyin 自己会先补章节数据再取注音包，缺失时静默降级。
+    if (!ch || (on && !ch.__pyLoaded)) await hydratePinyin(id);
     else repaintCurrent();
   }
 

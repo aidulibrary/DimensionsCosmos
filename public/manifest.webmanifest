@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "维点图书馆 · 用大师的方法读一切书",
+  "name": "维点图书馆 · 浇灌自由生长的文明",
   "short_name": "维点图书馆",
-  "description": "经史子集 50 部经典，10 种大师视角的 AI 导读。朱熹带你涵泳，费曼帮你白话，苏格拉底追着你问。",
+  "description": "经史子集 112 部古籍原文，10075 章逐字可读：注音、章级稳定链接、离线可读。",
   "lang": "zh-CN",
   "dir": "ltr",
   "start_url": "/books/",
@@ -38,7 +38,7 @@
     {
       "name": "书库",
       "short_name": "书库",
-      "description": "浏览经史子集 50 部经典",
+      "description": "浏览经史子集 112 部古籍原文",
       "url": "/books/",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },

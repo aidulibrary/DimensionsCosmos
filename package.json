@@ -2,7 +2,7 @@
   "name": "dimensions-cosmos",
   "version": "1.0.0",
   "type": "module",
-  "description": "维点图书馆 / DimensionsCosmos Library —— 古籍 AI 导读引擎",
+  "description": "维点图书馆 / DimensionsCosmos Library —— 公版古籍原文在线阅读",
   "private": true,
   "scripts": {
     "gen": "node --experimental-sqlite scripts/gen-data.mjs",
