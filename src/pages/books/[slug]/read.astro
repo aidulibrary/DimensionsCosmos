@@ -288,6 +288,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
           </div>
           <div class="tb-right">
             <button class="tb-py" id="pyToggle" type="button" aria-pressed="false" title="注音：为正文逐字标注读音（未定音另有标记）" aria-label="开关注音">注</button>
+            <button id="linkBtn" type="button" title="复制本篇直达链接（稳定引用，长期有效）" aria-label="复制本篇链接">链</button>
             <details class="reader-prefs" id="readerPrefs">
               <summary title="阅读设置：字号 / 行距 / 纸色" aria-label="阅读设置">Aa</summary>
               <div class="rp-panel" role="group" aria-label="阅读设置">
@@ -1260,16 +1261,19 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   // 提示条：只在「按进度自动定位」时出现——续读要可感知，否则用户以为页面乱跳
   const resumeTipEl = document.getElementById('resumeTip');
   let resumeTipTimer = 0;
-  function showResumeTip(ratio: number) {
+  function showTip(msg: string, ms = 3200) {
     if (!resumeTipEl) return;
-    resumeTipEl.textContent = `已回到上次读到的位置：第 ${currentIndex + 1} 篇 · 篇内 ${Math.round(ratio * 100)}%`;
+    resumeTipEl.textContent = msg;
     resumeTipEl.hidden = false;
     resumeTipEl.classList.add('show');
     window.clearTimeout(resumeTipTimer);
     resumeTipTimer = window.setTimeout(() => {
       resumeTipEl.classList.remove('show');
       window.setTimeout(() => { resumeTipEl.hidden = true; }, 280);
-    }, 3200);
+    }, ms);
+  }
+  function showResumeTip(ratio: number) {
+    showTip(`已回到上次读到的位置：第 ${currentIndex + 1} 篇 · 篇内 ${Math.round(ratio * 100)}%`);
   }
 
   document.querySelectorAll('.toc-link').forEach((a) => {
@@ -1286,6 +1290,32 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   nextBtn.addEventListener('click', () => {
     if (currentIndex < toc.length - 1) go(toc[currentIndex + 1].id);
   });
+
+  // 分享链接：统一输出稳定引用 #dc:<work>/c<序>（10075 章 ref 覆盖率 100%），
+  // 不暴露库内自增 id —— 重导数据后 id 会漂移，URN 永不失效。
+  const linkBtn = document.getElementById('linkBtn');
+  async function copyShareLink() {
+    const id = Number(toc[currentIndex]?.id || D.first || 0);
+    if (!id) return;
+    const url = `${location.origin}${location.pathname}${pyState.on ? '?py=1' : ''}${hashFor(id)}`;
+    try {
+      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
+      else {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      showTip('已复制本篇直达链接（稳定引用，长期有效）');
+    } catch {
+      showTip('复制失败，可手动复制地址栏链接：' + url, 6000);
+    }
+  }
+  linkBtn?.addEventListener('click', () => { void copyShareLink(); });
 
   document.addEventListener('keydown', (e) => {
     const t = e.target as HTMLElement | null;
@@ -1481,9 +1511,17 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     if (resumeRatio > 0.01) requestAnimationFrame(afterResume); // 首章已由服务端渲染，无需再拉一次
   }
 
+  // 锚点属于别本书 / 已过期时不做无声回落：告诉用户链接失效了，否则会以为站点乱跳
+  if (H0raw && !H0) {
+    window.setTimeout(() => showTip('该章节链接不属于本书或已失效，已按本书定位打开', 4200), 300);
+  }
+
   window.addEventListener('hashchange', () => {
     const h = parseHash();
-    if (!h?.id || idxOf(h.id) < 0) return;
+    if (!h?.id || idxOf(h.id) < 0) {
+      if (h?.id) showTip('该章节链接不属于本书或已失效，已停在当前篇', 3600);
+      return;
+    }
     const spot = h.bi !== null ? { bi: h.bi, kth: h.kth ?? 0 } : null;
     if (h.id !== toc[currentIndex]?.id || spot) go(h.id, false, spot);
   });

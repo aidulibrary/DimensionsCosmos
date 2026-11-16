@@ -60,6 +60,8 @@ const taxText = buPathText(taxPath);
 // 避免为了一句文案把 130 章标题整份塞进详情页 HTML。
 const chapterIds = (chapters ?? []).map((c) => c.id);
 const firstChapterId = chapterIds[0] ?? 0;
+// 首章优先用稳定引用 #dc:...（全库 ref 覆盖 100%），id 只作兜底：重导数据后 id 会漂移
+const firstChapterRef = String((chapters ?? [])[0]?.ref ?? '');
 ---
 
 <BaseLayout title={`${displayTitle} · 维点图书馆`} description={`${author}《${displayTitle}》${hasNameVariant ? `（通称${title}）` : ''}${taxText ? `，${taxText}` : ''}。在线阅读原文，保留底本原貌。`}>
@@ -113,7 +115,7 @@ const firstChapterId = chapterIds[0] ?? 0;
         <div class="read-cta">
           <a class="btn-read" id="btnRead" data-slug={slug} href={`${base}books/${slug}/read`}>开始阅读原文 →</a>
           <span class="read-hint" id="readHint">可切换目录、记忆上次读到的位置</span>
-          <a class="read-restart" id="readRestart" href={`${base}books/${slug}/read#ch-${firstChapterId}`} hidden>从头开始读 →</a>
+          <a class="read-restart" id="readRestart" href={`${base}books/${slug}/read${firstChapterRef ? `#${firstChapterRef}` : `#ch-${firstChapterId}`}`} hidden>从头开始读 →</a>
         </div>
       ) : (
         <p class="read-blocked">
