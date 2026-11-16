@@ -1427,7 +1427,10 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
   });
 
   // 初始：hash 优先（支持稳定引用 #dc:... 与旧式 #ch-<id> 深链），其次上次阅读位置
-  const H0 = parseHash();
+  const H0raw = parseHash();
+  // 锚点必须属于本书：他书引用或过期 URN 带来的 #ch-<id> 若直接交给 go()，会在 idxOf<0 处早退，
+  // 页面残留半渲染的首屏 DOM 且注音不加载；校验不过则视同无锚点，回落首章/续读。
+  const H0 = H0raw && idxOf(H0raw.id) >= 0 ? H0raw : null;
   const S0 = H0 && H0.bi !== null ? { bi: H0.bi, kth: H0.kth ?? 0 } : null;
   const P0 = readProgress();
   let target = H0?.id || 0;
@@ -1480,7 +1483,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
 
   window.addEventListener('hashchange', () => {
     const h = parseHash();
-    if (!h?.id) return;
+    if (!h?.id || idxOf(h.id) < 0) return;
     const spot = h.bi !== null ? { bi: h.bi, kth: h.kth ?? 0 } : null;
     if (h.id !== toc[currentIndex]?.id || spot) go(h.id, false, spot);
   });
