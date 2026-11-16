@@ -10,6 +10,7 @@ public/data/*.tmp
 
 # 本地数据库（73MB，不入库；由 pipeline/ 脚本本地生成与维护）
 # 无 DB 时 scripts/gen-data.mjs 会跳过生成，直接使用已入库的 public/data
+data/library.db
 data/guji.db
 data/guji.db-journal
 data/guji.db-wal

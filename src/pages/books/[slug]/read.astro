@@ -287,6 +287,7 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
             </span>
           </div>
           <div class="tb-right">
+            <button class="tb-py" id="pyToggle" type="button" aria-pressed="false" title="注音：为正文逐字标注读音（未定音另有标记）" aria-label="开关注音">注</button>
             <details class="reader-prefs" id="readerPrefs">
               <summary title="阅读设置：字号 / 行距 / 纸色" aria-label="阅读设置">Aa</summary>
               <div class="rp-panel" role="group" aria-label="阅读设置">
@@ -315,6 +316,20 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
                     <button type="button" data-paper="white" title="纯白" aria-pressed="false"><i class="sw sw-white"></i>纯白</button>
                     <button type="button" data-paper="amber" title="米黄" aria-pressed="false"><i class="sw sw-amber"></i>米黄</button>
                     <button type="button" data-paper="dark" title="夜间" aria-pressed="false"><i class="sw sw-dark"></i>夜间</button>
+                  </div>
+                </div>
+                <div class="rp-row">
+                  <span class="rp-label">注音</span>
+                  <div class="rp-seg" id="rpPy" role="group" aria-label="注音">
+                    <button type="button" data-py="0" aria-pressed="false">关</button>
+                    <button type="button" data-py="1" aria-pressed="false">开</button>
+                  </div>
+                </div>
+                <div class="rp-row">
+                  <span class="rp-label">未定音</span>
+                  <div class="rp-seg" id="rpPyFlag" role="group" aria-label="未定音标记">
+                    <button type="button" data-flag="0" aria-pressed="false">不标</button>
+                    <button type="button" data-flag="1" aria-pressed="false">标出</button>
                   </div>
                 </div>
                 <p class="rp-preview">天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。</p>
@@ -450,6 +465,138 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     }
     if (i < text.length) el.appendChild(document.createTextNode(text.slice(i)));
   }
+  // ── 注音（py1）────────────────────────────────────────────────
+  // 数据形态：public/data/py/index.json（全库索引 + 全局音节表 1258 项）
+  //           public/data/py/p<NNN>.json（每包 ≤10 章，按体积上限 350KB 封包）
+  // 为什么打包而不是一章一文件：Cloudflare Pages 单站点 20000 文件上限，
+  // 本书站现有 dist 已 10481 文件，再叠 10075 个分片会直接部署失败。
+  // 为什么默认关闭且不进首屏：读原文时注音是干扰项，只有需要时才付这 100KB 的流量。
+  //
+  // 对齐方式：不按字符偏移硬算，改用「全章第 k 个汉字」。
+  //   分片的 pos / st 按 clean_text 的汉字序列生成，正文块内汉字序与之一一对应，
+  //   天然绕开标点、空白、方括号注的差异；块拼接后的汉字总数与 st 长度不等则整体降级为无注音。
+  const PY_BASE = `${base}data/py/`.replace(/\/+/g, '/');
+  const PY_KEY = 'dc:pinyin:v1';
+  const pyState = { on: false, flag: true };
+  let pyIndex: any = null;
+  let pyIndexTried = false;
+  const pyPacks = new Map<number, any>();
+  const HAN_RE = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
+  const isHan = (c: string) => HAN_RE.test(c);
+
+  try {
+    const raw = localStorage.getItem(PY_KEY);
+    const p = raw ? JSON.parse(raw) : null;
+    if (p && typeof p === 'object') {
+      pyState.on = p.on === true;
+      pyState.flag = p.flag !== false;
+    }
+  } catch { /* 隐私模式：按默认（关闭） */ }
+  const savePy = () => {
+    try { localStorage.setItem(PY_KEY, JSON.stringify(pyState)); } catch { /* ignore */ }
+  };
+  // ?py=1 / ?py=0：一次性覆盖（不写入 localStorage），便于分享「带注音的文章链接」与自动化校验
+  try {
+    const q = new URLSearchParams(location.search).get('py');
+    if (q === '1') pyState.on = true;
+    else if (q === '0') pyState.on = false;
+  } catch { /* ignore */ }
+
+  async function loadPyIndex() {
+    if (pyIndexTried) return pyIndex;
+    pyIndexTried = true;
+    try {
+      const r = await fetch(PY_BASE + 'index.json');
+      if (!r.ok) throw new Error(String(r.status));
+      pyIndex = await r.json();
+    } catch {
+      pyIndex = null;
+    }
+    return pyIndex;
+  }
+
+  async function loadPy(chId: number) {
+    const ix = await loadPyIndex();
+    const meta = ix?.ch?.[String(chId)];
+    if (!meta || !Array.isArray(ix.syl)) return null;
+    let pack = pyPacks.get(meta.pack);
+    if (!pack) {
+      try {
+        const r = await fetch(PY_BASE + 'p' + String(meta.pack).padStart(3, '0') + '.json');
+        if (!r.ok) throw new Error(String(r.status));
+        pack = (await r.json()).ch || {};
+      } catch {
+        return null;
+      }
+      pyPacks.set(meta.pack, pack);
+    }
+    const e = pack?.[String(chId)];
+    if (!e || !Array.isArray(e.py) || !Array.isArray(e.pos)) return null;
+    return {
+      syl: ix.syl as string[],
+      py: e.py as number[],
+      st: String(e.st || ''),
+      fl: Number(meta.fl ?? 0),
+      off: Number((meta as any).off ?? 0),
+      mp: Array.isArray((e as any).mp) ? ((e as any).mp as number[]) : null,
+    };
+  }
+
+  // 全章汉字数（按 render 的过滤口径），用于与分片 st 长度做一致性校验
+  function hanCount(ch: any) {
+    let n = 0;
+    for (const b of ch.blocks || []) {
+      const t = clean(String(b.x || ''));
+      if (!t) continue;
+      for (const c of t) if (isHan(c)) n++;
+    }
+    return n;
+  }
+
+  // 逐字渲染：汉字出 ruby（上标读音），非汉字原样，□ 仍走 .mk-box 保持缺字可见与定位
+  function paintPy(text: string, el: HTMLElement, P: any, cur: { k: number }) {
+    let buf = '';
+    const flush = () => {
+      if (buf) {
+        el.appendChild(document.createTextNode(buf));
+        buf = '';
+      }
+    };
+    for (const c of text) {
+      if (c === '□') {
+        flush();
+        const s = document.createElement('span');
+        s.className = 'mk-box';
+        s.textContent = '□';
+        el.appendChild(s);
+        continue;
+      }
+      if (!isHan(c)) {
+        buf += c;
+        continue;
+      }
+      const k = cur.k++;
+      const si = P.mp ? P.mp[k] : P.off + k;
+      const syl = si != null && si >= 0 && si < P.py.length ? P.syl[P.py[si]] : '';
+      const st = si != null && si >= 0 && si < P.st.length ? P.st[si] : '';
+      if (!syl) {
+        buf += c;
+        continue;
+      }
+      flush();
+      const rb = document.createElement('ruby');
+      // u 态 = 规则无法定音（全库 4.33%）；v 态 = 异读（0.007%）。
+      // 两者都「显示读音但另作标记」：读音来自规则首选，读者若看出不合语境，可自行判读。
+      rb.className = 'py-r' + (pyState.flag && st === 'u' ? ' py-u' : pyState.flag && st === 'v' ? ' py-v' : '');
+      rb.appendChild(document.createTextNode(c));
+      const rt = document.createElement('rt');
+      rt.textContent = syl;
+      rb.appendChild(rt);
+      el.appendChild(rb);
+    }
+    flush();
+  }
+
   let currentIndex = D.first ? idxOf(D.first) : 0;
   if (currentIndex < 0) currentIndex = 0;
 
@@ -468,6 +615,24 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     }
 
     let vi = 0;
+    // 注音仅在开关打开、数据已到、且两序列对得上时启用；任一不满足就退回纯文渲染
+    const P = pyState.on ? ch.__py || null : null;
+    let usePy = false;
+    if (P) {
+      if (ch.__pyHan === undefined) ch.__pyHan = hanCount(ch);
+      // fl 由构建期对齐得出（见 export_reader_packs.py）：
+      //   2 = 正文块与注音逐字一致 → 要求等长，否则说明数据版本不匹配
+      //   1 = 正文块是注音序列的连续切片（off 起点，含卷首「註疏」类前缀）→ 从 off 起等长
+      //   3 = 中间有增删但逐字映射可靠 → 用 mp 逐字定位
+      //   0 = 映射不可靠，注音会整体错位 → 不注音，宁可没有，也不给错音
+      const avail = P.st.length - P.off;
+      usePy =
+        P.fl === 2 ? ch.__pyHan === avail
+        : P.fl === 1 ? ch.__pyHan <= avail
+        : P.fl === 3 ? P.mp != null && P.mp.length === ch.__pyHan
+        : false;
+    }
+    const cur = { k: 0 };
     for (const b of ch.blocks || []) {
       const tag = b.t === 'h' ? 'h3' : b.t === 'q' ? 'blockquote' : 'p';
       const el = document.createElement(tag);
@@ -476,7 +641,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
       const txt = clean(String(b.x || ''));
       if (!txt) continue;
       el.dataset.bi = String(vi++);
-      paintNeed(txt, el);
+      if (usePy) paintPy(txt, el, P, cur);
+      else paintNeed(txt, el);
       reader.appendChild(el);
     }
   }
@@ -874,6 +1040,94 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
 
   const cache = new Map<number, any>();
 
+  // ── 注音开关：懒加载 + 重排版 ────────────────────────────────
+  // 全库 1277 个包，只在读者真的打开注音、且翻到该章时才各拉一次；同一包内翻章不再请求。
+  const pyBtn = document.getElementById('pyToggle') as HTMLButtonElement | null;
+  const rpPy = document.getElementById('rpPy');
+  const rpPyFlag = document.getElementById('rpPyFlag');
+
+  function paintPyUI() {
+    if (pyBtn) {
+      pyBtn.setAttribute('aria-pressed', String(pyState.on));
+      pyBtn.classList.toggle('is-on', pyState.on);
+      pyBtn.title = pyState.on
+        ? '注音已开（点按关闭）'
+        : '注音：为正文逐字标注读音（未定音另有标记）';
+    }
+    rpPy?.querySelectorAll('button').forEach((b) => {
+      b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.py === (pyState.on ? '1' : '0')));
+    });
+    rpPyFlag?.querySelectorAll('button').forEach((b) => {
+      b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.flag === (pyState.flag ? '1' : '0')));
+    });
+  }
+
+  // 当前章重排版：注音会改变行高（上标挤在行间），所以必须保住滚动位置，
+  // 否则读者一点开关就被弹回段首——这是适老场景最不能犯的错。
+  function repaintCurrent() {
+    const id = Number(toc[currentIndex]?.id);
+    const ch: any = cache.get(id);
+    if (!ch) return;
+    const y = window.scrollY;
+    render(ch);
+    decorate(id);
+    decorateGuides(id);
+    syncGuideLinks(id);
+    window.scrollTo({ top: y, behavior: 'auto' });
+  }
+
+  async function hydratePinyin(id: number) {
+    let ch: any = cache.get(id);
+    if (!ch) {
+      // 首章由服务端直出，前端 cache 里没有正文；注音要重排，就得先补一份章节数据
+      try {
+        const res = await fetch(CH_URL(id));
+        if (!res.ok) throw new Error(String(res.status));
+        ch = await res.json();
+        cache.set(id, ch);
+      } catch {
+        return;
+      }
+    }
+    if (ch.__pyLoaded) return;
+    ch.__pyLoaded = true;
+    const data = await loadPy(id);
+    if (!data) {
+      console.warn('[pinyin] 本章暂无注音数据', id);
+      return;
+    }
+    ch.__py = data;
+    if (pyState.on && Number(toc[currentIndex]?.id) === id) repaintCurrent();
+  }
+
+  async function setPinyin(on: boolean) {
+    if (pyState.on === on) return;
+    pyState.on = on;
+    savePy();
+    paintPyUI();
+    const id = Number(toc[currentIndex]?.id);
+    const ch: any = cache.get(id);
+    if (!ch) return;
+    if (on && !ch.__pyLoaded) await hydratePinyin(id);
+    else repaintCurrent();
+  }
+
+  pyBtn?.addEventListener('click', () => { setPinyin(!pyState.on); });
+  rpPy?.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('button') as HTMLElement | null;
+    if (!b) return;
+    setPinyin(b.dataset.py === '1');
+  });
+  rpPyFlag?.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('button') as HTMLElement | null;
+    if (!b) return;
+    pyState.flag = b.dataset.flag === '1';
+    savePy();
+    paintPyUI();
+    repaintCurrent();
+  });
+  paintPyUI();
+
   async function go(
     id: number,
     push = true,
@@ -913,6 +1167,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
         reader.classList.remove('loading');
       }
     }
+    // 注音：开关打开时进入新章即懒加载所属包，不阻塞正文首屏（数据到手后再重排一次）
+    if (pyState.on) void hydratePinyin(id);
     if (!spot && !opts.keepScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
     decorate(id);
     decorateGuides(id);
@@ -1217,6 +1473,8 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
       }, 120);
     }
     renderCnav();
+    // 首章是服务端直出的，不走 go()，注音开关此前若已开（localStorage 或 ?py=1）需手动补一次加载
+    if (pyState.on && D.first) void hydratePinyin(D.first);
     if (resumeRatio > 0.01) requestAnimationFrame(afterResume); // 首章已由服务端渲染，无需再拉一次
   }
 
@@ -1716,6 +1974,47 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
     --ink-soft: #675f50;
     --line: #ddcfab;
     --line-strong: #c9b88d;
+  }
+
+  /* 注音 ruby 由 JS 运行时注入，元素上没有 Astro scoping 属性，
+     因此这些规则必须留在 is:global 块内，否则整组选择器都不会命中。 */
+  #reader ruby.py-r {
+    ruby-position: over;
+    ruby-align: center;
+  }
+  #reader ruby.py-r rt {
+    font-size: 0.5em;
+    line-height: 1;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--ink-soft);
+    opacity: 0.72;
+    transform: translateY(-0.04em);
+  }
+  /* u 态（存疑，全库 ~3.5%）：读音照常显示，但降饱和 + 字下 1px 点线，
+     表示「此音为推定，规则库未定」。点线是最低强度标记，不打断阅读。 */
+  #reader ruby.py-u {
+    text-decoration: underline dotted;
+    text-decoration-color: rgba(176, 122, 62, 0.95);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.16em;
+  }
+  #reader ruby.py-u rt {
+    color: rgba(150, 98, 42, 0.95);
+    opacity: 0.88;
+  }
+  /* v 态（异读，全库 ~0.007%）：蓝色波浪线，与 u 态区分 */
+  #reader ruby.py-v {
+    text-decoration: underline wavy;
+    text-decoration-color: rgba(58, 110, 152, 0.9);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.16em;
+  }
+  :root[data-theme='dark'] #reader ruby.py-u rt { color: rgba(226, 176, 112, 0.95); }
+  :root[data-theme='dark'] #reader ruby.py-u { text-decoration-color: rgba(226, 176, 112, 0.8); }
+  :root[data-theme='dark'] #reader ruby.py-v { text-decoration-color: rgba(140, 190, 226, 0.8); }
+  @media (max-width: 640px) {
+    #reader ruby.py-r rt { font-size: 0.46em; }
   }
 </style>
 
@@ -2371,5 +2670,21 @@ const firstBlocks = ((firstContent?.blocks ?? []) as any[]).filter(
       font-size: 21px;
       letter-spacing: 3px;
     }
+  }
+
+  /* ---------- 注音（py1）----------
+     开关默认关闭：读原文时一次 20 万字里冒出两万个音节，是干扰而不是帮助。
+     开启后每字一个 ruby，读音作上标（0.5em）贴在字上，不改 --reader-font 字号链，
+     行高由 --reader-lh 吸收（2.0 档可完全容纳上标；1.8 紧凑档只略微增高）。
+
+     u 态（规则无法定音，全库 932822 字 = 4.33%）的处理原则：
+       **显示读音，但标出「此音存疑」** —— 藏掉读音，读者会在最需要断读的字上卡住；
+       只显示不标记，等于把规则首选音伪装成确定结论，是欺骗读者。
+       所以：读音转灰降饱和 + 字下加 1px 点线，一眼可辨、不刺眼、不打断阅读。
+     v 态（异读，全库 1594 字 = 0.007%）用蓝色波浪线，与 u 态区分。 */
+  .tb-right button.tb-py.is-on {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #f7f4ec;
   }
 </style>
