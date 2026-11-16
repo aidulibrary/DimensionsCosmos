@@ -90,10 +90,6 @@ const generatedAt = new Date(idx.generatedAt).toLocaleString(
       </li>
       <li>{t.labelRepo}<a href={OPERATOR.repo}>{OPERATOR.repo.replace('https://', '')}</a></li>
       <li>{t.labelRegion}{OPERATOR.region}</li>
-      <li>
-        {t.labelDocs}
-        <a href={link('/terms')}>{t.docTerms}</a> · <a href={link('/refund')}>{t.docRefund}</a> · <a href={link('/privacy')}>{t.docPrivacy}</a>
-      </li>
     </ul>
 
     <p class="hint">{t.hint}</p>

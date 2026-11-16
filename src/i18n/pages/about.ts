@@ -40,10 +40,6 @@ export interface AboutDict {
   labelEmail: string;
   labelRepo: string;
   labelRegion: string;
-  labelDocs: string;
-  docTerms: string;
-  docRefund: string;
-  docPrivacy: string;
 
   hint: string;
 }
@@ -83,10 +79,6 @@ export const aboutDict: Record<Locale, AboutDict> = {
     labelEmail: '联系邮箱：',
     labelRepo: '项目仓库：',
     labelRegion: '服务地区：',
-    labelDocs: '相关条款：',
-    docTerms: '服务条款',
-    docRefund: '退款说明',
-    docPrivacy: '隐私政策',
     hint: '运营主体与联系邮箱当前为待填占位，集中在 src/config/commerce.ts 中维护；对外正式运营（尤其收费）前必须补齐真实信息。',
   },
 
@@ -124,10 +116,6 @@ export const aboutDict: Record<Locale, AboutDict> = {
     labelEmail: '聯絡信箱：',
     labelRepo: '專案倉庫：',
     labelRegion: '服務地區：',
-    labelDocs: '相關條款：',
-    docTerms: '服務條款',
-    docRefund: '退款說明',
-    docPrivacy: '隱私政策',
     hint: '營運主體與聯絡信箱目前為待填佔位，集中在 src/config/commerce.ts 中維護；對外正式營運（尤其收費）前必須補齊真實資訊。',
   },
 
@@ -165,10 +153,6 @@ export const aboutDict: Record<Locale, AboutDict> = {
     labelEmail: 'Email: ',
     labelRepo: 'Repository: ',
     labelRegion: 'Service region: ',
-    labelDocs: 'Documents: ',
-    docTerms: 'Terms of Service',
-    docRefund: 'Refund Policy',
-    docPrivacy: 'Privacy Policy',
     hint: 'The operator name and contact email are still placeholders kept in src/config/commerce.ts; real details must be filled in before formal operation, especially before charging anyone.',
   },
 
@@ -206,10 +190,6 @@ export const aboutDict: Record<Locale, AboutDict> = {
     labelEmail: 'Correo: ',
     labelRepo: 'Repositorio: ',
     labelRegion: 'Región de servicio: ',
-    labelDocs: 'Documentos: ',
-    docTerms: 'Términos del servicio',
-    docRefund: 'Política de reembolso',
-    docPrivacy: 'Política de privacidad',
     hint: 'El nombre del titular y el correo de contacto son aún marcadores de posición definidos en src/config/commerce.ts; deben completarse con datos reales antes de operar formalmente, y sobre todo antes de cobrar.',
   },
 };

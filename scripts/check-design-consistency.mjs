@@ -32,11 +32,9 @@ const BASELINE = new Set([
   'src/pages/books/[slug]/read.astro',
   'src/pages/books/[slug].astro',
   'src/pages/brand.astro',
-  'src/pages/privacy.astro',
   'src/pages/r.astro',
   'src/pages/read/[slug]/[method].astro',
   'src/pages/tasks/index.astro',
-  'src/pages/terms.astro',
   'src/pages/collation/tj-review/index.astro',
 ]);
 
